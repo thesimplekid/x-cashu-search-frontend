@@ -1,0 +1,21 @@
+{
+  "name": "cdk-js",
+  "description": "Cashu Development Kit JS Bindings",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cashubtc/cdk.git"
+  },
+  "files": [
+    "cdk_js_bg.wasm",
+    "cdk_js.js",
+    "cdk_js.d.ts"
+  ],
+  "module": "cdk_js.js",
+  "homepage": "https://github.com/cashubtc/cdk",
+  "types": "cdk_js.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
