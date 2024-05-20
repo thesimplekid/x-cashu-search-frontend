@@ -1,0 +1,5 @@
+[language-server.svelteserver.config]
+
+[[language]]
+name = "svelte"
+auto-format = true

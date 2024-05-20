@@ -1,0 +1,109 @@
+<script>
+  import { onMount } from "svelte";
+  import init, { Wallet } from "$lib/pkg";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import { goto } from "$app/navigation";
+
+  /** @type {bigint | undefined} */
+  let balance = BigInt(0);
+  /** @type {bigint | undefined} */
+  let cost_per_search;
+  /** @type {string | undefined} */
+  let send_to_pubkey;
+
+  /** @type {string | undefined} */
+  let mint_url;
+
+  /** @type {Wallet | undefined} */
+  let wallet;
+
+  let search_query = "";
+
+  onMount(async () => {
+    await init();
+
+    wallet = await new Wallet();
+
+    await getInfo();
+
+    if (mint_url != undefined) {
+      await wallet.addMint(mint_url);
+      await wallet.refreshMint(mint_url);
+      await refreshBalance();
+    } else {
+      alert("Could not get info");
+    }
+  });
+
+  async function refreshBalance() {
+    if (wallet != undefined) {
+      balance = (await wallet.totalBalance()).value;
+    }
+  }
+
+  /**
+   * @typedef {Object} InfoResult
+   * @property {Array.<string>} trusted_mints
+   * @property {object} acceptable_p2pk_conditions:
+   * @property {bigint} sats_per_search
+   * @property {string} pubkey
+   */
+
+  async function getInfo() {
+    /** @type {InfoResult} */
+    let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
+
+    cost_per_search = info.sats_per_search;
+    send_to_pubkey = info.pubkey;
+    mint_url = info.trusted_mints[0];
+  }
+
+  function handleKeyup(e) {
+    if (e.keyCode == 13) {
+      goto(
+        `/search?q=${search_query}&cost_per_search=${cost_per_search}&locked_key=${send_to_pubkey}&mint=${mint_url}`,
+      );
+    }
+  }
+</script>
+
+<div class="min-h-screen bg-gray-800 text-gray-100">
+  <header class="p-4 dark:bg-gray-800 dark:text-gray-900">
+    <div class="container flex justify-end h-16 mx-auto">
+      <div class="items-center flex-shrink-0 hidden lg:flex">
+        {#if cost_per_search != undefined && balance != undefined}
+          <button
+            class="px-8 py-3 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
+            >{BigInt(balance) / BigInt(cost_per_search)}</button
+          >
+        {/if}
+        <a
+          href="/topup?cost_per_search={cost_per_search}&mint={mint_url}"
+          class="px-8 py-3 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
+          >Top Up</a
+        >
+      </div>
+    </div>
+  </header>
+
+  <div class="container flex justify-center h-16 mx-auto my-10">
+    <label for="Search" class="hidden">Search</label>
+    <input
+      type="text"
+      autocomplete="off"
+      placeholder="Search..."
+      class="w-2/3 rounded-lg focus:outline-none bg-gray-600 text-gray-800 focus:bg-gray-500 focus:border-violet-600"
+      bind:value={search_query}
+      on:keyup={handleKeyup}
+    />
+  </div>
+
+  <div class="container flex justify-center h-16 mx-auto">
+    <a
+      href="/search?q={search_query}&cost_per_search={cost_per_search}&locked_key={send_to_pubkey}&mint={mint_url}"
+      class="px-8 py-5 w-1/6 text-center font-semibold rounded dark:bg-purple-800 dark:text-gray-100 hover:bg-purple-500 disabled:bg-gray-500"
+    >
+      Search
+    </a>
+  </div>
+</div>
