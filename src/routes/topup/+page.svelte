@@ -12,6 +12,9 @@
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import seed from "$lib/shared/store/wallet";
+  import lock_key from "$lib/shared/store/store";
+  import mint_url from "$lib/shared/store/mint_url";
+  import cost_per_search from "$lib/shared/store/cost";
 
   // Retrieve user store from context
 
@@ -28,28 +31,14 @@
   /** @type {bigint} */
   let balance = BigInt(0);
 
-  /** @type {bigint} */
-  let cost_per_search;
-  /** @type {string | null} */
-  let mint_url;
-  /** @type {string | undefined} */
-  let locked_key;
-
   let s = $seed;
   onMount(async () => {
     await init();
 
     wallet = await new Wallet(s);
 
-    let cost = $page.url.searchParams.get("cost_per_search");
-    if (cost != null) {
-      cost_per_search = BigInt(cost);
-    }
-    mint_url = $page.url.searchParams.get("mint");
-    locked_key = $page.url.searchParams.get("locked_key");
-
-    if (mint_url != null) {
-      await wallet.refreshMint(mint_url);
+    if ($mint_url != undefined) {
+      await wallet.refreshMint($mint_url);
       await refreshBalance();
     }
   });
@@ -65,8 +54,8 @@
    */
   async function handleTopUp(searches) {
     if (mint_url != null) {
-      const amount = BigInt(searches) * cost_per_search;
-      let quote = await wallet?.mintQuote(mint_url, BigInt(amount), currency);
+      const amount = BigInt(searches) * BigInt($cost_per_search);
+      let quote = await wallet?.mintQuote($mint_url, BigInt(amount), currency);
       let quote_id = quote?.id;
 
       let invoice = quote?.request;
@@ -77,8 +66,8 @@
       if (quote_id != undefined) {
         let paid = false;
         while (paid == false) {
-          let check_mint = await wallet?.mintQuoteStatus(mint_url, quote_id);
-          if (check_mint.paid == true) {
+          let check_mint = await wallet?.mintQuoteStatus($mint_url, quote_id);
+          if (check_mint?.paid == true) {
             paid = true;
           } else {
             await new Promise((r) => setTimeout(r, 2000));
@@ -87,10 +76,10 @@
 
         if (paid == true) {
           await wallet?.mint(
-            mint_url,
+            $mint_url,
             quote_id,
             new P2PKSpendingConditions(
-              locked_key,
+              $lock_key,
               new Conditions(
                 undefined,
                 undefined,
@@ -100,7 +89,7 @@
               ),
             ),
             undefined,
-            new Amount(cost_per_search),
+            new Amount(BigInt($cost_per_search)),
           );
         }
 
@@ -162,10 +151,10 @@
       </button>
       <div class="container flex justify-end h-16 mx-auto">
         <div class="items-center">
-          {#if cost_per_search != undefined && balance != undefined}
+          {#if $cost_per_search != undefined && balance != undefined}
             <button
               class="px-8 py-5 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-              >{BigInt(balance) / BigInt(cost_per_search)}</button
+              >{BigInt(balance) / BigInt($cost_per_search)}</button
             >
           {/if}
         </div>
@@ -201,7 +190,7 @@
 
                 {#if balance != undefined && cost_per_search != undefined}
                   <div class="font-light">
-                    {BigInt(search_count) * BigInt(cost_per_search)} sats
+                    {BigInt(search_count) * BigInt($cost_per_search)} sats
                   </div>
                 {/if}
               </div></button

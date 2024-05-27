@@ -1,0 +1,10 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>Cashu Search</ShortName>
+  <Description>Search Engine paid for with nuts</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="16" height="16" type="image/x-icon">http://localhost:5173/favicon.ico</Image>
+  <Url type="text/html" template="http://localhost:5173/search?q={searchTerms}"/>
+  <moz:SearchForm>http://localhost:5173/search/{searchTerms}</moz:SearchForm>
+</OpenSearchDescription>
+

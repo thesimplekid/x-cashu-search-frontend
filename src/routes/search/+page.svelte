@@ -10,6 +10,9 @@
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import seed from "$lib/shared/store/wallet";
+  import lock_key from "$lib/shared/store/store";
+  import mint_url from "$lib/shared/store/mint_url";
+  import cost_per_search from "$lib/shared/store/cost";
 
   /** @type {Wallet | undefined} */
   let wallet;
@@ -28,12 +31,6 @@
   /** @type {Array.<SearchResult>} */
   let search_results = [];
 
-  /** @type {bigint | null} */
-  let cost_per_search;
-  /** @type {string | null} */
-  let lock_key;
-  /** @type {string | null} */
-  let mint_url;
   let currency = CurrencyUnit.Sat;
   /** @type {Uint8Array} */
   let s = $seed;
@@ -41,19 +38,12 @@
     await init();
 
     wallet = await new Wallet(s);
-    let cost = $page.url.searchParams.get("cost_per_search");
 
     let q = $page.url.searchParams.get("q");
     if (q != null) {
       search_query = q;
     }
 
-    if (cost != null) {
-      cost_per_search = BigInt(cost);
-    }
-
-    lock_key = $page.url.searchParams.get("locked_key");
-    mint_url = $page.url.searchParams.get("mint");
     search_query;
     await handleSearch();
     await refreshBalance();
@@ -77,13 +67,20 @@
       "sig_inputs",
     );
 
-    if (mint_url != null && lock_key != null && cost_per_search != null) {
-      let spending_condition = new P2PKSpendingConditions(lock_key, conditions);
+    if (
+      $mint_url != undefined &&
+      $lock_key != undefined &&
+      cost_per_search != null
+    ) {
+      let spending_condition = new P2PKSpendingConditions(
+        $lock_key,
+        conditions,
+      );
       let token = await wallet?.send(
-        mint_url,
+        $mint_url,
         currency,
         undefined,
-        cost_per_search,
+        BigInt($cost_per_search),
         spending_condition,
         undefined,
       );
@@ -117,9 +114,9 @@
     /** @type {InfoResult} */
     let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
 
-    cost_per_search = info.sats_per_search;
-    lock_key = info.pubkey;
-    mint_url = info.trusted_mints[0];
+    $cost_per_search = info.sats_per_search;
+    $lock_key = info.pubkey;
+    $mint_url = info.trusted_mints[0];
   }
 
   async function handleKeyup(e) {
@@ -173,14 +170,14 @@
 
       <div class="container flex justify-end h-16 mx-auto">
         <div class="items-center">
-          {#if cost_per_search != undefined && balance != undefined}
+          {#if $cost_per_search != undefined && balance != undefined}
             <button
               class="px-8 py-5 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-              >{BigInt(balance) / BigInt(cost_per_search)}</button
+              >{BigInt(balance) / BigInt($cost_per_search)}</button
             >
           {/if}
           <a
-            href="/topup?cost_per_search={cost_per_search}&mint={mint_url}"
+            href="/topup"
             class="px-8 py-5 text-center font-semibold rounded dark:bg-purple-800 dark:text-gray-100 hover:bg-purple-500 disabled:bg-gray-500"
             >Top Up</a
           >
