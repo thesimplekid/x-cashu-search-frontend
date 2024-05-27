@@ -5,16 +5,17 @@
 export function start(): void;
 /**
 */
+export enum Kind {
+  P2PK = 0,
+  HTLC = 1,
+}
+/**
+*/
 export enum State {
   Spent = 0,
   Unspent = 1,
   Pending = 2,
-}
-/**
-*/
-export enum Kind {
-  P2PK = 0,
-  HTLC = 1,
+  Reserved = 3,
 }
 /**
 */
@@ -251,21 +252,6 @@ export class MeltQuoteBolt11Request {
 */
 export class MeltQuoteBolt11Response {
   free(): void;
-/**
-*/
-  readonly amount: Amount;
-/**
-*/
-  readonly expiry: bigint;
-/**
-*/
-  readonly fee_reserve: Amount;
-/**
-*/
-  readonly paid: boolean;
-/**
-*/
-  readonly quote: string;
 }
 /**
 */
@@ -650,12 +636,32 @@ export class Token {
 export class Wallet {
   free(): void;
 /**
+* @param {Uint8Array} seed
 */
-  constructor();
+  constructor(seed: Uint8Array);
 /**
+* @param {CurrencyUnit} unit
 * @returns {Promise<Amount>}
 */
-  totalBalance(): Promise<Amount>;
+  unitBalance(unit: CurrencyUnit): Promise<Amount>;
+/**
+* @param {CurrencyUnit} unit
+* @returns {Promise<Amount>}
+*/
+  pendingUnitBalance(unit: CurrencyUnit): Promise<Amount>;
+/**
+* @returns {Promise<any>}
+*/
+  totalBalance(): Promise<any>;
+/**
+* @returns {Promise<any>}
+*/
+  totalPendingBalance(): Promise<any>;
+/**
+* @param {string | undefined} [mint_url]
+* @returns {Promise<Amount>}
+*/
+  checkAllPendingProofs(mint_url?: string): Promise<Amount>;
 /**
 * @returns {Promise<any>}
 */
@@ -684,11 +690,18 @@ export class Wallet {
 */
   mintQuoteStatus(mint_url: string, quote_id: string): Promise<MintQuoteBolt11Response>;
 /**
-* @param {string} mint_url
-* @param {string} quote_id
 * @returns {Promise<Amount>}
 */
-  mint(mint_url: string, quote_id: string): Promise<Amount>;
+  checkAllMintQuotes(): Promise<Amount>;
+/**
+* @param {string} mint_url
+* @param {string} quote_id
+* @param {P2PKSpendingConditions | undefined} [p2pk_condition]
+* @param {HTLCSpendingConditions | undefined} [htlc_condition]
+* @param {Amount | undefined} [split_target_amount]
+* @returns {Promise<Amount>}
+*/
+  mint(mint_url: string, quote_id: string, p2pk_condition?: P2PKSpendingConditions, htlc_condition?: HTLCSpendingConditions, split_target_amount?: Amount): Promise<Amount>;
 /**
 * @param {string} mint_url
 * @param {CurrencyUnit} unit
@@ -705,16 +718,17 @@ export class Wallet {
 /**
 * @param {string} mint_url
 * @param {string} quote_id
+* @param {Amount | undefined} [split_target_amount]
 * @returns {Promise<Melted>}
 */
-  melt(mint_url: string, quote_id: string): Promise<Melted>;
+  melt(mint_url: string, quote_id: string, split_target_amount?: Amount): Promise<Melted>;
 /**
 * @param {string} encoded_token
 * @param {any} signing_keys
 * @param {any} preimages
-* @returns {Promise<void>}
+* @returns {Promise<Amount>}
 */
-  receive(encoded_token: string, signing_keys: any, preimages: any): Promise<void>;
+  receive(encoded_token: string, signing_keys: any, preimages: any): Promise<Amount>;
 /**
 * @param {string} mint_url
 * @param {CurrencyUnit} unit
@@ -722,9 +736,10 @@ export class Wallet {
 * @param {bigint} amount
 * @param {P2PKSpendingConditions | undefined} [p2pk_condition]
 * @param {HTLCSpendingConditions | undefined} [htlc_condition]
+* @param {Amount | undefined} [split_target_amount]
 * @returns {Promise<string>}
 */
-  send(mint_url: string, unit: CurrencyUnit, memo: string | undefined, amount: bigint, p2pk_condition?: P2PKSpendingConditions, htlc_condition?: HTLCSpendingConditions): Promise<string>;
+  send(mint_url: string, unit: CurrencyUnit, memo: string | undefined, amount: bigint, p2pk_condition?: P2PKSpendingConditions, htlc_condition?: HTLCSpendingConditions, split_target_amount?: Amount): Promise<string>;
 /**
 * @param {string} mint_url
 * @param {CurrencyUnit} unit
@@ -732,9 +747,10 @@ export class Wallet {
 * @param {(Proof)[]} input_proofs
 * @param {P2PKSpendingConditions | undefined} [p2pk_condition]
 * @param {HTLCSpendingConditions | undefined} [htlc_condition]
+* @param {Amount | undefined} [split_target_amount]
 * @returns {Promise<any>}
 */
-  swap(mint_url: string, unit: CurrencyUnit, amount: bigint, input_proofs: (Proof)[], p2pk_condition?: P2PKSpendingConditions, htlc_condition?: HTLCSpendingConditions): Promise<any>;
+  swap(mint_url: string, unit: CurrencyUnit, amount: bigint, input_proofs: (Proof)[], p2pk_condition?: P2PKSpendingConditions, htlc_condition?: HTLCSpendingConditions, split_target_amount?: Amount): Promise<any>;
 }
 /**
 */
@@ -757,82 +773,9 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly __wbg_keyset_free: (a: number) => void;
-  readonly keypair_new: (a: number, b: number, c: number, d: number) => number;
-  readonly keypair_id: (a: number) => number;
-  readonly keypair_keys: (a: number) => number;
-  readonly __wbg_keysetsresponse_free: (a: number) => void;
-  readonly keysetsresponse_new: (a: number, b: number) => void;
-  readonly keysetsresponse_keys: (a: number, b: number) => void;
-  readonly __wbg_keysresponse_free: (a: number) => void;
-  readonly keysresponse_new: (a: number, b: number) => void;
-  readonly keysresponse_keysets: (a: number, b: number) => void;
-  readonly __wbg_checkstaterequest_free: (a: number) => void;
-  readonly __wbg_proofstate_free: (a: number) => void;
-  readonly __wbg_checkstateresponse_free: (a: number) => void;
-  readonly __wbg_secret_free: (a: number) => void;
-  readonly secret_new: () => number;
-  readonly secret_asBytes: (a: number, b: number) => void;
-  readonly __wbg_proof_free: (a: number) => void;
-  readonly proof_new: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
-  readonly proof_amount: (a: number) => number;
-  readonly proof_secret: (a: number) => number;
-  readonly proof_c: (a: number) => number;
-  readonly proof_keyset_id: (a: number) => number;
-  readonly __wbg_restorerequest_free: (a: number) => void;
-  readonly __wbg_restoreresponse_free: (a: number) => void;
-  readonly __wbg_htlcwitness_free: (a: number) => void;
-  readonly __wbg_htlcspendingconditions_free: (a: number) => void;
-  readonly htlcspendingconditions_new: (a: number, b: number, c: number, d: number) => void;
-  readonly __wbg_wallet_free: (a: number) => void;
-  readonly wallet_new: () => number;
-  readonly wallet_totalBalance: (a: number) => number;
-  readonly wallet_mintBalances: (a: number) => number;
-  readonly wallet_addMint: (a: number, b: number, c: number) => number;
-  readonly wallet_refreshMint: (a: number, b: number, c: number) => number;
-  readonly wallet_mintQuote: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly wallet_mintQuoteStatus: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly wallet_mint: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly wallet_meltQuote: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
-  readonly wallet_meltQuoteStatus: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly wallet_melt: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly wallet_receive: (a: number, b: number, c: number, d: number, e: number) => number;
-  readonly wallet_send: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
-  readonly wallet_swap: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number) => number;
-  readonly __wbg_blindsignature_free: (a: number) => void;
-  readonly blindsignature_new: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbg_premint_free: (a: number) => void;
-  readonly __wbg_premintsecrets_free: (a: number) => void;
-  readonly __wbg_witness_free: (a: number) => void;
-  readonly witness_new: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly witness_signatures: (a: number, b: number) => void;
-  readonly witness_preimage: (a: number, b: number) => void;
-  readonly __wbg_mintquotebolt11request_free: (a: number) => void;
-  readonly __wbg_mintquotebolt11response_free: (a: number) => void;
-  readonly mintquotebolt11response_paid: (a: number) => number;
-  readonly mintquotebolt11response_expiry: (a: number, b: number) => void;
-  readonly mintquotebolt11response_quote: (a: number, b: number) => void;
-  readonly __wbg_mintbolt11request_free: (a: number) => void;
-  readonly mintbolt11request_new: (a: number, b: number, c: number, d: number) => void;
-  readonly mintbolt11request_outputs: (a: number, b: number) => void;
-  readonly mintbolt11request_totalAmount: (a: number) => number;
-  readonly __wbg_postmintresponse_free: (a: number) => void;
-  readonly postmintresponse_new: (a: number, b: number) => void;
-  readonly postmintresponse_signatures: (a: number, b: number) => void;
-  readonly __wbg_mintmethodsettings_free: (a: number) => void;
-  readonly __wbg_settings_free: (a: number) => void;
-  readonly __wbg_amount_free: (a: number) => void;
-  readonly amount_new: (a: number) => number;
-  readonly amount_split: (a: number, b: number) => void;
-  readonly amount_value: (a: number) => number;
-  readonly __wbg_mintquote_free: (a: number) => void;
-  readonly mintquote_id: (a: number, b: number) => void;
-  readonly mintquote_unit: (a: number) => number;
-  readonly mintquote_amount: (a: number) => number;
-  readonly mintquote_request: (a: number, b: number) => void;
-  readonly mintquote_paid: (a: number) => number;
-  readonly mintquote_expiry: (a: number) => number;
-  readonly mintquotebolt11response_request: (a: number, b: number) => void;
+  readonly __wbg_mintproofs_free: (a: number) => void;
+  readonly __wbg_token_free: (a: number) => void;
+  readonly token_new: (a: number, b: number, c: number) => void;
   readonly __wbg_swaprequest_free: (a: number) => void;
   readonly swaprequest_new: (a: number, b: number, c: number) => void;
   readonly swaprequest_proofs: (a: number, b: number) => void;
@@ -843,38 +786,23 @@ export interface InitOutput {
   readonly splitresponse_new: (a: number, b: number) => void;
   readonly splitresponse_signatures: (a: number, b: number) => void;
   readonly splitresponse_promisesAmount: (a: number) => number;
-  readonly __wbg_meltquotebolt11request_free: (a: number) => void;
-  readonly meltquotebolt11response_paid: (a: number) => number;
-  readonly meltquotebolt11response_expiry: (a: number) => number;
-  readonly meltquotebolt11response_quote: (a: number, b: number) => void;
-  readonly meltquotebolt11response_amount: (a: number) => number;
-  readonly meltquotebolt11response_fee_reserve: (a: number) => number;
-  readonly __wbg_meltquotebolt11response_free: (a: number) => void;
-  readonly __wbg_meltbolt11request_free: (a: number) => void;
-  readonly __wbg_postmeltresponse_free: (a: number) => void;
-  readonly __wbg_meltmethodsettings_free: (a: number) => void;
-  readonly __wbg_nut05settings_free: (a: number) => void;
-  readonly __wbg_melted_free: (a: number) => void;
-  readonly melted_paid: (a: number) => number;
-  readonly melted_preimage: (a: number, b: number) => void;
-  readonly melted_change: (a: number, b: number) => void;
-  readonly __wbg_mintproofs_free: (a: number) => void;
-  readonly __wbg_keys_free: (a: number) => void;
-  readonly keys_new: (a: number, b: number) => void;
-  readonly keys_keys: (a: number, b: number) => void;
-  readonly keys_amountKey: (a: number, b: number) => number;
+  readonly __wbg_restorerequest_free: (a: number) => void;
+  readonly __wbg_restoreresponse_free: (a: number) => void;
+  readonly __wbg_amount_free: (a: number) => void;
+  readonly amount_new: (a: number) => number;
+  readonly amount_split: (a: number, b: number) => void;
+  readonly amount_value: (a: number) => number;
+  readonly __wbg_secret_free: (a: number) => void;
+  readonly secret_new: () => number;
+  readonly secret_asBytes: (a: number, b: number) => void;
   readonly __wbg_publickey_free: (a: number) => void;
   readonly publickey_fromHex: (a: number, b: number, c: number) => void;
   readonly publickey_toHex: (a: number, b: number) => void;
+  readonly __wbg_secretkey_free: (a: number) => void;
+  readonly secretkey_toHex: (a: number, b: number) => void;
   readonly __wbg_id_free: (a: number) => void;
   readonly id_tryFromBase64: (a: number, b: number, c: number) => void;
   readonly id_asString: (a: number, b: number) => void;
-  readonly __wbg_secretdata_free: (a: number) => void;
-  readonly __wbg_nut10secret_free: (a: number) => void;
-  readonly __wbg_token_free: (a: number) => void;
-  readonly token_new: (a: number, b: number, c: number) => void;
-  readonly __wbg_secretkey_free: (a: number) => void;
-  readonly secretkey_toHex: (a: number, b: number) => void;
   readonly __wbg_mintversion_free: (a: number) => void;
   readonly mintversion_new: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly mintversion_name: (a: number, b: number) => void;
@@ -889,13 +817,42 @@ export interface InitOutput {
   readonly mintinfo_contact: (a: number, b: number) => void;
   readonly mintinfo_nuts: (a: number, b: number) => void;
   readonly mintinfo_motd: (a: number, b: number) => void;
-  readonly start: () => void;
-  readonly __wbg_blindedmessage_free: (a: number) => void;
-  readonly blindedmessage_new: (a: number, b: number, c: number, d: number) => number;
-  readonly blindedmessage_keyset_id: (a: number) => number;
-  readonly blindedmessage_amount: (a: number) => number;
-  readonly blindedmessage_blinded_secret: (a: number) => number;
-  readonly blindedmessage_witness: (a: number) => number;
+  readonly __wbg_blindsignaturedleq_free: (a: number) => void;
+  readonly blindedsignaturedleq_new: (a: number, b: number) => number;
+  readonly blindedsignaturedleq_e: (a: number) => number;
+  readonly blindedsignaturedleq_s: (a: number) => number;
+  readonly __wbg_proofdleq_free: (a: number) => void;
+  readonly proofdleq_new: (a: number, b: number, c: number) => number;
+  readonly proofdleq_r: (a: number) => number;
+  readonly __wbg_mintquote_free: (a: number) => void;
+  readonly mintquote_id: (a: number, b: number) => void;
+  readonly mintquote_unit: (a: number) => number;
+  readonly mintquote_amount: (a: number) => number;
+  readonly mintquote_request: (a: number, b: number) => void;
+  readonly mintquote_paid: (a: number) => number;
+  readonly mintquote_expiry: (a: number) => number;
+  readonly proofdleq_e: (a: number) => number;
+  readonly proofdleq_s: (a: number) => number;
+  readonly __wbg_premint_free: (a: number) => void;
+  readonly __wbg_premintsecrets_free: (a: number) => void;
+  readonly __wbg_witness_free: (a: number) => void;
+  readonly witness_new: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly witness_signatures: (a: number, b: number) => void;
+  readonly witness_preimage: (a: number, b: number) => void;
+  readonly __wbg_mintquotebolt11request_free: (a: number) => void;
+  readonly __wbg_mintquotebolt11response_free: (a: number) => void;
+  readonly mintquotebolt11response_paid: (a: number) => number;
+  readonly mintquotebolt11response_quote: (a: number, b: number) => void;
+  readonly mintquotebolt11response_request: (a: number, b: number) => void;
+  readonly __wbg_mintbolt11request_free: (a: number) => void;
+  readonly mintbolt11request_new: (a: number, b: number, c: number, d: number) => void;
+  readonly mintbolt11request_outputs: (a: number, b: number) => void;
+  readonly mintbolt11request_totalAmount: (a: number) => number;
+  readonly __wbg_postmintresponse_free: (a: number) => void;
+  readonly postmintresponse_new: (a: number, b: number) => void;
+  readonly postmintresponse_signatures: (a: number, b: number) => void;
+  readonly __wbg_mintmethodsettings_free: (a: number) => void;
+  readonly __wbg_settings_free: (a: number) => void;
   readonly __wbg_p2pkwitness_free: (a: number) => void;
   readonly __wbg_p2pkspendingconditions_free: (a: number) => void;
   readonly p2pkspendingconditions_new: (a: number, b: number, c: number, d: number) => void;
@@ -906,13 +863,6 @@ export interface InitOutput {
   readonly conditions_refund_keys: (a: number, b: number) => void;
   readonly conditions_num_sigs: (a: number, b: number) => void;
   readonly conditions_sig_flag: (a: number, b: number) => void;
-  readonly __wbg_blindsignaturedleq_free: (a: number) => void;
-  readonly blindedsignaturedleq_new: (a: number, b: number) => number;
-  readonly blindedsignaturedleq_e: (a: number) => number;
-  readonly blindedsignaturedleq_s: (a: number) => number;
-  readonly __wbg_proofdleq_free: (a: number) => void;
-  readonly proofdleq_new: (a: number, b: number, c: number) => number;
-  readonly proofdleq_r: (a: number) => number;
   readonly __wbg_meltquote_free: (a: number) => void;
   readonly meltquote_id: (a: number, b: number) => void;
   readonly meltquote_unit: (a: number) => number;
@@ -921,8 +871,74 @@ export interface InitOutput {
   readonly meltquote_fee_reserve: (a: number) => number;
   readonly meltquote_paid: (a: number) => number;
   readonly meltquote_expiry: (a: number) => number;
-  readonly proofdleq_e: (a: number) => number;
-  readonly proofdleq_s: (a: number) => number;
+  readonly __wbg_melted_free: (a: number) => void;
+  readonly melted_paid: (a: number) => number;
+  readonly melted_preimage: (a: number, b: number) => void;
+  readonly melted_change: (a: number, b: number) => void;
+  readonly mintquotebolt11response_expiry: (a: number, b: number) => void;
+  readonly start: () => void;
+  readonly __wbg_meltquotebolt11request_free: (a: number) => void;
+  readonly __wbg_meltquotebolt11response_free: (a: number) => void;
+  readonly __wbg_meltbolt11request_free: (a: number) => void;
+  readonly __wbg_postmeltresponse_free: (a: number) => void;
+  readonly __wbg_meltmethodsettings_free: (a: number) => void;
+  readonly __wbg_nut05settings_free: (a: number) => void;
+  readonly __wbg_checkstaterequest_free: (a: number) => void;
+  readonly __wbg_proofstate_free: (a: number) => void;
+  readonly __wbg_checkstateresponse_free: (a: number) => void;
+  readonly __wbg_secretdata_free: (a: number) => void;
+  readonly __wbg_nut10secret_free: (a: number) => void;
+  readonly __wbg_blindsignature_free: (a: number) => void;
+  readonly blindsignature_new: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbg_blindedmessage_free: (a: number) => void;
+  readonly blindedmessage_new: (a: number, b: number, c: number, d: number) => number;
+  readonly blindedmessage_keyset_id: (a: number) => number;
+  readonly blindedmessage_amount: (a: number) => number;
+  readonly blindedmessage_blinded_secret: (a: number) => number;
+  readonly blindedmessage_witness: (a: number) => number;
+  readonly __wbg_proof_free: (a: number) => void;
+  readonly proof_new: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly proof_secret: (a: number) => number;
+  readonly proof_keyset_id: (a: number) => number;
+  readonly __wbg_keys_free: (a: number) => void;
+  readonly keys_new: (a: number, b: number) => void;
+  readonly keys_keys: (a: number, b: number) => void;
+  readonly keys_amountKey: (a: number, b: number) => number;
+  readonly __wbg_keyset_free: (a: number) => void;
+  readonly keypair_new: (a: number, b: number, c: number, d: number) => number;
+  readonly keypair_id: (a: number) => number;
+  readonly keypair_keys: (a: number) => number;
+  readonly __wbg_keysetsresponse_free: (a: number) => void;
+  readonly keysetsresponse_new: (a: number, b: number) => void;
+  readonly keysetsresponse_keys: (a: number, b: number) => void;
+  readonly __wbg_keysresponse_free: (a: number) => void;
+  readonly keysresponse_new: (a: number, b: number) => void;
+  readonly keysresponse_keysets: (a: number, b: number) => void;
+  readonly __wbg_htlcwitness_free: (a: number) => void;
+  readonly __wbg_htlcspendingconditions_free: (a: number) => void;
+  readonly htlcspendingconditions_new: (a: number, b: number, c: number, d: number) => void;
+  readonly __wbg_wallet_free: (a: number) => void;
+  readonly wallet_new: (a: number, b: number) => number;
+  readonly wallet_unitBalance: (a: number, b: number) => number;
+  readonly wallet_pendingUnitBalance: (a: number, b: number) => number;
+  readonly wallet_totalBalance: (a: number) => number;
+  readonly wallet_totalPendingBalance: (a: number) => number;
+  readonly wallet_checkAllPendingProofs: (a: number, b: number, c: number) => number;
+  readonly wallet_mintBalances: (a: number) => number;
+  readonly wallet_addMint: (a: number, b: number, c: number) => number;
+  readonly wallet_refreshMint: (a: number, b: number, c: number) => number;
+  readonly wallet_mintQuote: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly wallet_mintQuoteStatus: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly wallet_checkAllMintQuotes: (a: number) => number;
+  readonly wallet_mint: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => number;
+  readonly wallet_meltQuote: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly wallet_meltQuoteStatus: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly wallet_melt: (a: number, b: number, c: number, d: number, e: number, f: number) => number;
+  readonly wallet_receive: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly wallet_send: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => number;
+  readonly wallet_swap: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number) => number;
+  readonly proof_amount: (a: number) => number;
+  readonly proof_c: (a: number) => number;
   readonly rustsecp256k1_v0_8_1_context_create: (a: number) => number;
   readonly rustsecp256k1_v0_8_1_context_destroy: (a: number) => void;
   readonly rustsecp256k1_v0_8_1_default_illegal_callback_fn: (a: number, b: number) => void;
@@ -931,11 +947,11 @@ export interface InitOutput {
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_export_2: WebAssembly.Table;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
-  readonly wasm_bindgen__convert__closures__invoke1_mut__h4a3e7a5696b040bf: (a: number, b: number, c: number, d: number) => void;
-  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__haa80418c486d8f53: (a: number, b: number, c: number) => void;
+  readonly wasm_bindgen__convert__closures__invoke1_mut__h50a7e597e59c210d: (a: number, b: number, c: number, d: number) => void;
+  readonly _dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hafd472cd0d91c086: (a: number, b: number, c: number) => void;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_exn_store: (a: number) => void;
-  readonly wasm_bindgen__convert__closures__invoke2_mut__h4e356961ed88fa4e: (a: number, b: number, c: number, d: number) => void;
+  readonly wasm_bindgen__convert__closures__invoke2_mut__h2d7fdefda58b8253: (a: number, b: number, c: number, d: number) => void;
   readonly __wbindgen_start: () => void;
 }
 

@@ -1,8 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import init, { Wallet } from "$lib/pkg";
+  import init, { CurrencyUnit, Wallet } from "$lib/pkg";
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
+  import seed from "$lib/shared/store/wallet";
 
   /** @type {bigint | undefined} */
   let balance = BigInt(0);
@@ -19,10 +20,11 @@
 
   let search_query = "";
 
+  let s = $seed;
   onMount(async () => {
     await init();
 
-    wallet = await new Wallet();
+    wallet = await new Wallet(s);
 
     await getInfo();
 
@@ -37,16 +39,22 @@
 
   async function refreshBalance() {
     if (wallet != undefined) {
-      balance = (await wallet.totalBalance()).value;
+      balance = (await wallet.unitBalance(CurrencyUnit.Sat)).value;
     }
   }
 
   /**
    * @typedef {Object} InfoResult
    * @property {Array.<string>} trusted_mints
-   * @property {object} acceptable_p2pk_conditions:
+   * @property {AcceptableP2PK} P2PKConditions
    * @property {bigint} sats_per_search
    * @property {string} pubkey
+   */
+
+  /**
+   * @typedef {Object} AcceptableP2PK
+   * @property {Array.<string>} conditions
+   * @property {string} data
    */
 
   async function getInfo() {
@@ -54,7 +62,7 @@
     let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
 
     cost_per_search = info.sats_per_search;
-    send_to_pubkey = info.pubkey;
+    send_to_pubkey = info.P2PKConditions.data;
     mint_url = info.trusted_mints[0];
   }
 
@@ -70,7 +78,7 @@
 <div class="min-h-screen bg-gray-800 text-gray-100">
   <header class="p-4 dark:bg-gray-800 dark:text-gray-900">
     <div class="container flex justify-end h-16 mx-auto">
-      <div class="items-center flex-shrink-0 hidden lg:flex">
+      <div class="items-center flex-shrink-0 lg:flex">
         {#if cost_per_search != undefined && balance != undefined}
           <button
             class="px-8 py-3 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
@@ -78,8 +86,8 @@
           >
         {/if}
         <a
-          href="/topup?cost_per_search={cost_per_search}&mint={mint_url}"
-          class="px-8 py-3 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
+          href="/topup?cost_per_search={cost_per_search}&mint={mint_url}&locked_key={send_to_pubkey}"
+          class="px-8 py-5 text-center font-semibold rounded dark:bg-purple-800 dark:text-gray-100 hover:bg-purple-500 disabled:bg-gray-500"
           >Top Up</a
         >
       </div>

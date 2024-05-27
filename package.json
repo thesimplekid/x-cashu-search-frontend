@@ -34,6 +34,7 @@
 	"dependencies": {
 		"@svelte-put/copy": "^3.0.0",
 		"@svelte-put/qr": "^1.2.0",
+		"cookies": "^0.9.1",
 		"vite-plugin-wasm": "^3.3.0"
 	}
 }
