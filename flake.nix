@@ -1,50 +1,57 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
-    gitignore = {
-      url = "github:hercules-ci/gitignore.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    gitignore,
-    flake-utils,
-    ...
-  }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
+  outputs = { self, nixpkgs, flake-utils }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
         pkgs = nixpkgs.legacyPackages.${system};
-        packageJSON = pkgs.lib.importJSON ./package.json;
-        gitignoreSource = gitignore.lib.gitignoreSource;
-      in {
-        packages = rec {
-          site-src = pkgs.mkYarnPackage rec {
-            name = "${packageJSON.name}-site-${version}";
-            version = packageJSON.version;
-            src = gitignoreSource ./.;
-            packageJson = "${src}/package.json";
-            yarnLock = "${src}/yarn.lock";
-            buildPhase = ''
-              yarn --offline build
-            '';
-            distPhase = "true";
-          };
 
-          default = pkgs.writeShellApplication {
-            name = packageJSON.name;
-            runtimeInputs = [site-src pkgs.nodejs];
-            text = ''
-              node ${site-src}/libexec/${packageJSON.name}/deps/${packageJSON.name}/build
-            '';
-          };
-        };
+        # scripts
+        bunbuild = pkgs.writeShellScriptBin "bunbuild" ''
+          bun run build
+        '';
 
-        devShell = pkgs.mkShell {
-          buildInputs = [pkgs.yarn pkgs.nodejs pkgs.nodePackages.svelte-language-server];
+        bundev = pkgs.writeShellScriptBin "bundev" ''
+          bun run dev
+        '';
+
+        bunstart = pkgs.writeShellScriptBin "bunstart" ''
+          bun run start
+        '';
+
+        buntest = pkgs.writeShellScriptBin "buntest" ''
+          bun run test
+        '';
+      in
+      with pkgs; {
+        devShell = mkShell {
+          buildInputs = [
+            # list whatever packages you need
+            # search for packages at https://search.nixos.org/
+
+            # formatting for .nix files
+            nixpkgs-fmt
+
+            # binaries
+            nodejs_20
+            bun
+            playwright-driver.browsers # node package version and this must match
+
+            # custom scripts defined above
+            bunbuild
+            bundev
+            bunstart
+            buntest
+          ];
+
+          shellHook = ''
+            export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
+
+            bun install
+          '';
         };
       }
     );
