@@ -17,6 +17,8 @@
   /** @type {Wallet | undefined} */
   let wallet;
   let balance = BigInt(0);
+  /** @type {bigint | undefined} */
+  let search_count = balance / BigInt($cost_per_search);
 
   let search_query = "";
 
@@ -32,12 +34,10 @@
   let search_results = [];
 
   let currency = CurrencyUnit.Sat;
-  /** @type {Uint8Array} */
-  let s = $seed;
   onMount(async () => {
     await init();
 
-    wallet = await new Wallet(s);
+    wallet = await new Wallet($seed);
 
     let q = $page.url.searchParams.get("q");
     if (q != null) {
@@ -52,6 +52,7 @@
   async function refreshBalance() {
     if (wallet != undefined) {
       balance = (await wallet.unitBalance(CurrencyUnit.Sat)).value;
+      search_count = balance / BigInt($cost_per_search);
     }
   }
   let attempt_count = 0;
@@ -117,6 +118,7 @@
     $cost_per_search = info.sats_per_search;
     $lock_key = info.pubkey;
     $mint_url = info.trusted_mints[0];
+    search_count = balance / BigInt($cost_per_search);
   }
 
   async function handleKeyup(e) {
@@ -150,30 +152,31 @@
         >
       </button>
       <div class="container flex justify-center h-16 mx-auto">
-        <label for="Search" class="hidden">Search</label>
-        <input
-          type="text"
-          autocomplete="off"
-          placeholder="Search..."
-          class="w-2/3 rounded-lg focus:outline-none bg-gray-600 text-gray-800 focus:bg-gray-500 focus:border-violet-600"
-          bind:value={search_query}
-          on:keyup={handleKeyup}
-        />
+        {#if search_count != undefined && search_count > 0}
+          <label for="Search" class="hidden">Search</label>
+          <input
+            type="text"
+            autocomplete="off"
+            placeholder="Search..."
+            class="w-2/3 rounded-lg focus:outline-none bg-gray-600 text-gray-800 focus:bg-gray-500 focus:border-violet-600"
+            bind:value={search_query}
+            on:keyup={handleKeyup}
+          />
 
-        <a
-          href="/search?q={search_query}"
-          on:click={handleSearch}
-          class="px-8 py-5 font-semibold rounded-lg bg-purple-800 hover:bg-purple-600 text-gray-100 text-center"
-          >Go
-        </a>
+          <a
+            href="/search?q={search_query}"
+            on:click={handleSearch}
+            class="px-8 py-5 font-semibold rounded-lg bg-purple-800 hover:bg-purple-600 text-gray-100 text-center"
+            >Go
+          </a>
+        {/if}
       </div>
-
       <div class="container flex justify-end h-16 mx-auto">
         <div class="items-center">
           {#if $cost_per_search != undefined && balance != undefined}
             <button
               class="px-8 py-5 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-              >{BigInt(balance) / BigInt($cost_per_search)}</button
+              >{search_count}</button
             >
           {/if}
           <a

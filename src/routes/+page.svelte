@@ -14,6 +14,9 @@
   /** @type {Wallet | undefined} */
   let wallet;
 
+  /** @type {bigint | undefined} */
+  let search_count = balance / BigInt($cost_per_search);
+
   let search_query = "";
 
   onMount(async () => {
@@ -27,6 +30,7 @@
       await wallet.addMint($mint_url);
       await wallet.refreshMint($mint_url);
       balance = await refreshBalance(wallet);
+      search_count = balance / BigInt($cost_per_search);
     } else {
       alert("Could not get info");
     }
@@ -52,6 +56,7 @@
     $cost_per_search = info.sats_per_search;
     $lock_key = info.P2PKConditions.data;
     $mint_url = info.trusted_mints[0];
+    search_count = balance / BigInt($cost_per_search);
   }
 
   function handleKeyup(e) {
@@ -75,7 +80,7 @@
         {#if $cost_per_search != undefined && balance != undefined}
           <button
             class="px-8 py-3 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-            >{BigInt(balance) / BigInt($cost_per_search)}</button
+            >{search_count}</button
           >
         {/if}
         <a
@@ -87,24 +92,29 @@
     </div>
   </header>
 
-  <div class="container flex justify-center h-16 mx-auto my-10">
-    <label for="Search" class="hidden">Search</label>
-    <input
-      type="text"
-      autocomplete="off"
-      placeholder="Search..."
-      class="w-2/3 rounded-lg focus:outline-none bg-gray-600 text-gray-800 focus:bg-gray-500 focus:border-violet-600"
-      bind:value={search_query}
-      on:keyup={handleKeyup}
-    />
-  </div>
-
-  <div class="container flex justify-center h-16 mx-auto">
-    <a
-      href="/search?q={encodeURIComponent(search_query)}"
-      class="px-8 py-5 w-1/6 text-center font-semibold rounded dark:bg-purple-800 dark:text-gray-100 hover:bg-purple-500 disabled:bg-gray-500"
-    >
-      Search
-    </a>
-  </div>
+  {#if search_count != undefined && search_count > 0}
+    <div class="container flex justify-center h-16 mx-auto my-10">
+      <label for="Search" class="hidden">Search</label>
+      <input
+        type="text"
+        autocomplete="off"
+        placeholder="Search..."
+        class="w-2/3 rounded-lg focus:outline-none bg-gray-600 text-gray-800 focus:bg-gray-500 focus:border-violet-600"
+        bind:value={search_query}
+        on:keyup={handleKeyup}
+      />
+    </div>
+    <div class="container flex justify-center h-16 mx-auto">
+      <a
+        href="/search?q={encodeURIComponent(search_query)}"
+        class="px-8 py-5 w-1/6 text-center font-semibold rounded dark:bg-purple-800 dark:text-gray-100 hover:bg-purple-500 disabled:bg-gray-500"
+      >
+        Search
+      </a>
+    </div>
+  {:else}
+    <div class="container flex justify-center h-16 mx-auto my-10">
+      <h1>Please top up</h1>
+    </div>
+  {/if}
 </div>
