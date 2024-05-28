@@ -63,7 +63,6 @@
 
   function handleKeyup(e) {
     if (e.keyCode == 13) {
-
       let url_encoded = encodeURIComponent(search_query);
       goto(`/search?q=${url_encoded}`);
     }

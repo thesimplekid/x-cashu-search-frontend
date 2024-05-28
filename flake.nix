@@ -45,6 +45,8 @@
             bundev
             bunstart
             buntest
+
+            nodePackages.svelte-language-server
           ];
 
           shellHook = ''
