@@ -33,6 +33,7 @@
 
     if ($mint_url != undefined) {
       await wallet.refreshMint($mint_url);
+      await wallet.checkAllPendingProofs($mint_url);
       balance = await refreshBalance(wallet);
     }
   });

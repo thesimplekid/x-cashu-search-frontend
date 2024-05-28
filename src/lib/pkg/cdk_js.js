@@ -247,18 +247,6 @@ function __wbg_adapter_55(arg0, arg1, arg2) {
     wasm._dyn_core__ops__function__FnMut__A____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__hafd472cd0d91c086(arg0, arg1, addHeapObject(arg2));
 }
 
-function getArrayU8FromWasm0(ptr, len) {
-    ptr = ptr >>> 0;
-    return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
-}
-
-function _assertClass(instance, klass) {
-    if (!(instance instanceof klass)) {
-        throw new Error(`expected instance of ${klass.name}`);
-    }
-    return instance.ptr;
-}
-
 let cachedUint32Memory0 = null;
 
 function getUint32Memory0() {
@@ -288,10 +276,22 @@ function getArrayJsValueFromWasm0(ptr, len) {
     }
     return result;
 }
+
+function _assertClass(instance, klass) {
+    if (!(instance instanceof klass)) {
+        throw new Error(`expected instance of ${klass.name}`);
+    }
+    return instance.ptr;
+}
 /**
 */
 export function start() {
     wasm.start();
+}
+
+function getArrayU8FromWasm0(ptr, len) {
+    ptr = ptr >>> 0;
+    return getUint8Memory0().subarray(ptr / 1, ptr / 1 + len);
 }
 
 function passArray8ToWasm0(arg, malloc) {
@@ -3896,12 +3896,12 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper1952 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 562, __wbg_adapter_52);
+    imports.wbg.__wbindgen_closure_wrapper1931 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 542, __wbg_adapter_52);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper2638 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 836, __wbg_adapter_55);
+    imports.wbg.__wbindgen_closure_wrapper2617 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 815, __wbg_adapter_55);
         return addHeapObject(ret);
     };
 
