@@ -7,6 +7,7 @@
   import lock_key from "$lib/shared/store/store";
   import mint_url from "$lib/shared/store/mint_url";
   import cost_per_search from "$lib/shared/store/cost";
+  import { refreshBalance } from "$lib/shared/utils";
 
   /** @type {bigint | undefined} */
   let balance = BigInt(0);
@@ -15,29 +16,21 @@
 
   let search_query = "";
 
-  let s = $seed;
-
   onMount(async () => {
     await init();
 
-    wallet = await new Wallet(s);
+    wallet = await new Wallet($seed);
 
     await getInfo();
 
     if ($mint_url != undefined) {
       await wallet.addMint($mint_url);
       await wallet.refreshMint($mint_url);
-      await refreshBalance();
+      balance = await refreshBalance(wallet);
     } else {
       alert("Could not get info");
     }
   });
-
-  async function refreshBalance() {
-    if (wallet != undefined) {
-      balance = (await wallet.unitBalance(CurrencyUnit.Sat)).value;
-    }
-  }
 
   /**
    * @typedef {Object} InfoResult

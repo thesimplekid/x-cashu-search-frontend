@@ -9,21 +9,16 @@
   } from "$lib/pkg";
   import SvgQR from "@svelte-put/qr/svg/QR.svelte";
   import { copyToClipboard } from "@svelte-put/copy";
-  import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import seed from "$lib/shared/store/wallet";
   import lock_key from "$lib/shared/store/store";
   import mint_url from "$lib/shared/store/mint_url";
   import cost_per_search from "$lib/shared/store/cost";
-
-  // Retrieve user store from context
+  import { refreshBalance } from "$lib/shared/utils";
 
   /** @type {Wallet | undefined} */
   let wallet;
   let currency = CurrencyUnit.Sat;
-
-  /** @type {string | undefined} */
-  let mint_quote_id;
 
   /** @type {string} */
   let data = "";
@@ -31,23 +26,16 @@
   /** @type {bigint} */
   let balance = BigInt(0);
 
-  let s = $seed;
   onMount(async () => {
     await init();
 
-    wallet = await new Wallet(s);
+    wallet = await new Wallet($seed);
 
     if ($mint_url != undefined) {
       await wallet.refreshMint($mint_url);
-      await refreshBalance();
+      balance = await refreshBalance(wallet);
     }
   });
-
-  async function refreshBalance() {
-    if (wallet != undefined) {
-      balance = (await wallet.unitBalance(CurrencyUnit.Sat)).value;
-    }
-  }
 
   /**
    * @param {number} searches
@@ -94,17 +82,8 @@
         }
 
         await refreshBalance();
-        mint_quote_id = undefined;
         goto("/");
       }
-    }
-  }
-
-  /**
-   * @param {string} quote_id
-   */
-  async function mint(quote_id) {
-    if (mint_url != null) {
     }
   }
 
@@ -187,8 +166,7 @@
             >
               <div>
                 <div>{search_count} Searchs</div>
-
-                {#if balance != undefined && cost_per_search != undefined}
+                {#if balance != undefined && $cost_per_search != undefined}
                   <div class="font-light">
                     {BigInt(search_count) * BigInt($cost_per_search)} sats
                   </div>
