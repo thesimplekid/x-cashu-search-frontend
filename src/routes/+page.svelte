@@ -63,7 +63,9 @@
 
   function handleKeyup(e) {
     if (e.keyCode == 13) {
-      goto(`/search?q=${search_query}`);
+
+      let url_encoded = encodeURIComponent(search_query);
+      goto(`/search?q=${url_encoded}`);
     }
   }
 </script>
@@ -107,7 +109,7 @@
 
   <div class="container flex justify-center h-16 mx-auto">
     <a
-      href="/search?q={search_query}"
+      href="/search?q={encodeURIComponent(search_query)}"
       class="px-8 py-5 w-1/6 text-center font-semibold rounded dark:bg-purple-800 dark:text-gray-100 hover:bg-purple-500 disabled:bg-gray-500"
     >
       Search
