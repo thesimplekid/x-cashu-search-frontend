@@ -73,28 +73,37 @@
       $lock_key != undefined &&
       cost_per_search != null
     ) {
-      let spending_condition = new P2PKSpendingConditions(
-        $lock_key,
-        conditions,
-      );
-      let token = await wallet?.send(
-        $mint_url,
-        currency,
-        undefined,
-        BigInt($cost_per_search),
-        spending_condition,
-        undefined,
-      );
+      try {
+        let spending_condition = new P2PKSpendingConditions(
+          $lock_key,
+          conditions,
+        );
+        let token = await wallet?.send(
+          $mint_url,
+          currency,
+          undefined,
+          BigInt($cost_per_search),
+          spending_condition,
+          undefined,
+        );
 
-      search_results = await fetch(
-        `${PUBLIC_API_URL}/search?q=${search_query}`,
-        {
-          headers: { "X-Cashu": `${token}` },
-        },
-      ).then((r) => r.json());
+        search_results = await fetch(
+          `${PUBLIC_API_URL}/search?q=${search_query}`,
+          {
+            headers: { "X-Cashu": `${token}` },
+          },
+        ).then((r) => r.json());
 
-      await refreshBalance();
-      attempt_count = 0;
+        await refreshBalance();
+        attempt_count = 0;
+      } catch {
+        if (balance == BigInt(0)) {
+          await refreshBalance();
+          goto("/topup");
+        } else {
+          alert("Server error");
+        }
+      }
     } else {
       if (attempt_count < 5) {
         await getInfo();
