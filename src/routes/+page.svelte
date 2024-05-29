@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import init, { CurrencyUnit, Wallet } from "$lib/pkg";
+  import init, { Wallet } from "$lib/pkg";
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import seed from "$lib/shared/store/wallet";
@@ -9,13 +9,13 @@
   import cost_per_search from "$lib/shared/store/cost";
   import { refreshBalance } from "$lib/shared/utils";
 
-  /** @type {bigint | undefined} */
+  /** @type {bigint} */
   let balance = BigInt(0);
   /** @type {Wallet | undefined} */
   let wallet;
 
   /** @type {bigint | undefined} */
-  let search_count = balance / BigInt($cost_per_search);
+  let search_count;
 
   let search_query = "";
 
@@ -30,7 +30,9 @@
       await wallet.addMint($mint_url);
       await wallet.refreshMint($mint_url);
       balance = await refreshBalance(wallet);
-      search_count = balance / BigInt($cost_per_search);
+      if ($cost_per_search != undefined) {
+        search_count = balance / BigInt($cost_per_search);
+      }
     } else {
       alert("Could not get info");
     }

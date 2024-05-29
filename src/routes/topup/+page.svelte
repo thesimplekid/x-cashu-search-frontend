@@ -42,7 +42,7 @@
    * @param {number} searches
    */
   async function handleTopUp(searches) {
-    if (mint_url != null) {
+    if (mint_url != null && $cost_per_search != undefined) {
       const amount = BigInt(searches) * BigInt($cost_per_search);
       let quote = await wallet?.mintQuote($mint_url, BigInt(amount), currency);
       let quote_id = quote?.id;
