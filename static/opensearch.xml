@@ -3,8 +3,8 @@
   <ShortName>Cashu Search</ShortName>
   <Description>Search Engine paid for with nuts</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://cashcrab.me/favicon.ico</Image>
-  <Url type="text/html" template="http://localhost:5173/search?q={searchTerms}"/>
-  <moz:SearchForm>https://cashcrab.me/search/{searchTerms}</moz:SearchForm>
+  <Image width="16" height="16" type="image/x-icon">https://search.thesimplekid.dev/favicon.ico</Image>
+  <Url type="text/html" template="http://search.thesimplekid.dev/search?q={searchTerms}"/>
+  <moz:SearchForm>https://search.thesimplekid.dev/search/{searchTerms}</moz:SearchForm>
 </OpenSearchDescription>
 
