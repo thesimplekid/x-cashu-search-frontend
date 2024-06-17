@@ -37,7 +37,7 @@
   onMount(async () => {
     await init();
 
-    wallet = await new Wallet($seed);
+    wallet = await new Wallet($seed, []);
 
     let q = $page.url.searchParams.get("q");
     if (q != null) {
@@ -220,4 +220,14 @@
       {/each}
     </div>
   {/if}
+  <footer class="px-4 py-8 fixed bottom-0 w-full">
+    <div
+      class="container flex flex-wrap justify-center mx-auto space-y-4 sm:justify-between sm:space-y-0"
+    >
+      <p class="text-center w-full">
+        This is an experimental proof of concept. Do Not Use with sats you're
+        not willing to lose.
+      </p>
+    </div>
+  </footer>
 </div>
