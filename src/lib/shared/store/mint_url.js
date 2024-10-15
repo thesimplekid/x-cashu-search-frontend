@@ -3,7 +3,7 @@ import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
 
 
-const defaultValue = undefined;
+const defaultValue = "https://results.thesimplekid.dev";
   /** @type {string | undefined} */
 const initialValue = browser ? window.localStorage.getItem('mint_url') ?? defaultValue : defaultValue;
 

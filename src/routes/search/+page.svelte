@@ -16,7 +16,7 @@
 
   /** @type {Wallet | undefined} */
   let wallet;
-  let balance = BigInt(0);
+  let balance = BigInt(100);
   /** @type {bigint | undefined} */
   let search_count = balance / BigInt($cost_per_search);
 
@@ -46,7 +46,7 @@
 
     search_query;
     await handleSearch();
-    await refreshBalance();
+    // await refreshBalance();
   });
 
   async function refreshBalance() {

@@ -24,7 +24,7 @@
   let data = "";
 
   /** @type {bigint} */
-  let balance = BigInt(0);
+  let balance = BigInt(100);
 
   onMount(async () => {
     await init();
@@ -32,6 +32,7 @@
     wallet = await new Wallet($seed, []);
 
     if ($mint_url != undefined) {
+      console.log(typeof $mint_url);
       await wallet.refreshMint($mint_url);
       await wallet.checkAllPendingProofs($mint_url);
       balance = await refreshBalance(wallet);

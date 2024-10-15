@@ -10,7 +10,7 @@
   import { refreshBalance } from "$lib/shared/utils";
 
   /** @type {bigint} */
-  let balance = BigInt(0);
+  let balance = BigInt(100);
   /** @type {Wallet | undefined} */
   let wallet;
 
