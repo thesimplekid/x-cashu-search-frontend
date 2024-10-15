@@ -134,7 +134,7 @@
           {#if $cost_per_search != undefined && balance != undefined}
             <button
               class="px-8 py-5 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-              >{BigInt(balance) / BigInt($cost_per_search)}</button
+              >10</button
             >
           {/if}
         </div>
@@ -168,9 +168,7 @@
               <div>
                 <div>{search_count} Searchs</div>
                 {#if balance != undefined && $cost_per_search != undefined}
-                  <div class="font-light">
-                    {BigInt(search_count) * BigInt($cost_per_search)} sats
-                  </div>
+                  <div class="font-light">10 sats</div>
                 {/if}
               </div></button
             >
