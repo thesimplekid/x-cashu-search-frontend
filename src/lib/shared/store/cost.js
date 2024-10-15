@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 
 
 const defaultValue = undefined;
-  /** @type {bigint | undefined} */
+  /** @type {number | undefined} */
 const initialValue = browser ? window.localStorage.getItem('cost_per_search') ?? defaultValue : defaultValue;
 
 const cost_per_search = writable(initialValue);

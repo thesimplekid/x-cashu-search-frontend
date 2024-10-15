@@ -1,24 +1,16 @@
 <script>
   import { onMount } from "svelte";
   import { page } from "$app/stores";
-  import init, {
-    Wallet,
-    CurrencyUnit,
-    P2PKSpendingConditions,
-    Conditions,
-  } from "$lib/pkg";
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
-  import seed from "$lib/shared/store/wallet";
   import lock_key from "$lib/shared/store/store";
-  import mint_url from "$lib/shared/store/mint_url";
-  import cost_per_search from "$lib/shared/store/cost";
+  import mint_url from "$lib/shared/store/store";
+  import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
+  import { getEncodedToken } from "@cashu/cashu-ts";
+  /** @type {import("@cashu/cashu-ts").Token} */
 
-  /** @type {Wallet | undefined} */
-  let wallet;
-  let balance = BigInt(100);
-  /** @type {bigint | undefined} */
-  let search_count = balance / BigInt($cost_per_search);
+  /** @type {number} */
+  let balance = getBalance();
 
   let search_query = "";
 
@@ -33,12 +25,7 @@
   /** @type {Array.<SearchResult>} */
   let search_results = [];
 
-  let currency = CurrencyUnit.Sat;
   onMount(async () => {
-    await init();
-
-    wallet = await new Wallet($seed, []);
-
     let q = $page.url.searchParams.get("q");
     if (q != null) {
       search_query = q;
@@ -46,62 +33,71 @@
 
     search_query;
     await handleSearch();
-    // await refreshBalance();
+    balance = getBalance();
   });
 
-  async function refreshBalance() {
-    if (wallet != undefined) {
-      balance = (await wallet.unitBalance(CurrencyUnit.Sat)).value;
-      search_count = balance / BigInt($cost_per_search);
-    }
-  }
   let attempt_count = 0;
 
   async function handleSearch() {
+    console.log("Attempting search");
+    console.log($lock_key);
     search_results = [];
 
-    let conditions = new Conditions(
-      undefined,
-      null,
-      null,
-      undefined,
-      "sig_inputs",
-    );
+    let proofs = getProofs();
+    console.log(proofs);
 
-    if (
-      $mint_url != undefined &&
-      $lock_key != undefined &&
-      cost_per_search != null
-    ) {
+    let proof = proofs[0];
+
+    if ($lock_key != undefined) {
       try {
-        let spending_condition = new P2PKSpendingConditions(
-          $lock_key,
-          conditions,
-        );
-        let token = await wallet?.send(
-          $mint_url,
-          currency,
-          undefined,
-          BigInt($cost_per_search),
-          spending_condition,
-          undefined,
-        );
+        /** @type {import("@cashu/cashu-ts").Token} */
+        let token = {
+          token: [
+            {
+              mint: $mint_url,
+              proofs: [proof],
+            },
+          ],
+          unit: "search",
+        };
+        console.log(token);
 
-        search_results = await fetch(
+        let encoded_token = getEncodedToken(token);
+        console.log(encoded_token);
+
+        let response = await fetch(
           `${PUBLIC_API_URL}/search?q=${search_query}`,
           {
-            headers: { "X-Cashu": `${token}` },
+            headers: { "X-Cashu": `${encoded_token}` },
           },
-        ).then((r) => r.json());
+        );
 
-        await refreshBalance();
+        if (!response.ok) {
+          // Log the status and the error message for debugging purposes
+          console.error(`Error: ${response.status} ${response.statusText}`);
+          throw new Error(`Search failed with status ${response.status}`);
+        }
+
+        search_results = await response.json();
         attempt_count = 0;
-      } catch {
-        if (balance == BigInt(0)) {
-          await refreshBalance();
+
+        // Remove the first proof from the proofs array
+        proofs.shift(); // Removes the first element from the array
+
+        // Write the updated proofs back to storage
+        writeProofs(proofs);
+
+        console.log("Updated proofs after removing the used one: ", proofs);
+      } catch (error) {
+        console.error("Search failed with error: ", error);
+
+        alert("Search failed");
+
+        balance = getBalance();
+        if (balance == 0) {
           goto("/topup");
         } else {
-          alert("Server error");
+          goto("/");
         }
       }
     } else {
@@ -115,23 +111,19 @@
 
   /**
    * @typedef {Object} InfoResult
-   * @property {Array.<string>} trusted_mints
-   * @property {object} acceptable_p2pk_conditions:
-   * @property {bigint} sats_per_search
+   * @property {string} mint
+   * @property {number} sats_per_search
    * @property {string} pubkey
    */
   async function getInfo() {
     /** @type {InfoResult} */
     let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
 
-    $cost_per_search = info.sats_per_search;
     $lock_key = info.pubkey;
-    $mint_url = info.trusted_mints[0];
-    search_count = balance / BigInt($cost_per_search);
   }
 
   async function handleKeyup(e) {
-    if (e.keyCode == 13 && search_count != undefined && search_count > 0) {
+    if (e.keyCode == 13 && balance > 0) {
       await handleSearch();
     }
   }
@@ -168,7 +160,7 @@
           >
         </button>
         <div class="container flex justify-center h-16 mx-auto">
-          {#if search_count != undefined && search_count > 0}
+          {#if balance > 0}
             <label for="Search" class="hidden">Search</label>
             <input
               type="text"
@@ -189,10 +181,10 @@
         </div>
         <div class="container flex justify-end h-16 mx-auto">
           <div class="items-center">
-            {#if $cost_per_search != undefined && balance != undefined}
+            {#if balance != undefined}
               <button
                 class="px-8 py-5 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-                >{search_count}</button
+                >{balance}</button
               >
             {/if}
             <a

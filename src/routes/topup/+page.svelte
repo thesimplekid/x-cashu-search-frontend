@@ -1,41 +1,49 @@
 <script>
   import { onMount } from "svelte";
-  import init, {
-    Wallet,
-    CurrencyUnit,
-    Amount,
-    P2PKSpendingConditions,
-    Conditions,
-  } from "$lib/pkg";
   import SvgQR from "@svelte-put/qr/svg/QR.svelte";
   import { copyToClipboard } from "@svelte-put/copy";
+  import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
-  import seed from "$lib/shared/store/wallet";
   import lock_key from "$lib/shared/store/store";
   import mint_url from "$lib/shared/store/mint_url";
   import cost_per_search from "$lib/shared/store/cost";
-  import { refreshBalance } from "$lib/shared/utils";
+  import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
+  import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
 
-  /** @type {Wallet | undefined} */
-  let wallet;
-  let currency = CurrencyUnit.Sat;
+  /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
   /** @type {string} */
   let data = "";
 
-  /** @type {bigint} */
-  let balance = BigInt(100);
+  /** @type {number} */
+  let balance = 0;
+
+  /**
+   * @typedef {Object} InfoResult
+   * @property {Array.<string>} trusted_mints
+   * @property {AcceptableP2PK} P2PKConditions
+   * @property {number} sats_per_search
+   */
+
+  /**
+   * @typedef {Object} AcceptableP2PK
+   * @property {Array.<string>} conditions
+   * @property {string} data
+   */
+
+  async function getInfo() {
+    /** @type {InfoResult} */
+    let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
+
+    $lock_key = info.P2PKConditions.data;
+    $mint_url = info.trusted_mints[0];
+  }
 
   onMount(async () => {
-    await init();
-
-    wallet = await new Wallet($seed, []);
-
     if ($mint_url != undefined) {
       console.log(typeof $mint_url);
-      await wallet.refreshMint($mint_url);
-      await wallet.checkAllPendingProofs($mint_url);
-      balance = await refreshBalance(wallet);
+      balance = getBalance();
+      await getInfo();
     }
   });
 
@@ -43,48 +51,69 @@
    * @param {number} searches
    */
   async function handleTopUp(searches) {
-    if (mint_url != null && $cost_per_search != undefined) {
-      const amount = BigInt(searches) * BigInt($cost_per_search);
-      let quote = await wallet?.mintQuote($mint_url, BigInt(amount), currency);
-      let quote_id = quote?.id;
+    if (mint_url != null && $cost_per_search !== undefined) {
+      console.log("Attempting to top up for searches ", searches);
+      console.log($mint_url);
 
-      let invoice = quote?.request;
-      if (invoice != undefined) {
-        data = invoice;
+      const mint = new CashuMint($mint_url);
+      const wallet = new CashuWallet(mint);
+
+      // Create the mint quote
+
+      /** @type {import("@cashu/cashu-ts").MintQuoteResponse} */
+      let mintQuote = await wallet.createMintQuote(searches);
+
+      data = mintQuote.request;
+
+      // Polling function to check the mint quote state
+      /**
+       * Polls the mint quote state until it's paid or maximum attempts are reached
+       * @param {string} quote - The mint quote identifier to check
+       * @param {number} [interval=3000] - Polling interval in milliseconds
+       * @param {number} [maxAttempts=100] - Maximum number of polling attempts
+       * @returns {Promise<import("@cashu/cashu-ts").MintQuoteResponse>} The checked mint quote object when paid
+       * @throws {Error} If mint quote is not paid within max attempts
+       */
+      async function pollMintQuote(quote, interval = 3000, maxAttempts = 100) {
+        let attempts = 0;
+
+        while (attempts < maxAttempts) {
+          const mintQuoteChecked = await wallet.checkMintQuote(quote);
+          if (mintQuoteChecked.state === MintQuoteState.PAID) {
+            return mintQuoteChecked;
+          }
+          await new Promise((resolve) => setTimeout(resolve, interval)); // Delay
+          attempts++;
+        }
+
+        throw new Error("Mint quote not paid within the allowed attempts.");
       }
 
-      if (quote_id != undefined) {
-        let paid = false;
-        while (paid == false) {
-          let check_mint = await wallet?.mintQuoteStatus($mint_url, quote_id);
-          if (check_mint?.paid == true) {
-            paid = true;
-          } else {
-            await new Promise((r) => setTimeout(r, 2000));
-          }
-        }
+      try {
+        // Poll until the mint quote is paid
+        const mintQuoteChecked = await pollMintQuote(mintQuote.quote);
 
-        if (paid == true) {
-          await wallet?.mint(
-            $mint_url,
-            quote_id,
-            new P2PKSpendingConditions(
-              $lock_key,
-              new Conditions(
-                undefined,
-                undefined,
-                undefined,
-                undefined,
-                "sig_inputs",
-              ),
-            ),
-            undefined,
-            new Amount(BigInt($cost_per_search)),
+        if (mintQuoteChecked.state === MintQuoteState.PAID) {
+          const options = {
+            preference: [{ amount: 1, count: searches }],
+            pubkey: $lock_key,
+          };
+
+          // Mint the tokens
+          const { proofs } = await wallet.mintTokens(
+            searches,
+            mintQuote.quote,
+            options,
           );
-        }
 
-        await refreshBalance();
-        goto("/");
+          let current_proofs = getProofs();
+
+          const combinedList = [...current_proofs, ...proofs];
+          writeProofs(combinedList);
+          goto("/");
+        }
+      } catch (error) {
+        console.error("Error while topping up: ", error);
       }
     }
   }
@@ -135,7 +164,7 @@
           {#if $cost_per_search != undefined && balance != undefined}
             <button
               class="px-8 py-5 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-              >10</button
+              >{balance}</button
             >
           {/if}
         </div>
@@ -168,9 +197,6 @@
             >
               <div>
                 <div>{search_count} Searchs</div>
-                {#if balance != undefined && $cost_per_search != undefined}
-                  <div class="font-light">10 sats</div>
-                {/if}
               </div></button
             >
           </div>

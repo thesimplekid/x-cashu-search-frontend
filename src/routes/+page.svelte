@@ -1,48 +1,27 @@
 <script>
   import { onMount } from "svelte";
-  import init, { Wallet } from "$lib/pkg";
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
-  import seed from "$lib/shared/store/wallet";
   import lock_key from "$lib/shared/store/store";
-  import mint_url from "$lib/shared/store/mint_url";
+  import mint_url from "$lib/shared/store/store";
   import cost_per_search from "$lib/shared/store/cost";
-  import { refreshBalance } from "$lib/shared/utils";
+  import { getBalance } from "$lib/shared/utils";
 
-  /** @type {bigint} */
-  let balance = BigInt(100);
-  /** @type {Wallet | undefined} */
-  let wallet;
-
-  /** @type {bigint | undefined} */
-  let search_count;
+  /** @type {number} */
+  let balance = 0;
 
   let search_query = "";
 
   onMount(async () => {
-    await init();
-
-    wallet = await new Wallet($seed, []);
-
+    balance = await getBalance();
     await getInfo();
-
-    if ($mint_url != undefined) {
-      await wallet.addMint($mint_url);
-      await wallet.refreshMint($mint_url);
-      balance = await refreshBalance(wallet);
-      if ($cost_per_search != undefined) {
-        search_count = balance / BigInt($cost_per_search);
-      }
-    } else {
-      alert("Could not get info");
-    }
   });
 
   /**
    * @typedef {Object} InfoResult
    * @property {Array.<string>} trusted_mints
    * @property {AcceptableP2PK} P2PKConditions
-   * @property {bigint} sats_per_search
+   * @property {number} sats_per_search
    */
 
   /**
@@ -55,10 +34,8 @@
     /** @type {InfoResult} */
     let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
 
-    $cost_per_search = info.sats_per_search;
     $lock_key = info.P2PKConditions.data;
     $mint_url = info.trusted_mints[0];
-    search_count = balance / BigInt($cost_per_search);
   }
 
   function handleKeyup(e) {
@@ -82,7 +59,7 @@
         {#if $cost_per_search != undefined && balance != undefined}
           <button
             class="px-8 py-3 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-            >{search_count}</button
+            >{balance}</button
           >
         {/if}
         <a
@@ -94,7 +71,7 @@
     </div>
   </header>
 
-  {#if search_count != undefined && search_count > 0}
+  {#if balance > 0}
     <div class="container flex justify-center h-16 mx-auto my-10">
       <label for="Search" class="hidden">Search</label>
       <input
