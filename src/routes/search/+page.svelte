@@ -25,6 +25,13 @@
   /** @type {Array.<SearchResult>} */
   let search_results = [];
 
+  let isLoading = false;
+  let summary = "";
+
+  let searchTime = 0;
+
+  let searchPerformed = false;
+
   onMount(async () => {
     let q = $page.url.searchParams.get("q");
     if (q != null) {
@@ -36,12 +43,27 @@
     balance = getBalance();
   });
 
-  let attempt_count = 0;
+  // Improved summary generation function
+  function generateSummary(results) {
+    if (results.length === 0) return "";
+    
+    // Extract the first sentence from each result's description
+    const firstSentences = results.slice(0, 3).map(r => {
+      const firstSentence = r.description.split('.')[0] + '.';
+      return firstSentence;
+    });
+    
+    // Combine the sentences into a summary
+    const summary = firstSentences.join(' ');
+    
+    return summary;
+  }
 
   async function handleSearch() {
-    console.log("Attempting search");
-    console.log($lock_key);
+    searchPerformed = true;
+    isLoading = true;
     search_results = [];
+    const startTime = performance.now();
 
     let proofs = getProofs();
     console.log(proofs);
@@ -99,13 +121,12 @@
         } else {
           goto("/");
         }
+      } finally {
+        isLoading = false;
       }
     } else {
-      if (attempt_count < 5) {
-        await getInfo();
-        await handleSearch();
-        attempt_count += 1;
-      }
+      await getInfo();
+      await handleSearch();
     }
   }
 
@@ -127,99 +148,338 @@
       await handleSearch();
     }
   }
-
-  function home() {
-    goto("/");
-  }
 </script>
 
-<div class="min-h-screen bg-gray-800 text-gray-100">
-  {#if search_results.length === 0}
-    <div class="container flex justify-center h-16 mx-auto bg-gray-800">
-      <div
-        class="w-16 h-16 border-4 border-dashed rounded-full animate-spin dark:border-violet-600"
-      ></div>
-    </div>
-  {:else}
-    <header class="p-4 dark:bg-gray-800 dark:text-gray-900">
-      <div class="container flex justify-start h-16 mx-auto">
-        <button
-          type="button"
-          class="bg-purple-800 hover:bg-purple-600 focus:ring-4 focus:outline-none focus:ring-[#1da1f2]/50 font-medium rounded-lg px-8 py-5 text-center inline-flex items-center dark:focus:ring-[#1da1f2]/55"
-          on:click={home}
-        >
-          <svg
-            data-v-52a72b4a=""
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            class="w-10 h-10 fill-gray-300"
-          >
-            <path
-              d="M12.827 3.834a1.5 1.5 0 00-2.26.054L5 10.58V19.5A1.5 1.5 0 006.5 21h1.79a1.5 1.5 0 001.5-1.5v-3.011a1.5 1.5 0 011.5-1.5h1.42a1.5 1.5 0 011.5 1.5V19.5a1.5 1.5 0 001.5 1.5h1.79a1.5 1.5 0 001.5-1.5v-8.92l-6.173-6.746z"
-            ></path></svg
-          >
-        </button>
-        <div class="container flex justify-center h-16 mx-auto">
-          {#if balance > 0}
-            <label for="Search" class="hidden">Search</label>
+<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
+  <!-- Home link -->
+  <a href="/" class="home-link">X-Cashu Search</a>
+
+  <header class="p-4 flex items-center" class:search-active={searchPerformed}>
+    <div class="search-container flex-grow" class:search-active={searchPerformed}>
+      <div class="flex items-center">
+        <div class="search-input-wrapper flex-grow mr-2 relative">
+          <div class="bg-white p-2 rounded-input-container shadow-md w-full">
             <input
               type="text"
               autocomplete="off"
-              placeholder="Search..."
-              class="w-2/3 rounded-lg focus:outline-none bg-gray-600 text-gray-800 focus:bg-gray-500 focus:border-violet-600"
+              placeholder="Ask whatever you want..."
+              class="w-full rounded-input border-none focus:outline-none pr-10"
               bind:value={search_query}
               on:keyup={handleKeyup}
             />
-
-            <a
-              href="/search?q={search_query}"
+            <button
+              class="search-button absolute right-2 top-1/2 transform -translate-y-1/2"
               on:click={handleSearch}
-              class="px-8 py-5 font-semibold rounded-lg bg-purple-800 hover:bg-purple-600 text-gray-100 text-center"
-              >Go
-            </a>
-          {/if}
-        </div>
-        <div class="container flex justify-end h-16 mx-auto">
-          <div class="items-center">
-            {#if balance != undefined}
-              <button
-                class="px-8 py-5 font-semibold rounded dark:bg-gray-800 dark:text-gray-100"
-                >{balance}</button
-              >
-            {/if}
-            <a
-              href="/topup"
-              class="px-8 py-5 text-center font-semibold rounded dark:bg-purple-800 dark:text-gray-100 hover:bg-purple-500 disabled:bg-gray-500"
-              >Top Up</a
             >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
-    </header>
-    <div class="container flex flex-col mx-auto">
-      {#each search_results as search_result}
-        <div class="container flex flex-col my-3">
-          <h3
-            class="text-xl text-bold text-purple-500 hover:text-purple-400 hover:underline"
-          >
-            <a href={search_result.url} class="text-bold"
-              >{search_result.title}</a
-            >
-          </h3>
-          <p class="text-sm font-light text-white">{search_result.url}</p>
-          <p class="text-lg">{search_result.description}</p>
-        </div>
-      {/each}
     </div>
-  {/if}
-  <footer class="px-4 py-8 fixed bottom-0 w-full">
-    <div
-      class="container flex flex-wrap justify-center mx-auto space-y-4 sm:justify-between sm:space-y-0"
-    >
-      <p class="text-center w-full">
+  </header>
+
+  <!-- Top right info -->
+  <div class="absolute top-4 right-4 z-10">
+    {#if balance != undefined}
+      <div class="top-right-info">
+        <span class="searches-left">Searches left: <span class="searches-count">{balance}</span></span>
+        <a href="/topup" class="top-up-button">Top Up</a>
+      </div>
+    {/if}
+  </div>
+
+  <div class="flex-grow flex flex-col relative">
+    {#if !isLoading && search_results.length > 0}
+      <p class="text-sm text-gray-600 mb-4 search-aligned">
+        Found {search_results.length} results in {searchTime} seconds
+      </p>
+
+      {#if summary}
+        <div class="w-full mb-6 search-aligned">
+          <div class="max-w-3xl w-full">
+            <div class="bg-gray-50 p-6 rounded-lg">
+              <h3 class="text-lg font-medium mb-3">Nutbrief</h3>
+              <p class="text-base text-gray-700 leading-relaxed">{summary}</p>
+            </div>
+          </div>
+        </div>
+      {/if}
+    {/if}
+
+    <div class="flex flex-col search-aligned">
+      <main class="w-full max-w-3xl">
+        {#if isLoading}
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
+        {:else if search_results.length === 0}
+          <p class="text-center text-gray-600">No results found. Try a different search query.</p>
+        {:else}
+          <div class="space-y-6">
+            {#each search_results as search_result}
+              <!-- Search result item -->
+              <div class="py-4 border-b border-gray-200">
+                <h3 class="text-xl mb-2">
+                  <a href={search_result.url} class="text-black hover:text-black font-medium underline">
+                    {search_result.title}
+                  </a>
+                </h3>
+                <p class="text-sm text-gray-600 mb-2">{search_result.url}</p>
+                <p class="text-gray-700">{search_result.description}</p>
+                {#if search_result.age && search_result.age !== 'null'}
+                  <span class="inline-block mt-2 px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full">
+                    {search_result.age}
+                  </span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </main>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <p>
         This is an experimental proof of concept. Do Not Use with sats you're
         not willing to lose.
       </p>
     </div>
   </footer>
 </div>
+
+<style lang="postcss">
+  .gradient-background {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    position: relative;
+  }
+
+  .gradient-background::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.2;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+  }
+
+  .home-link {
+    position: absolute;
+    top: 1rem;
+    left: 2rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000000;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    z-index: 10;
+  }
+
+  .home-link:hover {
+    color: #333333;
+  }
+
+  .top-right-info {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .searches-left {
+    font-weight: 600;
+    color: #4a5568;
+    background-color: #f3f4f6;
+    padding: 8px;
+    border-radius: 8px;
+  }
+
+  .searches-count {
+    font-size: 1.1em;
+    color: #1a1a1a;
+  }
+
+  .top-up-button {
+    background-color: transparent;
+    color: #4a5568;
+    border: 2px solid #4a5568;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .top-up-button:hover {
+    background-color: #f3f4f6;
+    color: #2d3748;
+    border-color: #2d3748;
+  }
+
+  .top-up-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.3);
+  }
+
+  .rounded-input-container {
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .rounded-input {
+    border-radius: 9999px;
+    padding: 10px 16px;
+    height: 44px;
+    padding-right: 40px; /* Make room for the search button */
+  }
+
+  .search-button {
+    background-color: transparent;
+    color: #1a1a1a;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .search-button:hover {
+    color: #4a5568;
+  }
+
+  .search-button:focus {
+    outline: none;
+  }
+
+  .spinner-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(26, 26, 26, 0.1);
+    border-top: 4px solid #1a1a1a;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Add these new styles */
+  header {
+    transition: all 0.3s ease;
+    padding-left: calc(2rem + 160px); /* Adjust based on the width of your home-link */
+  }
+
+  header.search-active {
+    padding-left: calc(2rem + 160px);
+    padding-right: 1rem;
+  }
+
+  .search-container {
+    max-width: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .search-container.search-active {
+    max-width: 45%;
+  }
+
+  @media (max-width: 1024px) {
+    .search-container.search-active {
+      max-width: 55%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    header.search-active {
+      padding-left: 1rem;
+    }
+
+    .search-container.search-active {
+      max-width: 100%;
+    }
+  }
+
+  .top-right-info {
+    transition: all 0.3s ease;
+  }
+
+  .top-right-info.search-active {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .search-container.search-active {
+      max-width: 50%; /* Slightly wider on smaller screens */
+    }
+  }
+
+  @media (max-width: 768px) {
+    header.search-active {
+      flex-wrap: wrap;
+    }
+
+    .search-container.search-active {
+      order: 2;
+      max-width: 100%;
+      margin-top: 1rem;
+    }
+
+    .top-right-info.search-active {
+      order: 1;
+      margin-left: auto;
+    }
+  }
+
+  .search-aligned {
+    padding-left: calc(1rem + 160px); /* Adjust based on your layout */
+    padding-right: 1rem;
+    max-width: calc(100% - 300px); /* Adjust based on your layout */
+  }
+
+  @media (max-width: 1024px) {
+    .search-aligned {
+      padding-left: 1rem;
+      max-width: 100%;
+    }
+  }
+
+  /* Add these new styles for the footer */
+  .footer {
+    background-color: #1a1a1a;
+    color: white;
+    padding: 16px 0;
+    font-weight: 600;
+  }
+
+  .footer-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+  }
+</style>
