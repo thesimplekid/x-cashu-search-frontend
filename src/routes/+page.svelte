@@ -1,9 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
-  import lock_key from "$lib/shared/store/store";
-  import mint_url from "$lib/shared/store/store";
   import cost_per_search from "$lib/shared/store/cost";
   import { getBalance } from "$lib/shared/utils";
 
@@ -18,37 +15,15 @@
 
   onMount(async () => {
     balance = await getBalance();
-    await getInfo();
     isLoading = false;
   });
-
-  /**
-   * @typedef {Object} InfoResult
-   * @property {Array.<string>} trusted_mints
-   * @property {AcceptableP2PK} P2PKConditions
-   * @property {number} sats_per_search
-   */
-
-  /**
-   * @typedef {Object} AcceptableP2PK
-   * @property {Array.<string>} conditions
-   * @property {string} data
-   */
-
-  async function getInfo() {
-    /** @type {InfoResult} */
-    let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
-
-    $lock_key = info.P2PKConditions.data;
-    $mint_url = info.trusted_mints[0];
-  }
 
   /**
    * Handles the keyup event for the search input
    * @param {KeyboardEvent} e - The keyboard event object
    */
   function handleKeyup(e) {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSearch();
     }
   }
@@ -60,6 +35,93 @@
     }
   }
 </script>
+
+<div
+  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+>
+  <!-- Home link -->
+  <a href="/" class="home-link">X-Cashu Search</a>
+
+  <!-- Top right info -->
+  <div class="absolute top-4 right-4 z-10">
+    {#if $cost_per_search != undefined && balance != undefined}
+      <div class="top-right-info">
+        <span class="searches-left"
+          >Searches left: <span class="searches-count">{balance}</span></span
+        >
+        <a href="/topup" class="top-up-button">Top Up</a>
+      </div>
+    {/if}
+  </div>
+
+  <!-- Centered content -->
+  <div class="flex-grow flex flex-col justify-center items-center px-4">
+    <div class="container mx-auto text-center">
+      <h1
+        class="inline-block text-5xl font-bold main-heading text-gray-900 relative"
+      >
+        <!-- Changed from text-purple-700 -->
+        <span class="relative z-10">X-Cashu Search</span>
+        <span
+          class="absolute -bottom-2 left-0 w-full h-3 bg-gray-200 transform -skew-x-12"
+        ></span>
+        <!-- Changed from bg-purple-200 -->
+      </h1>
+      <h2 class="text-2xl font-normal text-gray-500 sub-heading">
+        Search smarter. Pay in sats for results that matter.
+      </h2>
+
+      <div class="content-container">
+        <div class="search-container">
+          {#if isLoading}
+            <div class="spinner-container">
+              <div class="spinner"></div>
+            </div>
+          {:else if balance === undefined || balance <= 0}
+            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+              <h3 class="font-semibold mb-2">Top Up Required</h3>
+              <p>Please top up to start searching</p>
+            </div>
+          {:else}
+            <div class="flex flex-col items-center space-y-8">
+              <div class="search-input-wrapper">
+                <div
+                  class="bg-white p-2 rounded-input-container shadow-md w-full"
+                >
+                  <input
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Ask whatever you want..."
+                    class="w-full rounded-input border-none focus:outline-none"
+                    bind:value={search_query}
+                    on:keyup={handleKeyup}
+                  />
+                </div>
+              </div>
+              <button
+                class="search-button"
+                on:click={handleSearch}
+                bind:this={searchButton}
+              >
+                <span class="search-button-text">Search</span>
+              </button>
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Updated Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>
+        This is an experimental proof of concept. Do Not Use with sats you're
+        not willing to lose.
+      </p>
+    </div>
+  </footer>
+</div>
 
 <style>
   /* Add this style block at the end of your component */
@@ -76,7 +138,12 @@
   }
 
   .glow-button:hover {
-    background-color: rgba(26, 26, 26, 0.1); /* Changed from rgba(138, 43, 226, 0.1) */
+    background-color: rgba(
+      26,
+      26,
+      26,
+      0.1
+    ); /* Changed from rgba(138, 43, 226, 0.1) */
     box-shadow: 0 0 10px rgba(26, 26, 26, 0.3); /* Changed from rgba(138, 43, 226, 0.3) */
   }
 
@@ -120,11 +187,13 @@
 
   .search-button:focus {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(26, 26, 26, 0.3);
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.5),
+      0 4px 8px rgba(26, 26, 26, 0.3);
   }
 
   .search-button::before {
-    content: '';
+    content: "";
     position: absolute;
     top: -2px;
     left: -2px;
@@ -179,8 +248,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   .content-container {
@@ -291,76 +364,3 @@
     text-align: center;
   }
 </style>
-
-<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
-  <!-- Home link -->
-  <a href="/" class="home-link">X-Cashu Search</a>
-
-  <!-- Top right info -->
-  <div class="absolute top-4 right-4 z-10">
-    {#if $cost_per_search != undefined && balance != undefined}
-      <div class="top-right-info">
-        <span class="searches-left">Searches left: <span class="searches-count">{balance}</span></span>
-        <a href="/topup" class="top-up-button">Top Up</a>
-      </div>
-    {/if}
-  </div>
-
-  <!-- Centered content -->
-  <div class="flex-grow flex flex-col justify-center items-center px-4">
-    <div class="container mx-auto text-center">
-      <h1 class="inline-block text-5xl font-bold main-heading text-gray-900 relative"> <!-- Changed from text-purple-700 -->
-        <span class="relative z-10">X-Cashu Search</span>
-        <span class="absolute -bottom-2 left-0 w-full h-3 bg-gray-200 transform -skew-x-12"></span> <!-- Changed from bg-purple-200 -->
-      </h1>
-      <h2 class="text-2xl font-normal text-gray-500 sub-heading">Search smarter. Pay in sats for results that matter.</h2>
-
-      <div class="content-container">
-        <div class="search-container">
-          {#if isLoading}
-            <div class="spinner-container">
-              <div class="spinner"></div>
-            </div>
-          {:else if balance === undefined || balance<= 0}
-            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-              <h3 class="font-semibold mb-2">Top Up Required</h3>
-              <p>Please top up to start searching</p>
-            </div>
-          {:else}
-            <div class="flex flex-col items-center space-y-8">
-              <div class="search-input-wrapper">
-                <div class="bg-white p-2 rounded-input-container shadow-md w-full">
-                  <input
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Ask whatever you want..."
-                    class="w-full rounded-input border-none focus:outline-none"
-                    bind:value={search_query}
-                    on:keyup={handleKeyup}
-                  />
-                </div>
-              </div>
-              <button
-                class="search-button"
-                on:click={handleSearch}
-                bind:this={searchButton}
-              >
-                <span class="search-button-text">Search</span>
-              </button>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Updated Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <p>
-        This is an experimental proof of concept. Do Not Use with sats you're
-        not willing to lose.
-      </p>
-    </div>
-  </footer>
-</div>

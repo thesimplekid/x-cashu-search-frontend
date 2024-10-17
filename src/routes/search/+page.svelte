@@ -4,9 +4,9 @@
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import lock_key from "$lib/shared/store/store";
-  import mint_url from "$lib/shared/store/store";
+  import mint_url from "$lib/shared/store/mint_url";
   import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
-  import { getEncodedToken } from "@cashu/cashu-ts";
+  import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   /** @type {import("@cashu/cashu-ts").Token} */
 
   /** @type {number} */
@@ -46,16 +46,16 @@
   // Improved summary generation function
   function generateSummary(results) {
     if (results.length === 0) return "";
-    
+
     // Extract the first sentence from each result's description
-    const firstSentences = results.slice(0, 3).map(r => {
-      const firstSentence = r.description.split('.')[0] + '.';
+    const firstSentences = results.slice(0, 3).map((r) => {
+      const firstSentence = r.description.split(".")[0] + ".";
       return firstSentence;
     });
-    
+
     // Combine the sentences into a summary
-    const summary = firstSentences.join(' ');
-    
+    const summary = firstSentences.join(" ");
+
     return summary;
   }
 
@@ -70,63 +70,55 @@
 
     let proof = proofs[0];
 
-    if ($lock_key != undefined) {
-      try {
-        /** @type {import("@cashu/cashu-ts").Token} */
-        let token = {
-          token: [
-            {
-              mint: $mint_url,
-              proofs: [proof],
-            },
-          ],
-          unit: "search",
-        };
-        console.log(token);
-
-        let encoded_token = getEncodedToken(token);
-        console.log(encoded_token);
-
-        let response = await fetch(
-          `${PUBLIC_API_URL}/search?q=${search_query}`,
+    try {
+      console.log($mint_url);
+      /** @type {import("@cashu/cashu-ts").Token} */
+      let token = {
+        token: [
           {
-            headers: { "X-Cashu": `${encoded_token}` },
+            mint: $mint_url,
+            proofs: [proof],
           },
-        );
+        ],
+        unit: "search",
+      };
+      console.log(token);
 
-        if (!response.ok) {
-          // Log the status and the error message for debugging purposes
-          console.error(`Error: ${response.status} ${response.statusText}`);
-          throw new Error(`Search failed with status ${response.status}`);
-        }
+      let encoded_token = getEncodedTokenV4(token);
+      console.log(encoded_token);
 
-        search_results = await response.json();
-        attempt_count = 0;
+      let response = await fetch(`${PUBLIC_API_URL}/search?q=${search_query}`, {
+        headers: { "X-Cashu": `${encoded_token}` },
+      });
 
-        // Remove the first proof from the proofs array
-        proofs.shift(); // Removes the first element from the array
-
-        // Write the updated proofs back to storage
-        writeProofs(proofs);
-
-        console.log("Updated proofs after removing the used one: ", proofs);
-      } catch (error) {
-        console.error("Search failed with error: ", error);
-
-        alert("Search failed");
-
-        balance = getBalance();
-        if (balance == 0) {
-          goto("/topup");
-        } else {
-          goto("/");
-        }
-      } finally {
-        isLoading = false;
+      if (!response.ok) {
+        // Log the status and the error message for debugging purposes
+        console.error(`Error: ${response.status} ${response.statusText}`);
+        throw new Error(`Search failed with status ${response.status}`);
       }
-    } else {
-      await getInfo();
-      await handleSearch();
+
+      search_results = await response.json();
+
+      // Remove the first proof from the proofs array
+      proofs.shift(); // Removes the first element from the array
+
+      // Write the updated proofs back to storage
+      writeProofs(proofs);
+
+      console.log("Updated proofs after removing the used one: ", proofs);
+    } catch (error) {
+      console.error("Search failed with error: ", error);
+
+      alert("Search failed");
+
+      balance = getBalance();
+      if (balance == 0) {
+        goto("/topup");
+      } else {
+        goto("/");
+      }
+    } finally {
+      isLoading = false;
     }
   }
 
@@ -150,12 +142,17 @@
   }
 </script>
 
-<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
+<div
+  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+>
   <!-- Home link -->
   <a href="/" class="home-link">X-Cashu Search</a>
 
   <header class="p-4 flex items-center" class:search-active={searchPerformed}>
-    <div class="search-container flex-grow" class:search-active={searchPerformed}>
+    <div
+      class="search-container flex-grow"
+      class:search-active={searchPerformed}
+    >
       <div class="flex items-center">
         <div class="search-input-wrapper flex-grow mr-2 relative">
           <div class="bg-white p-2 rounded-input-container shadow-md w-full">
@@ -171,7 +168,17 @@
               class="search-button absolute right-2 top-1/2 transform -translate-y-1/2"
               on:click={handleSearch}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
@@ -186,7 +193,9 @@
   <div class="absolute top-4 right-4 z-10">
     {#if balance != undefined}
       <div class="top-right-info">
-        <span class="searches-left">Searches left: <span class="searches-count">{balance}</span></span>
+        <span class="searches-left"
+          >Searches left: <span class="searches-count">{balance}</span></span
+        >
         <a href="/topup" class="top-up-button">Top Up</a>
       </div>
     {/if}
@@ -217,21 +226,28 @@
             <div class="spinner"></div>
           </div>
         {:else if search_results.length === 0}
-          <p class="text-center text-gray-600">No results found. Try a different search query.</p>
+          <p class="text-center text-gray-600">
+            No results found. Try a different search query.
+          </p>
         {:else}
           <div class="space-y-6">
             {#each search_results as search_result}
               <!-- Search result item -->
               <div class="py-4 border-b border-gray-200">
                 <h3 class="text-xl mb-2">
-                  <a href={search_result.url} class="text-black hover:text-black font-medium underline">
+                  <a
+                    href={search_result.url}
+                    class="text-black hover:text-black font-medium underline"
+                  >
                     {search_result.title}
                   </a>
                 </h3>
                 <p class="text-sm text-gray-600 mb-2">{search_result.url}</p>
                 <p class="text-gray-700">{search_result.description}</p>
-                {#if search_result.age && search_result.age !== 'null'}
-                  <span class="inline-block mt-2 px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full">
+                {#if search_result.age && search_result.age !== "null"}
+                  <span
+                    class="inline-block mt-2 px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full"
+                  >
                     {search_result.age}
                   </span>
                 {/if}
@@ -385,14 +401,20 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   /* Add these new styles */
   header {
     transition: all 0.3s ease;
-    padding-left: calc(2rem + 160px); /* Adjust based on the width of your home-link */
+    padding-left: calc(
+      2rem + 160px
+    ); /* Adjust based on the width of your home-link */
   }
 
   header.search-active {
