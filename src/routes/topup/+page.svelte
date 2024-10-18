@@ -26,6 +26,17 @@
    * @property {number} sats_per_search
    */
 
+  /**
+   * @typedef {Object} AcceptableP2PK
+   * @property {Array.<string>} conditions
+   * @property {string} data
+   */
+
+  /** @type {number} */
+  let selectedSearches = 0;
+  /** @type {number} */
+  let selectedCost = 0;
+
   async function getInfo() {
     /** @type {InfoResult} */
     let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
@@ -53,6 +64,9 @@
     if (mint_url != null && $cost_per_search !== undefined) {
       console.log("Attempting to top up for searches ", searches);
       console.log($mint_url);
+
+      selectedSearches = searches;
+      selectedCost = BigInt(searches) * BigInt($cost_per_search);
 
       const mint = new CashuMint($mint_url);
       let keysets = await mint.getKeys();
@@ -459,6 +473,13 @@
     margin: 0 auto;
     text-align: center;
   }
+
+  .qr-info {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
 </style>
 
 <!-- Update the main container div to use the new gradient background -->
@@ -492,6 +513,9 @@
         </div>
       {:else if data !== ""}
         <div class="flex flex-col items-center space-y-4">
+          <div class="qr-info">
+            Purchasing {selectedSearches} searches for {selectedCost} sats
+          </div>
           <div class="bg-[#f3f4f6] p-4 rounded-lg shadow-md">
             <SvgQR {data} width="300" height="300" />
           </div>
