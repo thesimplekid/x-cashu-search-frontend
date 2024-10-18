@@ -54,7 +54,12 @@
       console.log($mint_url);
 
       const mint = new CashuMint($mint_url);
-      const wallet = new CashuWallet(mint);
+      let keysets = await mint.getKeys();
+      let matchingKeyset = keysets.keysets.find((key) => key.unit === "search");
+      const wallet = new CashuWallet(mint, {
+        unit: "search",
+        keys: matchingKeyset,
+      });
 
       // Create the mint quote
 
@@ -93,9 +98,11 @@
         const mintQuoteChecked = await pollMintQuote(mintQuote.quote);
 
         if (mintQuoteChecked.state === MintQuoteState.PAID) {
+          let keys = wallet.keys;
           const options = {
             preference: [{ amount: 1, count: searches }],
             pubkey: $lock_key,
+            keysetId: keys.id,
           };
 
           // Mint the tokens
