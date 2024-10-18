@@ -7,6 +7,7 @@
   import mint_url from "$lib/shared/store/mint_url";
   import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
+  import logomark from '/src/logomark.png';
   /** @type {import("@cashu/cashu-ts").Token} */
 
   /** @type {number} */
@@ -142,11 +143,11 @@
   }
 </script>
 
-<div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
->
-  <!-- Home link -->
-  <a href="/" class="home-link">X-Cashu Search</a>
+<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
+  <!-- Updated Home link -->
+  <a href="/" class="home-link">
+    <img src={logomark} alt="X-Cashu Search Logo" />
+  </a>
 
   <header class="p-4 flex items-center" class:search-active={searchPerformed}>
     <div
@@ -292,16 +293,17 @@
     position: absolute;
     top: 1rem;
     left: 2rem;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #000000;
-    text-decoration: none;
-    transition: color 0.3s ease;
     z-index: 10;
   }
 
-  .home-link:hover {
-    color: #333333;
+  .home-link img {
+    height: 40px; /* Adjust this value to match your desired logo size */
+    width: auto;
+    transition: opacity 0.3s ease;
+  }
+
+  .home-link:hover img {
+    opacity: 0.8;
   }
 
   .top-right-info {

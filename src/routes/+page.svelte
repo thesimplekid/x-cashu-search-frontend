@@ -1,8 +1,13 @@
 <script>
   import { onMount } from "svelte";
+  import { page } from "$app/stores";
+  import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import cost_per_search from "$lib/shared/store/cost";
-  import { getBalance } from "$lib/shared/utils";
+  import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
+  import { getEncodedToken } from "@cashu/cashu-ts";
+  import logomark from '/src/logomark.png';
+  import wordmark from '/src/wordmark.png';
 
   /** @type {number} */
   let balance = 0;
@@ -35,93 +40,6 @@
     }
   }
 </script>
-
-<div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
->
-  <!-- Home link -->
-  <a href="/" class="home-link">X-Cashu Search</a>
-
-  <!-- Top right info -->
-  <div class="absolute top-4 right-4 z-10">
-    {#if $cost_per_search != undefined && balance != undefined}
-      <div class="top-right-info">
-        <span class="searches-left"
-          >Searches left: <span class="searches-count">{balance}</span></span
-        >
-        <a href="/topup" class="top-up-button">Top Up</a>
-      </div>
-    {/if}
-  </div>
-
-  <!-- Centered content -->
-  <div class="flex-grow flex flex-col justify-center items-center px-4">
-    <div class="container mx-auto text-center">
-      <h1
-        class="inline-block text-5xl font-bold main-heading text-gray-900 relative"
-      >
-        <!-- Changed from text-purple-700 -->
-        <span class="relative z-10">X-Cashu Search</span>
-        <span
-          class="absolute -bottom-2 left-0 w-full h-3 bg-gray-200 transform -skew-x-12"
-        ></span>
-        <!-- Changed from bg-purple-200 -->
-      </h1>
-      <h2 class="text-2xl font-normal text-gray-500 sub-heading">
-        Search smarter. Pay in sats for results that matter.
-      </h2>
-
-      <div class="content-container">
-        <div class="search-container">
-          {#if isLoading}
-            <div class="spinner-container">
-              <div class="spinner"></div>
-            </div>
-          {:else if balance === undefined || balance <= 0}
-            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-              <h3 class="font-semibold mb-2">Top Up Required</h3>
-              <p>Please top up to start searching</p>
-            </div>
-          {:else}
-            <div class="flex flex-col items-center space-y-8">
-              <div class="search-input-wrapper">
-                <div
-                  class="bg-white p-2 rounded-input-container shadow-md w-full"
-                >
-                  <input
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Ask whatever you want..."
-                    class="w-full rounded-input border-none focus:outline-none"
-                    bind:value={search_query}
-                    on:keyup={handleKeyup}
-                  />
-                </div>
-              </div>
-              <button
-                class="search-button"
-                on:click={handleSearch}
-                bind:this={searchButton}
-              >
-                <span class="search-button-text">Search</span>
-              </button>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Updated Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <p>
-        This is an experimental proof of concept. Do Not Use with sats you're
-        not willing to lose.
-      </p>
-    </div>
-  </footer>
-</div>
 
 <style>
   /* Add this style block at the end of your component */
@@ -229,6 +147,16 @@
 
   .home-link:hover {
     color: #333333; /* Changed from #9932cc to slightly lighter black */
+  }
+
+  .home-link img {
+    height: 40px; /* Adjust this value to match your desired logo size */
+    width: auto;
+    transition: opacity 0.3s ease;
+  }
+
+  .home-link:hover img {
+    opacity: 0.8;
   }
 
   .spinner-container {
@@ -363,4 +291,83 @@
     margin: 0 auto;
     text-align: center;
   }
+
+  .wordmark {
+    max-width: 300px; /* Adjust this value as needed */
+    height: auto;
+    margin-bottom: 1rem; /* Adjust spacing as needed */
+  }
 </style>
+
+<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
+  <!-- Updated Home link -->
+  <a href="/" class="home-link">
+    <img src={logomark} alt="X-Cashu Search Logo" />
+  </a>
+
+  <!-- Top right info -->
+  <div class="absolute top-4 right-4 z-10">
+    {#if $cost_per_search != undefined && balance != undefined}
+      <div class="top-right-info">
+        <span class="searches-left">Searches left: <span class="searches-count">{balance}</span></span>
+        <a href="/topup" class="top-up-button">Top Up</a>
+      </div>
+    {/if}
+  </div>
+
+  <!-- Centered content -->
+  <div class="flex-grow flex flex-col justify-center items-center px-4">
+    <div class="container mx-auto text-center">
+      <img src={wordmark} alt="X-Cashu Search" class="wordmark inline-block" />
+      
+      <h2 class="text-2xl font-normal text-gray-500 sub-heading">Search smarter. Pay in sats for results that matter.</h2>
+
+      <div class="content-container">
+        <div class="search-container">
+          {#if isLoading}
+            <div class="spinner-container">
+              <div class="spinner"></div>
+            </div>
+          {:else if balance === undefined || balance<= 0}
+            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+              <h3 class="font-semibold mb-2">Top Up Required</h3>
+              <p>Please top up to start searching</p>
+            </div>
+          {:else}
+            <div class="flex flex-col items-center space-y-8">
+              <div class="search-input-wrapper">
+                <div class="bg-white p-2 rounded-input-container shadow-md w-full">
+                  <input
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Ask whatever you want..."
+                    class="w-full rounded-input border-none focus:outline-none"
+                    bind:value={search_query}
+                    on:keyup={handleKeyup}
+                  />
+                </div>
+              </div>
+              <button
+                class="search-button"
+                on:click={handleSearch}
+                bind:this={searchButton}
+              >
+                <span class="search-button-text">Search</span>
+              </button>
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Updated Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>
+        This is an experimental proof of concept. Do Not Use with sats you're
+        not willing to lose.
+      </p>
+    </div>
+  </footer>
+</div>

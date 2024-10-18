@@ -9,6 +9,7 @@
   import cost_per_search from "$lib/shared/store/cost";
   import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
   import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
+  import logomark from '/src/logomark.png';
 
   /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
@@ -24,6 +25,17 @@
    * @property {string} pubkey
    * @property {number} sats_per_search
    */
+
+  /**
+   * @typedef {Object} AcceptableP2PK
+   * @property {Array.<string>} conditions
+   * @property {string} data
+   */
+
+  /** @type {number} */
+  let selectedSearches = 0;
+  /** @type {number} */
+  let selectedCost = 0;
 
   async function getInfo() {
     /** @type {InfoResult} */
@@ -52,6 +64,9 @@
     if (mint_url != null && $cost_per_search !== undefined) {
       console.log("Attempting to top up for searches ", searches);
       console.log($mint_url);
+
+      selectedSearches = searches;
+      selectedCost = BigInt(searches) * BigInt($cost_per_search);
 
       const mint = new CashuMint($mint_url);
       let keysets = await mint.getKeys();
@@ -141,93 +156,28 @@
   export function customCopy(text) {
     copyToClipboard(text);
   }
+
+  function goBack() {
+    goto("/");
+  }
 </script>
-
-<!-- Update the main container div to use the new gradient background -->
-<div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
->
-  <!-- Home link -->
-  <a href="/" class="home-link">X-Cashu Search</a>
-
-  <main class="flex-grow flex flex-col justify-center items-center px-4 py-8">
-    <div class="main-heading-container">
-      <h1 class="text-5xl font-bold text-gray-900 main-heading">Top Up</h1>
-      <div class="heading-underline"></div>
-    </div>
-
-    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-6">
-      You have {balance} searches left
-    </div>
-
-    <p class="text-xl text-gray-600 mb-8">
-      Zap your account with sats to unlock more premium searches.
-    </p>
-
-    <div class="qr-container">
-      {#if isLoading}
-        <div class="spinner-container">
-          <div class="spinner"></div>
-        </div>
-      {:else if data !== ""}
-        <div class="flex flex-col items-center space-y-4">
-          <div class="bg-[#f3f4f6] p-4 rounded-lg shadow-md">
-            <SvgQR {data} width="300" height="300" />
-          </div>
-          <button
-            type="button"
-            class="copy-invoice-button"
-            on:click={() => customCopy(data)}>Copy Invoice</button
-          >
-        </div>
-      {:else}
-        <div class="top-up-grid">
-          {#each [1, 5, 10, 20, 35, 50, 100, 200, 300] as search_count}
-            <button
-              on:click={() => handleTopUp(search_count)}
-              disabled={amount_disabled(search_count)}
-              class="top-up-button"
-              class:disabled={amount_disabled(search_count)}
-            >
-              <div class="text-lg">{search_count} Searches</div>
-              {#if balance != undefined && $cost_per_search != undefined}
-                <div class="text-sm mt-2 text-gray-500">
-                  {search_count * $cost_per_search} sats
-                </div>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </main>
-
-  <!-- Updated Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <p>
-        This is an experimental proof of concept. Do Not Use with sats you're
-        not willing to lose.
-      </p>
-    </div>
-  </footer>
-</div>
 
 <style>
   .home-link {
     position: absolute;
     top: 1rem;
-    left: 2rem; /* Increased left padding */
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #000000; /* Changed to black */
-    text-decoration: none;
-    transition: color 0.3s ease;
+    left: 2rem;
     z-index: 10;
   }
 
-  .home-link:hover {
-    color: #333333; /* Slightly lighter black on hover */
+  .home-link img {
+    height: 40px; /* Adjust this value to match your desired logo size */
+    width: auto;
+    transition: opacity 0.3s ease;
+  }
+
+  .home-link:hover img {
+    opacity: 0.8;
   }
 
   .top-up-grid {
@@ -326,23 +276,50 @@
   }
 
   @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .back-button {
+    position: absolute;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #374151;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    padding: 0;
+    line-height: 1;
+    z-index: 2; /* Ensure the button is above other elements */
+  }
+
+  .back-button:hover {
+    color: #1a1a1a;
   }
 
   .main-heading-container {
     position: relative;
-    display: inline-block;
-    margin-bottom: 2rem;
+    width: 100%; /* Ensure the container takes full width */
+    text-align: center; /* Center the heading */
   }
 
   .main-heading {
     position: relative;
     z-index: 1;
+    font-size: 3rem;
+    font-weight: bold;
+    color: #1a1a1a;
+    display: inline-block; /* Allow the underline to match the text width */
   }
 
   .heading-underline {
@@ -426,4 +403,81 @@
     margin: 0 auto;
     text-align: center;
   }
+
+  .qr-info {
+    text-align: center;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
 </style>
+
+<!-- Update the main container div to use the new gradient background -->
+<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
+  <!-- Updated Home link -->
+  <a href="/" class="home-link">
+    <img src={logomark} alt="X-Cashu Search Logo" />
+  </a>
+
+  <main class="flex-grow flex flex-col justify-center items-center px-4 py-8">
+    <div class="header-container">
+      <button class="back-button" on:click={goBack}>×</button>
+      <div class="main-heading-container">
+        <h1 class="main-heading">
+          Top Up
+          <div class="heading-underline"></div>
+        </h1>
+      </div>
+    </div>
+    
+    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-6">
+      You have {balance} searches left
+    </div>
+    
+    <p class="text-xl text-gray-600 mb-8">Zap your account with sats to unlock more premium searches.</p>
+
+    <div class="qr-container">
+      {#if isLoading}
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
+      {:else if data !== ""}
+        <div class="flex flex-col items-center space-y-4">
+          <div class="qr-info">
+            Purchasing {selectedSearches} searches for {selectedCost} sats
+          </div>
+          <div class="bg-[#f3f4f6] p-4 rounded-lg shadow-md">
+            <SvgQR {data} width="300" height="300" />
+          </div>
+          <button
+            type="button"
+            class="copy-invoice-button"
+            on:click={() => customCopy(data)}>Copy Invoice</button>
+        </div>
+      {:else}
+        <div class="top-up-grid">
+          {#each [1, 5, 10, 20, 35, 50, 100, 200, 300] as search_count}
+            <button
+              on:click={() => handleTopUp(search_count)}
+              disabled={amount_disabled(search_count)}
+              class="top-up-button"
+              class:disabled={amount_disabled(search_count)}
+            >
+              <div class="text-lg">{search_count} Searches</div>
+            </button>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </main>
+
+  <!-- Updated Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>
+n        This is an experimental proof of concept. Do Not Use with sats you're
+        not willing to lose.
+      </p>
+    </div>
+  </footer>
+</div>
