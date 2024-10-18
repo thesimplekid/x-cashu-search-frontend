@@ -39,6 +39,7 @@
     "@svelte-put/qr": "^1.2.0",
     "caniuse-lite": "",
     "cookies": "^0.9.1",
+    "light-bolt11-decoder": "^3.2.0",
     "vite-plugin-wasm": "^3.3.0"
   }
 }

@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import SvgQR from "@svelte-put/qr/svg/QR.svelte";
   import { copyToClipboard } from "@svelte-put/copy";
+  import bolt11Decoder from "light-bolt11-decoder";
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import lock_key from "$lib/shared/store/store";
@@ -9,7 +10,7 @@
   import cost_per_search from "$lib/shared/store/cost";
   import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
   import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
-  import logomark from '/src/logomark.png';
+  import logomark from "/src/logomark.png";
 
   /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
@@ -37,6 +38,9 @@
   /** @type {number} */
   let selectedCost = 0;
 
+  /** @type {number} */
+  let invoice_amount = 0;
+
   async function getInfo() {
     /** @type {InfoResult} */
     let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
@@ -58,6 +62,24 @@
   });
 
   /**
+   * Extracts the amount in satoshis from a BOLT11 lightning invoice
+   * @param {string} invoice - The BOLT11 encoded lightning invoice
+   * @returns {number} The amount in satoshis (converted from millisatoshis)
+   * @throws {Error} If the invoice cannot be decoded or is invalid
+   * @example
+   * const invoice = "lnbc...";
+   * const sats = getAmountFromInvoice(invoice);
+   * // sats = 1000
+   */
+  export const getAmountFromInvoice = (invoice) => {
+    // Decode the invoice
+    const decodedInvoice = bolt11Decoder.decode(invoice);
+    // Extract the amount from the decoded invoice and convert from msats to sats
+    const amount = Number(decodedInvoice.sections[2].value / 1000);
+    return amount;
+  };
+
+  /**
    * @param {number} searches
    */
   async function handleTopUp(searches) {
@@ -66,7 +88,6 @@
       console.log($mint_url);
 
       selectedSearches = searches;
-      selectedCost = BigInt(searches) * BigInt($cost_per_search);
 
       const mint = new CashuMint($mint_url);
       let keysets = await mint.getKeys();
@@ -83,6 +104,7 @@
       isLoading = false; // Hide the spinner once we have the invoice
 
       data = mintQuote.request;
+      invoice_amount = getAmountFromInvoice(data);
 
       // Polling function to check the mint quote state
       /**
@@ -161,6 +183,81 @@
     goto("/");
   }
 </script>
+
+<!-- Update the main container div to use the new gradient background -->
+<div
+  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+>
+  <!-- Updated Home link -->
+  <a href="/" class="home-link">
+    <img src={logomark} alt="X-Cashu Search Logo" />
+  </a>
+
+  <main class="flex-grow flex flex-col justify-center items-center px-4 py-8">
+    <div class="header-container">
+      <button class="back-button" on:click={goBack}>×</button>
+      <div class="main-heading-container">
+        <h1 class="main-heading">
+          Top Up
+          <div class="heading-underline"></div>
+        </h1>
+      </div>
+    </div>
+
+    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-6">
+      You have {balance} searches left
+    </div>
+
+    <p class="text-xl text-gray-600 mb-8">
+      Zap your account with sats to unlock more premium searches.
+    </p>
+
+    <div class="qr-container">
+      {#if isLoading}
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
+      {:else if data !== ""}
+        <div class="flex flex-col items-center space-y-4">
+          <div class="qr-info">
+            Purchasing {selectedSearches} searches for {invoice_amount} sats
+          </div>
+          <div class="bg-[#f3f4f6] p-4 rounded-lg shadow-md">
+            <SvgQR {data} width="300" height="300" />
+          </div>
+          <button
+            type="button"
+            class="copy-invoice-button"
+            on:click={() => customCopy(data)}>Copy Invoice</button
+          >
+        </div>
+      {:else}
+        <div class="top-up-grid">
+          {#each [1, 5, 10, 20, 35, 50, 100, 200, 300] as search_count}
+            <button
+              on:click={() => handleTopUp(search_count)}
+              disabled={amount_disabled(search_count)}
+              class="top-up-button"
+              class:disabled={amount_disabled(search_count)}
+            >
+              <div class="text-lg">{search_count} Searches</div>
+            </button>
+          {/each}
+        </div>
+      {/if}
+    </div>
+  </main>
+
+  <!-- Updated Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>
+        This is an experimental proof of concept. Do Not Use with sats you're
+        not willing to lose.
+      </p>
+    </div>
+  </footer>
+</div>
 
 <style>
   .home-link {
@@ -276,8 +373,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   .header-container {
@@ -411,73 +512,3 @@
     font-weight: 600;
   }
 </style>
-
-<!-- Update the main container div to use the new gradient background -->
-<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
-  <!-- Updated Home link -->
-  <a href="/" class="home-link">
-    <img src={logomark} alt="X-Cashu Search Logo" />
-  </a>
-
-  <main class="flex-grow flex flex-col justify-center items-center px-4 py-8">
-    <div class="header-container">
-      <button class="back-button" on:click={goBack}>×</button>
-      <div class="main-heading-container">
-        <h1 class="main-heading">
-          Top Up
-          <div class="heading-underline"></div>
-        </h1>
-      </div>
-    </div>
-    
-    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-6">
-      You have {balance} searches left
-    </div>
-    
-    <p class="text-xl text-gray-600 mb-8">Zap your account with sats to unlock more premium searches.</p>
-
-    <div class="qr-container">
-      {#if isLoading}
-        <div class="spinner-container">
-          <div class="spinner"></div>
-        </div>
-      {:else if data !== ""}
-        <div class="flex flex-col items-center space-y-4">
-          <div class="qr-info">
-            Purchasing {selectedSearches} searches for {selectedCost} sats
-          </div>
-          <div class="bg-[#f3f4f6] p-4 rounded-lg shadow-md">
-            <SvgQR {data} width="300" height="300" />
-          </div>
-          <button
-            type="button"
-            class="copy-invoice-button"
-            on:click={() => customCopy(data)}>Copy Invoice</button>
-        </div>
-      {:else}
-        <div class="top-up-grid">
-          {#each [1, 5, 10, 20, 35, 50, 100, 200, 300] as search_count}
-            <button
-              on:click={() => handleTopUp(search_count)}
-              disabled={amount_disabled(search_count)}
-              class="top-up-button"
-              class:disabled={amount_disabled(search_count)}
-            >
-              <div class="text-lg">{search_count} Searches</div>
-            </button>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </main>
-
-  <!-- Updated Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <p>
-n        This is an experimental proof of concept. Do Not Use with sats you're
-        not willing to lose.
-      </p>
-    </div>
-  </footer>
-</div>
