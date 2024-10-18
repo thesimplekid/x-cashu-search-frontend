@@ -76,7 +76,7 @@
     const decodedInvoice = bolt11Decoder.decode(invoice);
     // Extract the amount from the decoded invoice and convert from msats to sats
     const amount = Number(decodedInvoice.sections[2].value / 1000);
-    return amount;
+    return Math.ceil(amount);
   };
 
   /**
