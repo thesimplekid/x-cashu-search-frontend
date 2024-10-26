@@ -193,7 +193,7 @@
     <img src={logomark} alt="X-Cashu Search Logo" />
   </a>
 
-  <main class="flex-grow flex flex-col justify-center items-center px-4 py-8">
+  <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <button class="back-button" on:click={goBack}>×</button>
       <div class="main-heading-container">
@@ -204,15 +204,15 @@
       </div>
     </div>
 
-    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-6">
+    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-4">
       You have {balance} searches left
     </div>
 
-    <p class="text-xl text-gray-600 mb-8">
+    <p class="text-xl text-gray-600 mb-6">
       Zap your account with sats to unlock more premium searches.
     </p>
 
-    <div class="qr-container">
+    <div class="qr-container mt-2">
       {#if isLoading}
         <div class="spinner-container">
           <div class="spinner"></div>
@@ -233,7 +233,7 @@
         </div>
       {:else}
         <div class="top-up-grid">
-          {#each [1, 5, 10, 20, 35, 50, 100, 200, 300] as search_count}
+          {#each [1, 5, 10, 20, 35, 50] as search_count}
             <button
               on:click={() => handleTopUp(search_count)}
               disabled={amount_disabled(search_count)}
@@ -498,12 +498,12 @@
   }
 
   .qr-container {
-    height: 450px; /* Adjust this value based on your needs */
+    min-height: 300px; /* Reduced height */
     width: 100%;
-    max-width: 800px; /* Match the max-width of top-up-grid */
+    max-width: 800px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Changed from center to flex-start */
     align-items: center;
     position: relative;
   }
@@ -595,3 +595,4 @@
     font-weight: 600;
   }
 </style>
+
