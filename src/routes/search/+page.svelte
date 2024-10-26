@@ -1,13 +1,13 @@
 <script>
   import { onMount } from "svelte";
-  import { page } from "$app/stores";
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
-  import lock_key from "$lib/shared/store/store";
   import mint_url from "$lib/shared/store/mint_url";
   import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import logomark from "/src/logomark.png";
+  import { searchQuery } from "$lib/shared/store/store";
+
   /** @type {import("@cashu/cashu-ts").Token} */
 
   /** @type {number} */
@@ -23,6 +23,30 @@
    * @property {string} age
    */
 
+  /**
+   * Save search results to session storage
+   * @param {Array.<SearchResult>} results
+   */
+  function saveSearchResults(results) {
+    sessionStorage.setItem(
+      "searchResults",
+      JSON.stringify({
+        results,
+        timestamp: Date.now(),
+        query: search_query,
+      }),
+    );
+  }
+
+  /**
+   * Get search results from session storage
+   * @returns {{results: Array.<SearchResult>, timestamp: number, query: string} | null}
+   */
+  function getStoredSearchResults() {
+    const stored = sessionStorage.getItem("searchResults");
+    return stored ? JSON.parse(stored) : null;
+  }
+
   /** @type {Array.<SearchResult>} */
   let search_results = [];
 
@@ -34,13 +58,14 @@
   let searchPerformed = false;
 
   onMount(async () => {
-    let q = $page.url.searchParams.get("q");
-    if (q != null) {
-      search_query = q;
+    if ($searchQuery != null) {
+      search_query = $searchQuery;
+      await handleSearch();
+      $searchQuery = null;
+    } else {
+      search_results = getStoredSearchResults()?.results || [];
     }
 
-    search_query;
-    await handleSearch();
     balance = getBalance();
   });
 
@@ -56,7 +81,6 @@
     let proof = proofs[0];
 
     try {
-      console.log($mint_url);
       /** @type {import("@cashu/cashu-ts").Token} */
       let token = {
         token: [
@@ -67,10 +91,8 @@
         ],
         unit: "search",
       };
-      console.log(token);
 
       let encoded_token = getEncodedTokenV4(token);
-      console.log(encoded_token);
 
       let response = await fetch(`${PUBLIC_API_URL}/search?q=${search_query}`, {
         headers: { "X-Cashu": `${encoded_token}` },
@@ -106,6 +128,7 @@
     } finally {
       isLoading = false;
       balance = getBalance();
+      saveSearchResults(search_results);
     }
   }
 
