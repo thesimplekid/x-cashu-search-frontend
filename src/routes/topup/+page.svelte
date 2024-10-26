@@ -193,7 +193,7 @@
     <img src={logomark} alt="X-Cashu Search Logo" />
   </a>
 
-  <main class="flex-grow flex flex-col justify-center items-center px-4 py-8">
+  <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <button class="back-button" on:click={goBack}>×</button>
       <div class="main-heading-container">
@@ -204,15 +204,15 @@
       </div>
     </div>
 
-    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-6">
+    <div class="text-2xl font-semibold text-gray-900 mt-2 mb-4">
       You have {balance} searches left
     </div>
 
-    <p class="text-xl text-gray-600 mb-8">
+    <p class="text-xl text-gray-600 mb-6">
       Zap your account with sats to unlock more premium searches.
     </p>
 
-    <div class="qr-container">
+    <div class="qr-container mt-2">
       {#if isLoading}
         <div class="spinner-container">
           <div class="spinner"></div>
@@ -233,7 +233,7 @@
         </div>
       {:else}
         <div class="top-up-grid">
-          {#each [1, 5, 10, 20, 35, 50, 100, 200, 300] as search_count}
+          {#each [1, 5, 10, 20, 35, 50] as search_count}
             <button
               on:click={() => handleTopUp(search_count)}
               disabled={amount_disabled(search_count)}
@@ -248,14 +248,31 @@
     </div>
   </main>
 
+  <!-- Add this horizontal line container above the footer -->
+  <div class="horizontal-line-container">
+    <div class="fading-line"></div>
+  </div>
+
   <!-- Updated Footer -->
   <footer class="footer">
     <div class="footer-content">
-      <p>
-        This is an experimental proof of concept. Do Not Use with sats you're
-        not willing to lose.
-      </p>
+      <div class="footer-left">
+        <div class="footer-text">
+          <span class="footer-brand-name">Athenut</span>
+        </div>
+        <p class="footer-description">
+          &copy; {new Date().getFullYear()} All rights reserved.
+        </p>
+      </div>
+      <div class="footer-right">
+        <a href="https://github.com/thesimplekid/x-cashu-search" target="_blank" rel="noopener noreferrer" class="github-link">
+          <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="github-icon">
+            <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+        </a>
+      </div>
     </div>
+    <!-- Remove the black bar -->
   </footer>
 </div>
 
@@ -481,28 +498,94 @@
   }
 
   .qr-container {
-    height: 450px; /* Adjust this value based on your needs */
+    min-height: 300px; /* Reduced height */
     width: 100%;
-    max-width: 800px; /* Match the max-width of top-up-grid */
+    max-width: 800px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* Changed from center to flex-start */
     align-items: center;
     position: relative;
   }
 
-  /* Add these new styles for the footer */
+  /* Update these footer styles */
   .footer {
-    background-color: #1a1a1a;
-    color: white;
-    padding: 16px 0;
-    font-weight: 600;
+    background-color: #ffffff;
+    color: #1a1a1a;
+    padding: 32px 0;
+    font-weight: 400;
+    position: relative;
+    margin-top: 0;
   }
 
   .footer-content {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 24px;
+  }
+
+  .footer-left {
+    max-width: 300px;
+  }
+
+  .footer-text {
+    margin-bottom: 16px;
+  }
+
+  .footer-brand-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: #1a1a1a;
+  }
+
+  .footer-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #4a5568;
+  }
+
+  .footer-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .github-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+  }
+
+  .github-link:hover {
+    opacity: 0.7;
+  }
+
+  .github-icon {
+    fill: #1a1a1a;
+  }
+
+  /* Add this new style for the horizontal line */
+  .horizontal-line-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+  }
+
+  .fading-line {
+    width: 80%;
+    max-width: 1000px;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(229, 231, 235, 0),
+      rgba(229, 231, 235, 1) 20%,
+      rgba(229, 231, 235, 1) 80%,
+      rgba(229, 231, 235, 0)
+    );
   }
 
   .qr-info {
@@ -512,3 +595,4 @@
     font-weight: 600;
   }
 </style>
+

@@ -261,35 +261,99 @@
 
   /* Update these styles at the end of your style block */
   .gradient-background {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    position: relative;
+    background: #ffffff; /* Changed to plain white */
   }
 
+  /* Remove this entire block */
   .gradient-background::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    opacity: 0.2;
-    mix-blend-mode: soft-light;
-    pointer-events: none;
+    /* Remove the content */
   }
 
-  /* Add these new styles for the footer */
+  /* Update these footer styles */
   .footer {
-    background-color: #1a1a1a;
-    color: white;
-    padding: 16px 0;
-    font-weight: 600;
+    background-color: #ffffff;
+    color: #1a1a1a;
+    padding: 32px 0 0; /* Remove bottom padding */
+    font-weight: 400;
+    position: relative; /* Add this for positioning the bar */
+    margin-top: 0; /* Ensure no space between line and footer */
   }
 
   .footer-content {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 24px 32px;
+  }
+
+  .footer-left {
+    max-width: 300px;
+  }
+
+  .footer-text {
+    margin-bottom: 16px;
+  }
+
+  .footer-brand-name {
+    font-size: 18px; /* Reduced from 24px */
+    font-weight: 500; /* Reduced from 600 */
+    color: #1a1a1a;
+  }
+
+  .footer-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #4a5568;
+  }
+
+  .footer-right {
+    display: flex;
+    align-items: center;
+  }
+
+  .github-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+  }
+
+  .github-link:hover {
+    opacity: 0.7;
+  }
+
+  .github-icon {
+    fill: #1a1a1a;
+  }
+
+  .footer-column h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #ffffff;
+  }
+
+  .footer-column ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-column li {
+    margin-bottom: 8px;
+  }
+
+  .footer-column a {
+    color: #a0aec0;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+  }
+
+  .footer-column a:hover {
+    color: #ffffff;
   }
 
   .wordmark {
@@ -297,9 +361,89 @@
     height: auto;
     margin-bottom: 1rem; /* Adjust spacing as needed */
   }
+
+  /* Update the footer-bar style */
+  .footer-bar {
+    /* This style block should be completely removed */
+  }
+
+  .horizontal-line-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: auto; /* Push the line to the bottom of the flex container */
+  }
+
+  .fading-line {
+    width: 80%;
+    max-width: 1000px;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      rgba(229, 231, 235, 0),
+      rgba(229, 231, 235, 1) 20%,
+      rgba(229, 231, 235, 1) 80%,
+      rgba(229, 231, 235, 0)
+    );
+  }
+
+  .copyright-disclaimer {
+    text-align: center;
+    padding: 16px 0;
+    font-size: 14px;
+    color: #4a5568;
+    /* Removed background-color and border-top */
+  }
+
+  .empty-state {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    width: 100%;
+    max-width: 600px; /* Increased from 400px */
+    margin: 0 auto;
+  }
+
+  .empty-state-title {
+    font-size: 24px; /* Increased from 20px */
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 16px; /* Increased from 8px */
+  }
+
+  .empty-state-description {
+    font-size: 18px; /* Increased from 16px */
+    color: #4a5568;
+    margin-bottom: 24px;
+  }
+
+  .empty-state-button {
+    display: inline-block;
+    background-color: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 14px 28px; /* Increased from 12px 24px */
+    font-size: 18px; /* Increased from 16px */
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .empty-state-button:hover {
+    background-color: #2a2a2a;
+  }
+
+  .empty-state-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.3);
+  }
 </style>
 
-<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
+<div class="min-h-screen flex flex-col text-gray-800 relative">
   <!-- Updated Home link -->
   <a href="/" class="home-link">
     <img src={logomark} alt="X-Cashu Search Logo" />
@@ -328,10 +472,11 @@
             <div class="spinner-container">
               <div class="spinner"></div>
             </div>
-          {:else if balance === undefined || balance<= 0}
-            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
-              <h3 class="font-semibold mb-2">Top Up Required</h3>
-              <p>Please top up to start searching</p>
+          {:else if balance === undefined || balance <= 0}
+            <div class="empty-state">
+              <h3 class="empty-state-title">Top Up Required</h3>
+              <p class="empty-state-description">You need to add funds to start searching.</p>
+              <a href="/topup" class="empty-state-button">Top Up Now</a>
             </div>
           {:else}
             <div class="flex flex-col items-center space-y-8">
@@ -361,13 +506,31 @@
     </div>
   </div>
 
+  <!-- Updated horizontal line container -->
+  <div class="horizontal-line-container">
+    <div class="fading-line"></div>
+  </div>
+
   <!-- Updated Footer -->
   <footer class="footer">
     <div class="footer-content">
-      <p>
-        This is an experimental proof of concept. Do Not Use with sats you're
-        not willing to lose.
-      </p>
+      <div class="footer-left">
+        <div class="footer-text">
+          <span class="footer-brand-name">Athenut</span>
+        </div>
+        <p class="footer-description">
+          &copy; {new Date().getFullYear()} All rights reserved.
+        </p>
+      </div>
+      <div class="footer-right">
+        <a href="https://github.com/thesimplekid/x-cashu-search" target="_blank" rel="noopener noreferrer" class="github-link">
+          <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="github-icon">
+            <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+          </svg>
+        </a>
+      </div>
     </div>
+    <!-- Remove the following line -->
+    <!-- <div class="footer-bar"></div> -->
   </footer>
 </div>
