@@ -15,6 +15,3 @@ lock_key.subscribe((value) => {
 });
 
 export default lock_key;
-
-/** @type {import('svelte/store').Writable<string | null>} */
-export const searchQuery = writable(null);

@@ -4,7 +4,6 @@
   import { getBalance } from "$lib/shared/utils";
   import logomark from "/src/logomark.png";
   import wordmark from "/src/wordmark.png";
-  import { searchQuery } from "$lib/shared/store/store";
 
   /** @type {number} */
   let balance = 0;
@@ -32,8 +31,7 @@
     if (search_query.trim()) {
       const urlEncoded = encodeURIComponent(search_query);
 
-      $searchQuery = urlEncoded;
-      goto(`/search`);
+      goto(`/search?q=${urlEncoded}`);
     }
   }
 </script>

@@ -1,10 +1,11 @@
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
-  <ShortName>Cashu Search</ShortName>
+  <ShortName>Athenut</ShortName>
   <Description>Search Engine paid for with nuts</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://search.thesimplekid.dev/favicon.ico</Image>
-  <Url type="text/html" template="http://search.thesimplekid.dev/search?q={searchTerms}"/>
-  <moz:SearchForm>https://search.thesimplekid.dev/search/{searchTerms}</moz:SearchForm>
+  <Language>*</Language>
+  <Image width="16" height="16" type="image/x-icon">https://athenut.com/favicon.ico</Image>
+  <Url type="text/html" 
+       template="https://athenut.com/search?q={searchTerms}"/>
+  <moz:SearchForm>https://athenut.com/search</moz:SearchForm>
 </OpenSearchDescription>
-

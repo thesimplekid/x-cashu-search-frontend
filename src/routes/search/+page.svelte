@@ -6,7 +6,7 @@
   import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import logomark from "/src/logomark.png";
-  import { searchQuery } from "$lib/shared/store/store";
+  import { page } from "$app/stores";
 
   /** @type {import("@cashu/cashu-ts").Token} */
 
@@ -58,12 +58,22 @@
   let searchPerformed = false;
 
   onMount(async () => {
-    if ($searchQuery != null) {
-      search_query = $searchQuery;
-      await handleSearch();
-      $searchQuery = null;
+    let q = $page.url.searchParams.get("q");
+    if (q != null) {
+      search_query = q;
+
+      let stored_search_results = getStoredSearchResults();
+
+      if (
+        stored_search_results != null &&
+        search_query === stored_search_results.query
+      ) {
+        search_results = stored_search_results.results;
+      } else {
+        await handleSearch();
+      }
     } else {
-      search_results = getStoredSearchResults()?.results || [];
+      alert("Unknown search param");
     }
 
     balance = getBalance();
