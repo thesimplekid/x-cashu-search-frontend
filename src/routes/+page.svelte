@@ -1,13 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import { page } from "$app/stores";
-  import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
-  import cost_per_search from "$lib/shared/store/cost";
-  import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
-  import { getEncodedToken } from "@cashu/cashu-ts";
-  import logomark from '/src/logomark.png';
-  import wordmark from '/src/wordmark.png';
+  import { getBalance } from "$lib/shared/utils";
+  import logomark from "/src/logomark.png";
+  import wordmark from "/src/wordmark.png";
 
   /** @type {number} */
   let balance = 0;
@@ -15,8 +11,6 @@
   let search_query = "";
 
   let isLoading = true; // New variable to track loading state
-
-  let searchButton;
 
   onMount(async () => {
     balance = await getBalance();
@@ -40,6 +34,116 @@
     }
   }
 </script>
+
+<div class="min-h-screen flex flex-col text-gray-800 relative">
+  <!-- Updated Home link -->
+  <a href="/" class="home-link">
+    <img src={logomark} alt="X-Cashu Search Logo" />
+  </a>
+
+  <!-- Top right info -->
+  <div class="absolute top-4 right-4 z-10">
+    <div class="top-right-info">
+      <span class="searches-left"
+        >Searches left: <span class="searches-count">{balance}</span></span
+      >
+      <a href="/topup" class="top-up-button">Top Up</a>
+    </div>
+  </div>
+
+  <!-- Centered content -->
+  <div class="flex-grow flex flex-col justify-center items-center px-4">
+    <div class="container mx-auto text-center">
+      <img src={wordmark} alt="X-Cashu Search" class="wordmark inline-block" />
+
+      <h2 class="text-2xl font-normal text-gray-500 sub-heading">
+        Search smarter. Pay in sats for results that matter.
+      </h2>
+
+      <div class="content-container">
+        <div class="search-container">
+          {#if isLoading}
+            <div class="spinner-container">
+              <div class="spinner"></div>
+            </div>
+          {:else if balance === undefined || balance <= 0}
+            <div class="empty-state">
+              <h3 class="empty-state-title">Top Up Required</h3>
+              <p class="empty-state-description">
+                You need to add funds to start searching.
+              </p>
+              <a href="/topup" class="empty-state-button">Top Up Now</a>
+            </div>
+          {:else}
+            <div class="flex flex-col items-center space-y-8">
+              <div class="search-input-wrapper">
+                <div
+                  class="bg-white p-2 rounded-input-container shadow-md w-full"
+                >
+                  <input
+                    type="text"
+                    autocomplete="off"
+                    placeholder="Ask whatever you want..."
+                    class="w-full rounded-input border-none focus:outline-none"
+                    bind:value={search_query}
+                    on:keyup={handleKeyup}
+                  />
+                </div>
+              </div>
+              <button class="search-button" on:click={handleSearch}>
+                <span class="search-button-text">Search</span>
+              </button>
+            </div>
+          {/if}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Updated horizontal line container -->
+  <div class="horizontal-line-container">
+    <div class="fading-line"></div>
+  </div>
+
+  <!-- Updated Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-left">
+        <div class="footer-text">
+          <span class="footer-brand-name">Athenut</span>
+        </div>
+        <p class="footer-description">
+          &copy; {new Date().getFullYear()} All rights reserved.
+        </p>
+      </div>
+      <div class="footer-right">
+        <a
+          href="https://github.com/thesimplekid/x-cashu-search"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="github-link"
+        >
+          <svg
+            height="32"
+            aria-hidden="true"
+            viewBox="0 0 16 16"
+            version="1.1"
+            width="32"
+            data-view-component="true"
+            class="github-icon"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+            ></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <!-- Remove the following line -->
+    <!-- <div class="footer-bar"></div> -->
+  </footer>
+</div>
 
 <style>
   /* Add this style block at the end of your component */
@@ -442,95 +546,3 @@
     box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.3);
   }
 </style>
-
-<div class="min-h-screen flex flex-col text-gray-800 relative">
-  <!-- Updated Home link -->
-  <a href="/" class="home-link">
-    <img src={logomark} alt="X-Cashu Search Logo" />
-  </a>
-
-  <!-- Top right info -->
-  <div class="absolute top-4 right-4 z-10">
-    {#if $cost_per_search != undefined && balance != undefined}
-      <div class="top-right-info">
-        <span class="searches-left">Searches left: <span class="searches-count">{balance}</span></span>
-        <a href="/topup" class="top-up-button">Top Up</a>
-      </div>
-    {/if}
-  </div>
-
-  <!-- Centered content -->
-  <div class="flex-grow flex flex-col justify-center items-center px-4">
-    <div class="container mx-auto text-center">
-      <img src={wordmark} alt="X-Cashu Search" class="wordmark inline-block" />
-      
-      <h2 class="text-2xl font-normal text-gray-500 sub-heading">Search smarter. Pay in sats for results that matter.</h2>
-
-      <div class="content-container">
-        <div class="search-container">
-          {#if isLoading}
-            <div class="spinner-container">
-              <div class="spinner"></div>
-            </div>
-          {:else if balance === undefined || balance <= 0}
-            <div class="empty-state">
-              <h3 class="empty-state-title">Top Up Required</h3>
-              <p class="empty-state-description">You need to add funds to start searching.</p>
-              <a href="/topup" class="empty-state-button">Top Up Now</a>
-            </div>
-          {:else}
-            <div class="flex flex-col items-center space-y-8">
-              <div class="search-input-wrapper">
-                <div class="bg-white p-2 rounded-input-container shadow-md w-full">
-                  <input
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Ask whatever you want..."
-                    class="w-full rounded-input border-none focus:outline-none"
-                    bind:value={search_query}
-                    on:keyup={handleKeyup}
-                  />
-                </div>
-              </div>
-              <button
-                class="search-button"
-                on:click={handleSearch}
-                bind:this={searchButton}
-              >
-                <span class="search-button-text">Search</span>
-              </button>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Updated horizontal line container -->
-  <div class="horizontal-line-container">
-    <div class="fading-line"></div>
-  </div>
-
-  <!-- Updated Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-left">
-        <div class="footer-text">
-          <span class="footer-brand-name">Athenut</span>
-        </div>
-        <p class="footer-description">
-          &copy; {new Date().getFullYear()} All rights reserved.
-        </p>
-      </div>
-      <div class="footer-right">
-        <a href="https://github.com/thesimplekid/x-cashu-search" target="_blank" rel="noopener noreferrer" class="github-link">
-          <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="github-icon">
-            <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
-          </svg>
-        </a>
-      </div>
-    </div>
-    <!-- Remove the following line -->
-    <!-- <div class="footer-bar"></div> -->
-  </footer>
-</div>

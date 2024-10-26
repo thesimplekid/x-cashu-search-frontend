@@ -36,7 +36,7 @@
             nixpkgs-fmt
 
             # binaries
-            nodejs_20
+            nodejs_22
             bun
             playwright-driver.browsers # node package version and this must match
 
