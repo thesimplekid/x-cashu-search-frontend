@@ -83,9 +83,9 @@
 
       const mint = new CashuMint($mint_url);
       let keysets = await mint.getKeys();
-      let matchingKeyset = keysets.keysets.find((key) => key.unit === "search");
+      let matchingKeyset = keysets.keysets.find((key) => key.unit === "xsr");
       const wallet = new CashuWallet(mint, {
-        unit: "search",
+        unit: "xsr",
         keys: matchingKeyset,
       });
 

@@ -99,7 +99,7 @@
             proofs: [proof],
           },
         ],
-        unit: "search",
+        unit: "XSR",
       };
 
       let encoded_token = getEncodedTokenV4(token);
