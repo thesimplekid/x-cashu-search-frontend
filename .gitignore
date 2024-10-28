@@ -3,3 +3,5 @@ build/
 .svelte-kit/
 node_modules
 bun.lockb
+.DS_Store
+package-lock.json
