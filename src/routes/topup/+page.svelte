@@ -6,7 +6,6 @@
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import mint_url from "$lib/shared/store/mint_url";
-  import cost_per_search from "$lib/shared/store/cost";
   import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
   import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
   import logomark from "/src/logomark.png";
@@ -71,7 +70,7 @@
    * @param {number} searches
    */
   async function handleTopUp(searches) {
-    if (mint_url != null && $cost_per_search !== undefined) {
+    if (mint_url != null) {
       console.log("Attempting to top up for searches ", searches);
       console.log($mint_url);
 
