@@ -4,6 +4,7 @@
   import { getBalance } from "$lib/shared/utils";
   import logomark from "/src/logomark.png";
   import wordmark from "/src/wordmark.png";
+  import Footer from '../components/Footer.svelte';
 
   /** @type {number} */
   let balance = 0;
@@ -101,49 +102,7 @@
     </div>
   </div>
 
-  <!-- Updated horizontal line container -->
-  <div class="horizontal-line-container">
-    <div class="fading-line"></div>
-  </div>
-
-  <!-- Updated Footer -->
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-left">
-        <div class="footer-text">
-          <span class="footer-brand-name">Athenut</span>
-        </div>
-        <p class="footer-description">
-          &copy; {new Date().getFullYear()} All rights reserved.
-        </p>
-      </div>
-      <div class="footer-right">
-        <a
-          href="https://github.com/thesimplekid/x-cashu-search"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="github-link"
-        >
-          <svg
-            height="32"
-            aria-hidden="true"
-            viewBox="0 0 16 16"
-            version="1.1"
-            width="32"
-            data-view-component="true"
-            class="github-icon"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
-            ></path>
-          </svg>
-        </a>
-      </div>
-    </div>
-    <!-- Remove the following line -->
-    <!-- <div class="footer-bar"></div> -->
-  </footer>
+  <Footer />
 </div>
 
 <style>
@@ -368,138 +327,7 @@
   .gradient-background {
     background: #ffffff; /* Changed to plain white */
   }
-
-  /* Remove this entire block */
-  .gradient-background::before {
-    /* Remove the content */
-  }
-
-  /* Update these footer styles */
-  .footer {
-    background-color: #ffffff;
-    color: #1a1a1a;
-    padding: 32px 0 0; /* Remove bottom padding */
-    font-weight: 400;
-    position: relative; /* Add this for positioning the bar */
-    margin-top: 0; /* Ensure no space between line and footer */
-  }
-
-  .footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0 24px 32px;
-  }
-
-  .footer-left {
-    max-width: 300px;
-  }
-
-  .footer-text {
-    margin-bottom: 16px;
-  }
-
-  .footer-brand-name {
-    font-size: 18px; /* Reduced from 24px */
-    font-weight: 500; /* Reduced from 600 */
-    color: #1a1a1a;
-  }
-
-  .footer-description {
-    font-size: 14px;
-    line-height: 1.5;
-    color: #4a5568;
-  }
-
-  .footer-right {
-    display: flex;
-    align-items: center;
-  }
-
-  .github-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.3s ease;
-  }
-
-  .github-link:hover {
-    opacity: 0.7;
-  }
-
-  .github-icon {
-    fill: #1a1a1a;
-  }
-
-  .footer-column h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: #ffffff;
-  }
-
-  .footer-column ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .footer-column li {
-    margin-bottom: 8px;
-  }
-
-  .footer-column a {
-    color: #a0aec0;
-    text-decoration: none;
-    font-size: 14px;
-    transition: color 0.3s ease;
-  }
-
-  .footer-column a:hover {
-    color: #ffffff;
-  }
-
-  .wordmark {
-    max-width: 300px; /* Adjust this value as needed */
-    height: auto;
-    margin-bottom: 1rem; /* Adjust spacing as needed */
-  }
-
-  /* Update the footer-bar style */
-  .footer-bar {
-    /* This style block should be completely removed */
-  }
-
-  .horizontal-line-container {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: auto; /* Push the line to the bottom of the flex container */
-  }
-
-  .fading-line {
-    width: 80%;
-    max-width: 1000px;
-    height: 1px;
-    background: linear-gradient(
-      to right,
-      rgba(229, 231, 235, 0),
-      rgba(229, 231, 235, 1) 20%,
-      rgba(229, 231, 235, 1) 80%,
-      rgba(229, 231, 235, 0)
-    );
-  }
-
-  .copyright-disclaimer {
-    text-align: center;
-    padding: 16px 0;
-    font-size: 14px;
-    color: #4a5568;
-    /* Removed background-color and border-top */
-  }
-
+  
   .empty-state {
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
@@ -545,5 +373,53 @@
   .empty-state-button:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.3);
+  }
+
+  /* Add these styles back if they were accidentally removed */
+  .wordmark {
+    max-width: 400px; /* Adjust this value as needed */
+    height: auto;
+    margin-bottom: 1rem;
+  }
+
+  /* Make sure these important layout styles are preserved */
+  .content-container {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .search-container {
+    width: 100%;
+    max-width: 32rem;
+  }
+
+  .main-heading {
+    margin-bottom: 32px;
+  }
+
+  .sub-heading {
+    margin-bottom: 1.5rem;
+  }
+
+  /* Update the wordmark styles */
+  .wordmark {
+    max-width: 400px;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+
+  /* Add media query for mobile devices */
+  @media (max-width: 640px) {
+    .wordmark {
+      max-width: 280px; /* Smaller width on mobile */
+    }
+
+    .sub-heading {
+      font-size: 1.25rem; /* Smaller font size on mobile (20px) */
+      padding: 0 1rem; /* Add some padding on the sides */
+    }
   }
 </style>
