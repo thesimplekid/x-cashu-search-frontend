@@ -5,6 +5,7 @@
   import logomark from "/src/logomark.png";
   import wordmark from "/src/wordmark.png";
   import Footer from '../components/Footer.svelte';
+  import bgl from "/src/bgl.png";
 
   /** @type {number} */
   let balance = 0;
@@ -59,7 +60,8 @@
   <!-- Main content with padding-top -->
   <div class="flex-grow flex flex-col justify-center items-center p-4 min-h-0">
     <div class="container mx-auto text-center relative w-full max-w-4xl px-4">
-      <div class="blur-background"></div>
+      <div class="background-image"></div>
+      
       <img src={wordmark} alt="X-Cashu Search" class="wordmark" />
 
       <h2 class="text-xl md:text-2xl font-normal text-gray-500 mb-8 px-4">
@@ -117,60 +119,7 @@
     overflow: visible;
   }
 
-  .blur-background {
-    position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 100vw;
-    height: 100vh;
-    background-image: url('/src/bgl.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    /* Enhanced subtle blur effect */
-    filter: 
-      blur(100px) 
-      opacity(0.15) 
-      brightness(1.2)
-      contrast(0.8);
-    z-index: 0;
-    pointer-events: none;
-    mix-blend-mode: soft-light;
-    
-    /* Add a subtle gradient overlay */
-    &::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.95),
-        rgba(255, 255, 255, 0.85)
-      );
-      mix-blend-mode: overlay;
-    }
-  }
 
-  /* Softer animation */
-  @keyframes backgroundEffect {
-    0%, 100% {
-      transform: translate(-50%, -50%) scale(1);
-      filter: 
-        blur(100px) 
-        opacity(0.15) 
-        brightness(1.2)
-        contrast(0.8);
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1.02);
-      filter: 
-        blur(110px) 
-        opacity(0.12) 
-        brightness(1.25)
-        contrast(0.75);
-    }
-  }
 
   .wordmark {
     position: relative;
@@ -526,46 +475,6 @@
     }
   }
 
-  /* Add to your style block */
-  .blur-background {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 800px;
-    height: 400px;
-    background-image: url('/src/bgl.png');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    /* Enhanced blur effect */
-    filter: blur(40px) opacity(0.5) saturate(150%);
-    /* Add a subtle gradient overlay */
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        45deg,
-        rgba(255, 255, 255, 0.1),
-        rgba(255, 255, 255, 0.2)
-      );
-      backdrop-filter: blur(10px);
-    }
-    /* Add some subtle animation */
-    animation: pulse 8s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      transform: translate(-50%, -50%) scale(1);
-      filter: blur(40px) opacity(0.5) saturate(150%);
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1.05);
-      filter: blur(45px) opacity(0.45) saturate(160%);
-    }
-  }
 
   /* Update the wordmark styles to ensure proper positioning */
   .wordmark {
@@ -648,5 +557,83 @@
     padding: 8px 16px;
     font-size: 16px;
     border-radius: 9999px;  /* Make input fully rounded */
+  }
+
+  /* Add these new styles */
+  .background-image {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background-image: url('/src/bgl.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.5;
+    z-index: 0;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 20%,
+      black 80%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 20%,
+      black 80%,
+      transparent
+    );
+  }
+
+  /* Ensure the wordmark maintains its position */
+  .wordmark {
+    position: relative;
+    width: min(400px, 80vw);
+    height: auto;
+    margin: 0 auto 1rem;
+    z-index: 1;
+  }
+
+  /* Update media query to maintain fade effect on mobile */
+  @media (max-width: 640px) {
+    .background-image {
+      width: 100vw;
+      height: 100vw;
+      -webkit-mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 10%,
+        black 90%,
+        transparent
+      );
+      mask-image: linear-gradient(
+        to right,
+        transparent,
+        black 10%,
+        black 90%,
+        transparent
+      );
+    }
+  }
+
+  /* Update wordmark z-index if not already set */
+  .wordmark {
+    position: relative;
+    width: min(400px, 80vw);
+    height: auto;
+    margin: 0 auto 1rem;
+    z-index: 1;
+  }
+
+  /* Add media query for responsive background */
+  @media (max-width: 640px) {
+    .background-image {
+      width: 100vw;
+      height: 100vw;
+    }
   }
 </style>
