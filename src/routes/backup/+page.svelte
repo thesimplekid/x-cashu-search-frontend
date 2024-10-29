@@ -7,8 +7,8 @@
   
     // Sample words (these should come from your app's logic later)
     let words = [
-      'cabbage', 'moral', 'velvet', 'canoe', 'exist', 'gorilla',
-      'erosion', 'table', 'poet', 'speed', 'miss', 'engage'
+      'street', 'gate', 'velvet', 'canoe', 'lean', 'risk',
+      'fact', 'post', 'info', 'cat', 'miss', 'engage'
     ];
   
     function goBack() {
