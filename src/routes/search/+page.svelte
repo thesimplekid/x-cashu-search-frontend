@@ -254,7 +254,7 @@
                 <h3 class="text-xl mb-2">
                   <a
                     href={search_result.url}
-                    class="text-black hover:text-black font-medium underline"
+                    class="text-black visited:text-gray-500 hover:text-black font-medium underline"
                   >
                     {search_result.title}
                   </a>
@@ -460,10 +460,6 @@
     transition: all 0.3s ease;
   }
 
-  .top-right-info.search-active {
-    flex-shrink: 0;
-  }
-
   @media (max-width: 1024px) {
     .search-container.search-active {
       max-width: 50%; /* Slightly wider on smaller screens */
@@ -479,11 +475,6 @@
       order: 2;
       max-width: 100%;
       margin-top: 1rem;
-    }
-
-    .top-right-info.search-active {
-      order: 1;
-      margin-left: auto;
     }
   }
 
