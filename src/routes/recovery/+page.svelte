@@ -47,10 +47,10 @@
     </div>
 
     <button 
-      class="copy-button"
+      class="recovery-button"
       on:click={handleRecover}
     >
-      Recover Wallet
+      Paste Recovery Phrase
     </button>
   </main>
 
@@ -164,25 +164,51 @@
     background: #333;
   }
 
-  .copy-button {
-    background-color: transparent;
-    color: #4a5568;
+  .recovery-button {
+    background-color: #1a1a1a;
+    color: white;
     border: none;
+    border-radius: 9999px;
     padding: 16px 32px;
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
-    transition: color 0.3s ease;
-    width: auto;
-    max-width: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.2);
+    width: 100%;
+    max-width: 300px;
+    position: relative;
+    overflow: hidden;
   }
 
-  .copy-button:hover {
-    color: #2d3748;
+  .recovery-button:hover {
+    background-color: #2a2a2a;
+    box-shadow: 0 4px 8px rgba(26, 26, 26, 0.3);
   }
 
-  .copy-button:focus {
+  .recovery-button:focus {
     outline: none;
+    box-shadow:
+      0 0 0 2px rgba(255, 255, 255, 0.5),
+      0 4px 8px rgba(26, 26, 26, 0.3);
+  }
+
+  .recovery-button::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #4285f4, #34a853, #fbbc05, #ea4335);
+    z-index: -1;
+    filter: blur(5px);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .recovery-button:hover::before {
+    opacity: 0.5;
   }
 
   @media (max-width: 640px) {
@@ -211,6 +237,13 @@
 
     .main-heading {
       font-size: 2rem;
+    }
+
+    .recovery-button {
+      width: 80%;
+      max-width: 250px;
+      padding: 14px 28px;
+      font-size: 16px;
     }
   }
 </style> 
