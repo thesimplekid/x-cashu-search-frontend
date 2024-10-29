@@ -28,14 +28,14 @@
         <button class="back-button" on:click={goBack}>×</button>
         <div class="main-heading-container">
           <h1 class="main-heading">
-            Manual Backup
+            Backup
             <div class="heading-underline"></div>
           </h1>
         </div>
       </div>
   
       <p class="text-xl text-gray-600 mb-6">
-        Save your Secret Recovery Phrase in a secure place that only you control.
+        Save your secret recovery phrase in a secure place that only you control.
       </p>
   
       <div class="seed-container">
@@ -177,8 +177,26 @@
   
     @media (max-width: 640px) {
       .seed-container {
-        grid-template-columns: 1fr;
-        padding: 1.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        padding: 1rem;
+        gap: 0.75rem;
+      }
+  
+      .seed-word {
+        padding: 0.25rem 0;
+      }
+  
+      .word-number {
+        font-size: 0.9rem;
+        min-width: 1.2rem;
+      }
+  
+      .word-text {
+        font-size: 1rem;
+      }
+  
+      .underline {
+        left: 2rem;
       }
   
       .main-heading {
