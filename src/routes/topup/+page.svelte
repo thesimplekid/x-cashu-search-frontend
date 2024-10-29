@@ -34,8 +34,6 @@
     /** @type {InfoResult} */
     let info = await fetch(`${PUBLIC_API_URL}/info`, {}).then((r) => r.json());
 
-    console.log(info);
-
     $mint_url = info.mint;
   }
 
@@ -43,7 +41,6 @@
 
   onMount(async () => {
     if ($mint_url != undefined) {
-      console.log(typeof $mint_url);
       balance = getBalance();
       await getInfo();
     }
@@ -73,7 +70,6 @@
   async function handleTopUp(searches) {
     if (mint_url != null) {
       console.log("Attempting to top up for searches ", searches);
-      console.log($mint_url);
 
       selectedSearches = searches;
 

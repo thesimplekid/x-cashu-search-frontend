@@ -87,7 +87,6 @@
     const startTime = Date.now();
 
     let proofs = getProofs();
-    console.log(proofs);
 
     let proof = proofs[0];
 
@@ -125,6 +124,7 @@
 
       console.log("Updated proofs after removing the used one: ", proofs);
       searchTime = ((Date.now() - startTime) / 1000).toFixed(2);
+      balance = getBalance();
     } catch (error) {
       console.error("Search failed with error: ", error);
 
@@ -149,7 +149,9 @@
    * @returns {Promise<void>}
    */
   async function handleKeyup(e) {
-    if (e.keyCode == 13 && balance > 0) {
+    if (e.code == "Enter" && balance == 0) {
+      goto("/topup");
+    } else if (e.code == "Enter" && balance > 0) {
       await handleSearch();
     }
   }
