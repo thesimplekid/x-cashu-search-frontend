@@ -12,6 +12,12 @@
 
   let isLoading = true; // New variable to track loading state
 
+  let isDropdownOpen = false;
+
+  function toggleDropdown() {
+    isDropdownOpen = !isDropdownOpen;
+  }
+
   onMount(async () => {
     balance = await getBalance();
     isLoading = false;
@@ -52,6 +58,68 @@
           Searches left: <span class="searches-count">{balance}</span>
         </span>
         <a href="/topup" class="top-up-button">Top Up</a>
+
+        <!-- Add dropdown menu -->
+        <div class="dropdown-container">
+          <button class="more-options-button" on:click={toggleDropdown}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="12" cy="5" r="2" />
+              <circle cx="12" cy="19" r="2" />
+            </svg>
+          </button>
+
+          {#if isDropdownOpen}
+            <div class="dropdown-menu" on:blur={() => (isDropdownOpen = false)}>
+              <a href="/backup" class="dropdown-item">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="dropdown-icon"
+                >
+                  <path d="M15 12h-5" />
+                  <path d="M15 8h-5" />
+                  <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+                  <path
+                    d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"
+                  />
+                </svg>
+                Back Up
+              </a>
+              <a href="/recovery" class="dropdown-item">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="dropdown-icon"
+                >
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+                Recovery
+              </a>
+            </div>
+          {/if}
+        </div>
       </div>
     </div>
   </div>
@@ -127,14 +195,45 @@
   }
 
   .top-right-info {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-    padding: 8px;
-    background: white;
+    background-color: #ffffff;
     border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .searches-left {
+    font-weight: 600;
+    color: #4a5568;
+    background-color: #f3f4f6;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 16px;
+  }
+
+  .searches-count {
+    font-size: 1.1em;
+    color: #1a1a1a;
+  }
+
+  .top-up-button {
+    background-color: transparent;
+    color: #4a5568;
+    border: 2px solid #4a5568;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .top-up-button:hover {
+    background-color: #f3f4f6;
+    color: #2d3748;
+    border-color: #2d3748;
   }
 
   .search-container {
@@ -151,7 +250,7 @@
     }
 
     .searches-left {
-      font-size: 14px;
+      font-size: 16px;
     }
 
     .top-up-button {
@@ -348,7 +447,8 @@
     color: #1a1a1a; /* Changed from #8a2be2 */
   }
 
-  .top-up-button {
+  .top-up-button,
+  .backup-button {
     background-color: transparent;
     color: #4a5568;
     border: 2px solid #4a5568;
@@ -358,15 +458,18 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none;
   }
 
-  .top-up-button:hover {
+  .top-up-button:hover,
+  .backup-button:hover {
     background-color: #f3f4f6;
     color: #2d3748;
     border-color: #2d3748;
   }
 
-  .top-up-button:focus {
+  .top-up-button:focus,
+  .backup-button:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.3);
   }
@@ -632,6 +735,84 @@
     .background-image {
       width: 100vw;
       height: 100vw;
+    }
+  }
+
+  /* Add these new styles */
+  .dropdown-container {
+    position: static;
+    display: inline-block; /* Ensures proper positioning context */
+  }
+
+  .more-options-button {
+    background: none;
+    border: none;
+    color: #4a5568;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  .more-options-button:hover {
+    background-color: #f3f4f6;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 2px); /* Reduced from 4px */
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Enhanced shadow for better depth */
+    min-width: 160px; /* Slightly wider for better appearance */
+    z-index: 50;
+    border: 1px solid rgba(0, 0, 0, 0.1); /* Subtle border */
+    padding: 4px 0; /* Add some padding top and bottom */
+    margin-top: 4px; /* Reduced from 8px */
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px; /* Slightly increased padding */
+    color: #4a5568;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px; /* Optional: adjust font size */
+  }
+
+  .dropdown-item:hover {
+    background-color: #f3f4f6;
+    color: #1a1a1a; /* Darker text on hover */
+  }
+
+  .dropdown-item:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+
+  .dropdown-item:last-child {
+    border-radius: 0 0 8px 8px;
+  }
+
+  .dropdown-icon {
+    flex-shrink: 0;
+  }
+
+  /* Optional: Add a subtle animation for smooth appearance */
+  .dropdown-menu {
+    animation: dropdownFade 0.2s ease;
+  }
+
+  @keyframes dropdownFade {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 </style>
