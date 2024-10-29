@@ -1,10 +1,8 @@
-// Yeah yeah I know this is secure
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
+import { generateNewMnemonic } from "@cashu/cashu-ts";
 
-import getRandomValues from 'crypto'
-
-const defaultValue = self.crypto.getRandomValues(new Uint8Array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]));
+const defaultValue = generateNewMnemonic();
   /** @type {Uint8Array} */
 const initialValue = browser ? window.localStorage.getItem('seed') ?? defaultValue : defaultValue;
 

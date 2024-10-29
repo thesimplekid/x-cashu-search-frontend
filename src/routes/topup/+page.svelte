@@ -6,12 +6,18 @@
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import mint_url from "$lib/shared/store/mint_url";
-  import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
+  import {
+    getBalance,
+    getKeysetCounts,
+    getProofs,
+    setKeysetCounts,
+    writeProofs,
+  } from "$lib/shared/utils";
   import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
-  import logomark from "/src/logomark.png";
   import Footer from "../../components/Footer.svelte";
-  import { showToast } from '$lib/stores/toast';
-  import Toast from '../../components/Toast.svelte';
+  import { showToast } from "$lib/stores/toast";
+  import Toast from "../../components/Toast.svelte";
+  import seed from "$lib/shared/store/wallet";
 
   /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
@@ -75,9 +81,11 @@
       const mint = new CashuMint($mint_url);
       let keysets = await mint.getKeys();
       let matchingKeyset = keysets.keysets.find((key) => key.unit === "xsr");
+
       const wallet = new CashuWallet(mint, {
         unit: "xsr",
         keys: matchingKeyset,
+        mnemonicOrSeed: $seed,
       });
 
       // Create the mint quote
@@ -119,9 +127,15 @@
 
         if (mintQuoteChecked.state === MintQuoteState.PAID) {
           let keys = wallet.keys;
+
+          let keyset_counts = getKeysetCounts();
+
+          let keyset_count = keyset_counts[keys.id] || 0;
+
           const options = {
             preference: [{ amount: 1, count: searches }],
             keysetId: keys.id,
+            counter: keyset_count,
           };
 
           // Mint the tokens
@@ -130,6 +144,12 @@
             mintQuote.quote,
             options,
           );
+
+          let new_count = keyset_count + proofs.length;
+
+          keyset_counts[keys.id] = new_count;
+
+          setKeysetCounts(keyset_counts);
 
           let current_proofs = getProofs();
 
@@ -149,7 +169,7 @@
    */
   export function customCopy(text) {
     copyToClipboard(text);
-    showToast('Invoice copied to clipboard.');
+    showToast("Invoice copied to clipboard.");
   }
 
   function goBack() {
@@ -346,7 +366,7 @@
     left: 0;
     width: 100%;
     height: 8px;
-    background: #F7931A;
+    background: #f7931a;
   }
 
   .copy-invoice-button {
