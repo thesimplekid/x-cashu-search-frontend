@@ -10,6 +10,8 @@
   import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
   import logomark from "/src/logomark.png";
   import Footer from "../../components/Footer.svelte";
+  import { showToast } from '$lib/stores/toast';
+  import Toast from '../../components/Toast.svelte';
 
   /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
@@ -147,6 +149,7 @@
    */
   export function customCopy(text) {
     copyToClipboard(text);
+    showToast('Invoice copied to clipboard.');
   }
 
   function goBack() {
@@ -158,11 +161,6 @@
 <div
   class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
 >
-  <!-- Updated Home link -->
-  <a href="/" class="home-link">
-    <img src={logomark} alt="X-Cashu Search Logo" />
-  </a>
-
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <button class="back-button" on:click={goBack}>×</button>
@@ -217,26 +215,10 @@
   </main>
 
   <Footer />
+  <Toast />
 </div>
 
 <style>
-  .home-link {
-    position: absolute;
-    top: 1rem;
-    left: 2rem;
-    z-index: 10;
-  }
-
-  .home-link img {
-    height: 40px; /* Adjust this value to match your desired logo size */
-    width: auto;
-    transition: opacity 0.3s ease;
-  }
-
-  .home-link:hover img {
-    opacity: 0.8;
-  }
-
   .top-up-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -360,12 +342,11 @@
 
   .heading-underline {
     position: absolute;
-    bottom: -8px;
+    bottom: -4px;
     left: 0;
     width: 100%;
-    height: 12px;
-    background-color: #e5e7eb;
-    transform: skew(-12deg);
+    height: 8px;
+    background: #F7931A;
   }
 
   .copy-invoice-button {

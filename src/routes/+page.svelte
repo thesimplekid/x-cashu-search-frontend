@@ -38,66 +38,68 @@
 </script>
 
 <div class="min-h-screen flex flex-col text-gray-800 relative">
-  <!-- Updated Home link -->
-  <a href="/" class="home-link">
-    <img src={logomark} alt="X-Cashu Search Logo" />
-  </a>
+  <!-- Create a fixed height header section -->
+  <div class="h-20 w-full relative"> <!-- Add this wrapper -->
+    <!-- Logo -->
+    <!-- <a href="/" class="home-link">
+      <img src={logomark} alt="X-Cashu Search Logo" />
+    </a> -->
 
-  <!-- Top right info -->
-  <div class="absolute top-4 right-4 z-10">
-    <div class="top-right-info">
-      <span class="searches-left"
-        >Searches left: <span class="searches-count">{balance}</span></span
-      >
-      <a href="/topup" class="top-up-button">Top Up</a>
+    <!-- Top right info -->
+    <div class="absolute top-4 right-4">
+      <div class="top-right-info">
+        <span class="searches-left">
+          Searches left: <span class="searches-count">{balance}</span>
+        </span>
+        <a href="/topup" class="top-up-button">Top Up</a>
+      </div>
     </div>
   </div>
 
-  <!-- Centered content -->
-  <div class="flex-grow flex flex-col justify-center items-center px-4">
-    <div class="container mx-auto text-center">
-      <img src={wordmark} alt="X-Cashu Search" class="wordmark inline-block" />
+  <!-- Main content with padding-top -->
+  <div class="flex-grow flex flex-col justify-center items-center p-4 min-h-0">
+    <div class="container mx-auto text-center relative w-full max-w-4xl px-4">
+      <div class="blur-background"></div>
+      <img src={wordmark} alt="X-Cashu Search" class="wordmark" />
 
-      <h2 class="text-2xl font-normal text-gray-500 sub-heading">
+      <h2 class="text-xl md:text-2xl font-normal text-gray-500 mb-8 px-4">
         Search smarter. Pay in sats for results that matter.
       </h2>
 
-      <div class="content-container">
-        <div class="search-container">
-          {#if isLoading}
-            <div class="spinner-container">
-              <div class="spinner"></div>
-            </div>
-          {:else if balance === undefined || balance <= 0}
-            <div class="empty-state">
-              <h3 class="empty-state-title">Top Up Required</h3>
-              <p class="empty-state-description">
-                You need to add funds to start searching.
-              </p>
-              <a href="/topup" class="empty-state-button">Top Up Now</a>
-            </div>
-          {:else}
-            <div class="flex flex-col items-center space-y-8">
-              <div class="search-input-wrapper">
-                <div
-                  class="bg-white p-2 rounded-input-container shadow-md w-full"
-                >
-                  <input
-                    type="text"
-                    autocomplete="off"
-                    placeholder="Ask whatever you want..."
-                    class="w-full rounded-input border-none focus:outline-none"
-                    bind:value={search_query}
-                    on:keyup={handleKeyup}
-                  />
-                </div>
+      <div class="search-container mx-auto">
+        {#if isLoading}
+          <div class="spinner-container">
+            <div class="spinner"></div>
+          </div>
+        {:else if balance === undefined || balance <= 0}
+          <div class="empty-state">
+            <h3 class="empty-state-title">Top Up Required</h3>
+            <p class="empty-state-description">
+              You need to add funds to start searching.
+            </p>
+            <a href="/topup" class="empty-state-button">Top Up Now</a>
+          </div>
+        {:else}
+          <div class="flex flex-col items-center space-y-8">
+            <div class="search-input-wrapper">
+              <div
+                class="bg-white p-2 rounded-input-container shadow-md w-full"
+              >
+                <input
+                  type="text"
+                  autocomplete="off"
+                  placeholder="Ask whatever you want..."
+                  class="w-full rounded-input border-none focus:outline-none"
+                  bind:value={search_query}
+                  on:keyup={handleKeyup}
+                />
               </div>
-              <button class="search-button" on:click={handleSearch}>
-                <span class="search-button-text">Search</span>
-              </button>
             </div>
-          {/if}
-        </div>
+            <button class="search-button" on:click={handleSearch}>
+              <span class="search-button-text">Search</span>
+            </button>
+          </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -106,45 +108,135 @@
 </div>
 
 <style>
-  /* Add this style block at the end of your component */
-  .glow-button {
-    background-color: transparent;
-    color: #1a1a1a; /* Changed from #8a2be2 */
-    border: 2px solid #1a1a1a; /* Changed from #8a2be2 */
-    border-radius: 9999px;
-    padding: 12px 24px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  /* Base styles */
+  .container {
+    position: relative;
+    width: 100%;
+    max-width: 4xl;
+    margin: 0 auto;
+    overflow: visible;
   }
 
-  .glow-button:hover {
-    background-color: rgba(
-      26,
-      26,
-      26,
-      0.1
-    ); /* Changed from rgba(138, 43, 226, 0.1) */
-    box-shadow: 0 0 10px rgba(26, 26, 26, 0.3); /* Changed from rgba(138, 43, 226, 0.3) */
+  .blur-background {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw;
+    height: 100vh;
+    background-image: url('/src/bgl.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Enhanced subtle blur effect */
+    filter: 
+      blur(100px) 
+      opacity(0.15) 
+      brightness(1.2)
+      contrast(0.8);
+    z-index: 0;
+    pointer-events: none;
+    mix-blend-mode: soft-light;
+    
+    /* Add a subtle gradient overlay */
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.95),
+        rgba(255, 255, 255, 0.85)
+      );
+      mix-blend-mode: overlay;
+    }
   }
 
-  .glow-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.3); /* Changed from rgba(138, 43, 226, 0.3) */
+  /* Softer animation */
+  @keyframes backgroundEffect {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+      filter: 
+        blur(100px) 
+        opacity(0.15) 
+        brightness(1.2)
+        contrast(0.8);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.02);
+      filter: 
+        blur(110px) 
+        opacity(0.12) 
+        brightness(1.25)
+        contrast(0.75);
+    }
   }
 
-  .rounded-input-container {
-    border-radius: 9999px;
-    overflow: hidden;
+  .wordmark {
+    position: relative;
+    width: min(400px, 80vw);
+    height: auto;
+    margin: 0 auto 1rem;
+    z-index: 1;
+  }
+
+  .top-right-info {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 8px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .search-container {
+    width: 100%;
+    max-width: min(32rem, 90vw);
+    margin: 0 auto;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .top-right-info {
+      font-size: 14px;
+      padding: 6px;
+    }
+
+    .searches-left {
+      font-size: 14px;
+    }
+
+    .top-up-button {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .home-link {
+      top: 0.5rem;
+      left: 0.5rem;
+    }
+
+    .home-link img {
+      height: 30px;
+    }
+  }
+
+  /* Ensure search input is mobile-friendly */
+  .search-input-wrapper {
+    width: 100%;
+    max-width: min(32rem, 90vw);
+    margin: 0 auto;
   }
 
   .rounded-input {
-    border-radius: 9999px;
-    padding: 10px 16px; /* Reduced vertical padding */
-    height: 44px; /* Set a specific height */
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 16px; /* Prevent zoom on mobile */
   }
 
+  /* Update button styles for better mobile display */
   .search-button {
     background-color: #1a1a1a;
     color: white;
@@ -155,11 +247,21 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.2); /* Reduced shadow */
+    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.2);
     width: 100%;
     max-width: 300px;
     position: relative;
     overflow: hidden;
+  }
+
+  /* Add this media query for mobile devices */
+  @media (max-width: 640px) {
+    .search-button {
+      width: 80%;
+      max-width: 250px;
+      padding: 14px 28px;
+      font-size: 16px;
+    }
   }
 
   .search-button:hover {
@@ -329,25 +431,26 @@
   }
   
   .empty-state {
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
+    background-color: rgba(255, 255, 255, 0.3); /* Reduced opacity */
+    backdrop-filter: blur(8px); /* Add subtle blur for glass effect */
+    border: 1px solid rgba(226, 232, 240, 0.6); /* Semi-transparent border */
     border-radius: 12px;
     padding: 32px;
     text-align: center;
     width: 100%;
-    max-width: 600px; /* Increased from 400px */
+    max-width: 600px;
     margin: 0 auto;
   }
 
   .empty-state-title {
-    font-size: 24px; /* Increased from 20px */
+    font-size: 24px;
     font-weight: 600;
     color: #1a1a1a;
-    margin-bottom: 16px; /* Increased from 8px */
+    margin-bottom: 16px;
   }
 
   .empty-state-description {
-    font-size: 18px; /* Increased from 16px */
+    font-size: 18px;
     color: #4a5568;
     margin-bottom: 24px;
   }
@@ -358,8 +461,8 @@
     color: white;
     border: none;
     border-radius: 9999px;
-    padding: 14px 28px; /* Increased from 12px 24px */
-    font-size: 18px; /* Increased from 16px */
+    padding: 14px 28px;
+    font-size: 18px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -421,5 +524,129 @@
       font-size: 1.25rem; /* Smaller font size on mobile (20px) */
       padding: 0 1rem; /* Add some padding on the sides */
     }
+  }
+
+  /* Add to your style block */
+  .blur-background {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 400px;
+    background-image: url('/src/bgl.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    /* Enhanced blur effect */
+    filter: blur(40px) opacity(0.5) saturate(150%);
+    /* Add a subtle gradient overlay */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.1),
+        rgba(255, 255, 255, 0.2)
+      );
+      backdrop-filter: blur(10px);
+    }
+    /* Add some subtle animation */
+    animation: pulse 8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(1);
+      filter: blur(40px) opacity(0.5) saturate(150%);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.05);
+      filter: blur(45px) opacity(0.45) saturate(160%);
+    }
+  }
+
+  /* Update the wordmark styles to ensure proper positioning */
+  .wordmark {
+    position: relative;
+    max-width: 400px;
+    height: auto;
+    margin-bottom: 1rem;
+    z-index: 1;
+  }
+
+  /* Update the container to support absolute positioning */
+  .container {
+    position: relative;
+  }
+
+  /* Update header-related styles */
+  .home-link {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 10;
+  }
+
+  .home-link img {
+    height: 40px;
+    width: auto;
+  }
+
+  /* Adjust main content spacing */
+  .container {
+    position: relative;
+    width: 100%;
+    margin-top: 1rem; /* Add some space from the header */
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 640px) {
+    .home-link {
+      top: 0.75rem;
+      left: 0.75rem;
+    }
+
+    .home-link img {
+      height: 32px;
+    }
+
+    .container {
+      margin-top: 0.5rem;
+    }
+  }
+
+  /* Update container styles */
+  .container {
+    position: relative;
+    width: 100%;
+    max-width: 4xl;
+    margin: 0 auto;
+    overflow: visible;
+  }
+
+  /* Update main wrapper */
+  .min-h-screen {
+    position: relative;
+    overflow-x: hidden; /* Only hide overflow at the root level */
+  }
+
+  /* Ensure content stays above the blur */
+  .wordmark, .search-container, .top-right-info {
+    position: relative;
+    z-index: 1;
+  }
+
+  .rounded-input-container {
+    border-radius: 9999px;  /* Make container fully rounded */
+    overflow: hidden;       /* Ensure content doesn't overflow rounded corners */
+  }
+
+  .rounded-input {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: 16px;
+    border-radius: 9999px;  /* Make input fully rounded */
   }
 </style>

@@ -160,11 +160,6 @@
 <div
   class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
 >
-  <!-- Updated Home link -->
-  <a href="/" class="home-link">
-    <img src={logomark} alt="X-Cashu Search Logo" />
-  </a>
-
   <header class="p-4 flex items-center" class:search-active={searchPerformed}>
     <div
       class="search-container flex-grow"
@@ -441,7 +436,7 @@
       order: 2;
       margin-right: 0;
       max-width: 100%;
-      margin-top: 3rem;
+      margin-top: 5rem;
       width: 100%;
     }
 
