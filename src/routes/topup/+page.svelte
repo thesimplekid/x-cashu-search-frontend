@@ -52,9 +52,6 @@
    * @returns {number} The amount in satoshis (converted from millisatoshis)
    * @throws {Error} If the invoice cannot be decoded or is invalid
    * @example
-   * const invoice = "lnbc...";
-   * const sats = getAmountFromInvoice(invoice);
-   * // sats = 1000
    */
   export const getAmountFromInvoice = (invoice) => {
     // Decode the invoice
@@ -272,31 +269,6 @@
   .top-up-button:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5); /* Light blue focus ring */
-  }
-
-  .top-up-button.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .top-up-button.disabled:hover {
-    background-color: #e2e4e9; /* Keep the original background color for disabled state */
-  }
-
-  .glow-button {
-    color: #1a1a1a;
-    border: 2px solid #1a1a1a;
-    background-color: transparent;
-    box-shadow: none;
-  }
-
-  .glow-button:hover {
-    background-color: rgba(26, 26, 26, 0.1);
-    box-shadow: 0 0 10px rgba(26, 26, 26, 0.3);
-  }
-
-  .glow-button:focus {
-    box-shadow: 0 0 0 2px rgba(26, 26, 26, 0.3);
   }
 
   .spinner-container {
