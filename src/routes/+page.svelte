@@ -14,6 +14,12 @@
 
   let isLoading = true; // New variable to track loading state
 
+  let isDropdownOpen = false;
+
+  function toggleDropdown() {
+    isDropdownOpen = !isDropdownOpen;
+  }
+
   onMount(async () => {
     balance = await getBalance();
     isLoading = false;
@@ -53,6 +59,24 @@
           Searches left: <span class="searches-count">{balance}</span>
         </span>
         <a href="/topup" class="top-up-button">Top Up</a>
+        
+        <!-- Add dropdown menu -->
+        <div class="dropdown-container">
+          <button class="more-options-button" on:click={toggleDropdown}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="2"/>
+              <circle cx="12" cy="5" r="2"/>
+              <circle cx="12" cy="19" r="2"/>
+            </svg>
+          </button>
+          
+          {#if isDropdownOpen}
+            <div class="dropdown-menu" on:blur={() => isDropdownOpen = false}>
+              <a href="/backup" class="dropdown-item">Back Up</a>
+              <a href="/recovery" class="dropdown-item">Recovery</a>
+            </div>
+          {/if}
+        </div>
       </div>
     </div>
   </div>
@@ -130,6 +154,7 @@
   }
 
   .top-right-info {
+    position: relative;
     display: flex;
     gap: 8px;
     align-items: center;
@@ -351,7 +376,7 @@
     color: #1a1a1a; /* Changed from #8a2be2 */
   }
 
-  .top-up-button {
+  .top-up-button, .backup-button {
     background-color: transparent;
     color: #4a5568;
     border: 2px solid #4a5568;
@@ -361,15 +386,16 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    text-decoration: none;
   }
 
-  .top-up-button:hover {
+  .top-up-button:hover, .backup-button:hover {
     background-color: #f3f4f6;
     color: #2d3748;
     border-color: #2d3748;
   }
 
-  .top-up-button:focus {
+  .top-up-button:focus, .backup-button:focus {
     outline: none;
     box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.3);
   }
@@ -635,5 +661,56 @@
       width: 100vw;
       height: 100vw;
     }
+  }
+
+  /* Add these new styles */
+  .dropdown-container {
+    position: relative;
+  }
+
+  .more-options-button {
+    background: none;
+    border: none;
+    color: #4a5568;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  .more-options-button:hover {
+    background-color: #f3f4f6;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    min-width: 120px;
+    z-index: 50;
+  }
+
+  .dropdown-item {
+    display: block;
+    padding: 8px 16px;
+    color: #4a5568;
+    text-decoration: none;
+    transition: background-color 0.2s;
+  }
+
+  .dropdown-item:hover {
+    background-color: #f3f4f6;
+  }
+
+  .dropdown-item:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+
+  .dropdown-item:last-child {
+    border-radius: 0 0 8px 8px;
   }
 </style>
