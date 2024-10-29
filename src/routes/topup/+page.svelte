@@ -7,10 +7,14 @@
   import { goto } from "$app/navigation";
   import mint_url from "$lib/shared/store/mint_url";
   import {
+    addPendingQuote,
     getBalance,
     getKeysetCounts,
+    getPendingQuotes,
     getProofs,
+    removePendingQuote,
     setKeysetCounts,
+    writePendingQuotes,
     writeProofs,
   } from "$lib/shared/utils";
   import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
@@ -94,6 +98,17 @@
       let mintQuote = await wallet.createMintQuote(searches);
       isLoading = false; // Hide the spinner once we have the invoice
 
+      const quote = {
+        id: mintQuote.quote,
+        amount: searches,
+        date: new Date().toISOString(),
+        mint: $mint_url,
+        expiry: mintQuote.expiry,
+        invoice: mintQuote.request,
+      };
+
+      addPendingQuote(quote);
+
       data = mintQuote.request;
       invoice_amount = getAmountFromInvoice(data);
 
@@ -155,6 +170,7 @@
 
           const combinedList = [...current_proofs, ...proofs];
           writeProofs(combinedList);
+          removePendingQuote(mintQuote.quote);
           goto("/");
         }
       } catch (error) {

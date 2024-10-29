@@ -6,15 +6,16 @@ export function getProofs() {
   return Array.isArray(parsedProofs) ? parsedProofs : [];
 }
 
+/** @type {(proofs: import("@cashu/cashu-ts").Proof[]) => Promise<void>} */
+export function writeProofs(proofs) {
+  localStorage.setItem('proofs', JSON.stringify(proofs));
+}
+
 export function getBalance() {
   const proofs = getProofs();
   return proofs.reduce((total, proof) => total + proof.amount, 0);
 }
 
-/** @type {(proofs: import("@cashu/cashu-ts").Proof[]) => Promise<void>} */
-export function writeProofs(proofs) {
-  localStorage.setItem('proofs', JSON.stringify(proofs));
-}
 
 /**
 * @returns {Object.<string, number>} Map of keyset IDs to their counts
@@ -30,4 +31,50 @@ export function getKeysetCounts() {
 */
 export function setKeysetCounts(counts) {
  localStorage.setItem('keysetCounts', JSON.stringify(counts));
+}
+
+/**
+* @typedef {Object} MintQuote
+* @property {string} id - The quote identifier
+* @property {number} amount - The amount in sats
+* @property {number} expiry
+* @property {string} date - The date the quote was created
+* @property {string} mint - The mint URL
+* @property {string} invoice - The bolt11 invoice
+*/
+
+/**
+* @returns {MintQuote[]} List of mint quotes
+*/
+export function getPendingQuotes() {
+ const quotes = localStorage.getItem('pendingQuotes');
+ const parsedQuotes = quotes ? JSON.parse(quotes) : [];
+ return Array.isArray(parsedQuotes) ? parsedQuotes : [];
+}
+
+/**
+* @param {MintQuote[]} quotes List of mint quotes
+*/
+export function writePendingQuotes(quotes) {
+ localStorage.setItem('pendingQuotes', JSON.stringify(quotes));
+}
+
+/**
+* @param {string} id Quote ID to remove
+* @returns {void}
+*/
+export function removePendingQuote(id) {
+ const quotes = getPendingQuotes();
+ const filteredQuotes = quotes.filter(quote => quote.id !== id);
+ writePendingQuotes(filteredQuotes);
+}
+
+/**
+* @param {MintQuote} quote The quote to add
+* @returns {void}
+*/
+export function addPendingQuote(quote) {
+ const quotes = getPendingQuotes();
+ quotes.push(quote);
+ writePendingQuotes(quotes);
 }
