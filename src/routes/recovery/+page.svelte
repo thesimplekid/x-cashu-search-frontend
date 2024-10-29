@@ -4,14 +4,32 @@
   import Toast from "../../components/Toast.svelte";
 
   let words = Array(12).fill('');
+  let errorMessage = '';
 
   function goBack() {
     goto("/");
   }
 
-  function handleRecover() {
-    // Functionality to be implemented later
-    console.log('Recovery words:', words);
+  async function handleRecover() {
+    try {
+      // Get text from clipboard
+      const clipboardText = await navigator.clipboard.readText();
+      
+      // Split the text by spaces and clean up any extra whitespace
+      const pastedWords = clipboardText.trim().split(/\s+/);
+
+      // Validate we have exactly 12 words
+      if (pastedWords.length !== 12) {
+        errorMessage = 'Please paste exactly 12 words';
+        return;
+      }
+
+      // Update the words array
+      words = pastedWords;
+    } catch (error) {
+      errorMessage = 'Unable to access clipboard. Please grant clipboard permission.';
+      console.error('Clipboard error:', error);
+    }
   }
 </script>
 
@@ -45,6 +63,10 @@
         </div>
       {/each}
     </div>
+
+    {#if errorMessage}
+      <p class="text-red-500 mt-2 text-center">{errorMessage}</p>
+    {/if}
 
     <button 
       class="recovery-button"
