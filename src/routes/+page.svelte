@@ -2,10 +2,8 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import { getBalance } from "$lib/shared/utils";
-  import logomark from "/src/logomark.png";
   import wordmark from "/src/wordmark.png";
-  import Footer from '../components/Footer.svelte';
-  import bgl from "/src/bgl.png";
+  import Footer from "../components/Footer.svelte";
 
   /** @type {number} */
   let balance = 0;
@@ -40,7 +38,8 @@
 
 <div class="min-h-screen flex flex-col text-gray-800 relative">
   <!-- Create a fixed height header section -->
-  <div class="h-20 w-full relative"> <!-- Add this wrapper -->
+  <div class="h-20 w-full relative">
+    <!-- Add this wrapper -->
     <!-- Logo -->
     <!-- <a href="/" class="home-link">
       <img src={logomark} alt="X-Cashu Search Logo" />
@@ -61,7 +60,7 @@
   <div class="flex-grow flex flex-col justify-center items-center p-4 min-h-0">
     <div class="container mx-auto text-center relative w-full max-w-4xl px-4">
       <div class="background-image"></div>
-      
+
       <img src={wordmark} alt="X-Cashu Search" class="wordmark" />
 
       <h2 class="text-xl md:text-2xl font-normal text-gray-500 mb-8 px-4">
@@ -119,8 +118,6 @@
     overflow: visible;
   }
 
-
-
   .wordmark {
     position: relative;
     width: min(400px, 80vw);
@@ -137,7 +134,7 @@
     padding: 8px;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .search-container {
@@ -378,7 +375,7 @@
   .gradient-background {
     background: #ffffff; /* Changed to plain white */
   }
-  
+
   .empty-state {
     background-color: rgba(255, 255, 255, 0.3); /* Reduced opacity */
     backdrop-filter: blur(8px); /* Add subtle blur for glass effect */
@@ -475,7 +472,6 @@
     }
   }
 
-
   /* Update the wordmark styles to ensure proper positioning */
   .wordmark {
     position: relative;
@@ -542,21 +538,23 @@
   }
 
   /* Ensure content stays above the blur */
-  .wordmark, .search-container, .top-right-info {
+  .wordmark,
+  .search-container,
+  .top-right-info {
     position: relative;
     z-index: 1;
   }
 
   .rounded-input-container {
-    border-radius: 9999px;  /* Make container fully rounded */
-    overflow: hidden;       /* Ensure content doesn't overflow rounded corners */
+    border-radius: 9999px; /* Make container fully rounded */
+    overflow: hidden; /* Ensure content doesn't overflow rounded corners */
   }
 
   .rounded-input {
     width: 100%;
     padding: 8px 16px;
     font-size: 16px;
-    border-radius: 9999px;  /* Make input fully rounded */
+    border-radius: 9999px; /* Make input fully rounded */
   }
 
   /* Add these new styles */
@@ -567,7 +565,7 @@
     transform: translate(-50%, -50%);
     width: 800px;
     height: 800px;
-    background-image: url('/src/bgl.png');
+    background-image: url("/src/bgl.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

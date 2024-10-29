@@ -11,6 +11,29 @@ export function writeProofs(proofs) {
   localStorage.setItem('proofs', JSON.stringify(proofs));
 }
 
+
+export function getSpentProofs() {
+  const proofs = localStorage.getItem('spent_proofs');
+  const parsedProofs = proofs ? JSON.parse(proofs) : [];
+  return Array.isArray(parsedProofs) ? parsedProofs : [];
+}
+
+/**
+* @param {string[]} proofs Array of spent proof IDs
+*/
+export function writeSpentProofs(proofs) {
+ localStorage.setItem('spent_proofs', JSON.stringify(proofs));
+}
+
+/**
+* @param {Proof} proof The proof to add to spent proofs
+*/
+export function addSpentProof(proof) {
+ const proofs = getSpentProofs();
+ proofs.push(proof);
+ writeSpentProofs(proofs);
+}
+
 export function getBalance() {
   const proofs = getProofs();
   return proofs.reduce((total, proof) => total + proof.amount, 0);

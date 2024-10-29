@@ -3,9 +3,13 @@
   import { PUBLIC_API_URL } from "$env/static/public";
   import { goto } from "$app/navigation";
   import mint_url from "$lib/shared/store/mint_url";
-  import { getBalance, getProofs, writeProofs } from "$lib/shared/utils";
+  import {
+    addSpentProof,
+    getBalance,
+    getProofs,
+    writeProofs,
+  } from "$lib/shared/utils";
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
-  import logomark from "/src/logomark.png";
   import { page } from "$app/stores";
   import Footer from "../../components/Footer.svelte";
 
@@ -88,7 +92,7 @@
 
     let proofs = getProofs();
 
-    let proof = proofs[0];
+    let proof = proofs.pop();
 
     try {
       /** @type {import("@cashu/cashu-ts").Token} */
@@ -116,9 +120,8 @@
 
       search_results = await response.json();
 
-      // Remove the first proof from the proofs array
-      proofs.shift(); // Removes the first element from the array
-
+      /// Add spent proof to store
+      addSpentProof(proof);
       // Write the updated proofs back to storage
       writeProofs(proofs);
 
@@ -149,9 +152,9 @@
    * @returns {Promise<void>}
    */
   async function handleKeyup(e) {
-    if (e.code == "Enter" && balance == 0) {
+    if (e.key === "Enter" && balance === 0) {
       goto("/topup");
-    } else if (e.code == "Enter" && balance > 0) {
+    } else if (e.key === "Enter" && balance > 0) {
       await handleSearch();
     }
   }
