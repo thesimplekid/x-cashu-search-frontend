@@ -6,6 +6,13 @@
   let words = Array(12).fill('');
   let errorMessage = '';
 
+  $: isComplete = words.every(word => word.trim().length > 0);
+
+  function handleRestore() {
+    if (!isComplete) return;
+    console.log('Restoring wallet with words:', words);
+  }
+
   function goBack() {
     goto("/");
   }
@@ -69,10 +76,18 @@
     {/if}
 
     <button 
-      class="recovery-button"
+      class="recovery-button-secondary mb-4"
       on:click={handleRecover}
     >
       Paste Recovery Phrase
+    </button>
+
+    <button 
+      class="recovery-button {!isComplete ? 'disabled' : ''}"
+      on:click={handleRestore}
+      disabled={!isComplete}
+    >
+      Restore Wallet
     </button>
   </main>
 
@@ -233,6 +248,43 @@
     opacity: 0.5;
   }
 
+  .recovery-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #666;
+  }
+
+  .recovery-button.disabled:hover {
+    background-color: #666;
+    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.2);
+  }
+
+  .recovery-button.disabled::before {
+    display: none;
+  }
+
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
+
+  .recovery-button-secondary {
+    background-color: transparent;
+    color: #666;
+    border: none;
+    border-radius: 9999px;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .recovery-button-secondary:hover {
+    color: #1a1a1a;
+  }
+
   @media (max-width: 640px) {
     .seed-container {
       grid-template-columns: repeat(2, 1fr);
@@ -262,6 +314,13 @@
     }
 
     .recovery-button {
+      width: 80%;
+      max-width: 250px;
+      padding: 14px 28px;
+      font-size: 16px;
+    }
+
+    .recovery-button-secondary {
       width: 80%;
       max-width: 250px;
       padding: 14px 28px;
