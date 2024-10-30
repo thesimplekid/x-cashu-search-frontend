@@ -53,7 +53,17 @@
     );
     console.log("Restored ", unspentProofs.length, " proofs");
     let current_proofs = getProofs();
-    const combinedList = [...current_proofs, ...unspentProofs];
+    // Create combined list with unique proofs based on secret
+    const combinedList = [
+      ...current_proofs,
+      ...unspentProofs.filter(
+        (newProof) =>
+          !current_proofs.some(
+            (existingProof) => existingProof.secret === newProof.secret,
+          ),
+      ),
+    ];
+
     writeProofs(combinedList);
   }
 
