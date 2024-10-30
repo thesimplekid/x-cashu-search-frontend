@@ -129,22 +129,36 @@
   }
 
   .seed-container {
+    display: grid;
     grid-template-columns: repeat(2, 1fr);
-    padding: 1rem;
     gap: 0.75rem;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: 24px;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 800px;
+    background: #1a1a1a;
   }
 
   .seed-word {
     padding: 0.25rem 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
   .word-number {
-    font-size: 0.9rem;
-    min-width: 1.2rem;
+    color: #666;
+    font-size: 1.1rem;
+    font-weight: 500;
+    min-width: 1.5rem;
   }
 
   .word-text {
     font-size: 1rem;
+    color: white;
   }
 
   .underline {

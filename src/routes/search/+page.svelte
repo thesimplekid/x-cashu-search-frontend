@@ -12,7 +12,7 @@
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import { page } from "$app/stores";
   import Footer from "../../components/Footer.svelte";
-  import { theme } from '$lib/stores/theme';
+  import { theme } from "$lib/stores/theme";
 
   /** @type {import("@cashu/cashu-ts").Token} */
 
@@ -70,7 +70,7 @@
   }
 
   function toggleTheme() {
-    theme.update(current => current === 'light' ? 'dark' : 'light');
+    theme.update((current) => (current === "light" ? "dark" : "light"));
   }
 
   onMount(async () => {
@@ -182,7 +182,9 @@
     >
       <div class="flex items-center">
         <div class="search-input-wrapper flex-grow mr-2 relative">
-          <div class="bg-white dark:bg-[var(--bg-secondary)] p-2 rounded-input-container shadow-md w-full">
+          <div
+            class="bg-white dark:bg-[var(--bg-secondary)] p-2 rounded-input-container shadow-md w-full"
+          >
             <input
               type="text"
               autocomplete="off"
@@ -225,15 +227,39 @@
           Searches left: <span class="searches-count">{balance}</span>
         </span>
         <a href="/topup" class="top-up-button">Top Up</a>
-        
+
         <!-- Add theme toggle button -->
-        <button class="theme-toggle" on:click={toggleTheme} aria-label="Toggle theme">
-          {#if $theme === 'light'}
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button
+          class="theme-toggle"
+          on:click={toggleTheme}
+          aria-label="Toggle theme"
+        >
+          {#if $theme === "light"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
           {:else}
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
               <circle cx="12" cy="12" r="5"></circle>
               <line x1="12" y1="1" x2="12" y2="3"></line>
               <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -246,32 +272,62 @@
             </svg>
           {/if}
         </button>
-        
+
         <!-- Add dropdown menu -->
         <div class="dropdown-container">
           <button class="more-options-button" on:click={toggleDropdown}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="12" r="2"/>
-              <circle cx="12" cy="5" r="2"/>
-              <circle cx="12" cy="19" r="2"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="12" cy="5" r="2" />
+              <circle cx="12" cy="19" r="2" />
             </svg>
           </button>
-          
+
           {#if isDropdownOpen}
-            <div class="dropdown-menu" on:blur={() => isDropdownOpen = false}>
+            <div class="dropdown-menu" on:blur={() => (isDropdownOpen = false)}>
               <a href="/backup" class="dropdown-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-icon">
-                  <path d="M15 12h-5"/>
-                  <path d="M15 8h-5"/>
-                  <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
-                  <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="dropdown-icon"
+                >
+                  <path d="M15 12h-5" />
+                  <path d="M15 8h-5" />
+                  <path d="M19 17V5a2 2 0 0 0-2-2H4" />
+                  <path
+                    d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"
+                  />
                 </svg>
                 Back Up
               </a>
               <a href="/recovery" class="dropdown-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-icon">
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                  <path d="M3 3v5h5"/>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="dropdown-icon"
+                >
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
                 </svg>
                 Recovery
               </a>
@@ -284,7 +340,10 @@
 
   <div class="flex-grow flex flex-col relative">
     {#if !isLoading && search_results.length > 0}
-      <p class="text-sm mb-4 search-aligned" style="color: var(--text-secondary)">
+      <p
+        class="text-sm mb-4 search-aligned"
+        style="color: var(--text-secondary)"
+      >
         Found {search_results.length} results in {searchTime} seconds
       </p>
 
@@ -314,7 +373,10 @@
           <div class="space-y-6">
             {#each search_results as search_result}
               <!-- Search result item -->
-              <div class="py-4 border-b" style="border-color: var(--border-color)">
+              <div
+                class="py-4 border-b"
+                style="border-color: var(--border-color)"
+              >
                 <h3 class="text-xl mb-2">
                   <a
                     href={search_result.url}
@@ -324,8 +386,12 @@
                     {search_result.title}
                   </a>
                 </h3>
-                <p class="text-sm mb-2" style="color: var(--text-secondary)">{search_result.url}</p>
-                <p style="color: var(--text-primary)">{search_result.description}</p>
+                <p class="text-sm mb-2" style="color: var(--text-secondary)">
+                  {search_result.url}
+                </p>
+                <p style="color: var(--text-primary)">
+                  {search_result.description}
+                </p>
                 {#if search_result.age && search_result.age !== "null"}
                   <span
                     class="inline-block mt-2 px-3 py-1 text-sm rounded-full"
@@ -729,6 +795,6 @@
 
   /* Add dark mode styles */
   :global(.dark) .search-button {
-    color: #A0AEC0; /* Update color for dark mode */
+    color: #a0aec0; /* Update color for dark mode */
   }
 </style>
