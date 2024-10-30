@@ -23,6 +23,7 @@
   import Toast from "../../components/Toast.svelte";
   import seed from "$lib/shared/store/wallet";
   import { theme } from '$lib/stores/theme';
+  import { formatDistanceToNow } from 'date-fns';
 
   /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
@@ -42,6 +43,8 @@
 
   /** @type {number} */
   let invoice_amount = 0;
+
+  let pendingInvoices = getPendingQuotes();
 
   async function getInfo() {
     /** @type {InfoResult} */
@@ -192,6 +195,16 @@
   function goBack() {
     goto("/");
   }
+
+  async function handleRefresh(quoteId) {
+    // Here you would implement the logic to check the payment status
+    // For now, we'll just add a visual feedback
+    const button = document.querySelector(`[data-quote-id="${quoteId}"]`);
+    if (button) {
+      button.classList.add('spinning');
+      setTimeout(() => button.classList.remove('spinning'), 1000);
+    }
+  }
 </script>
 
 <!-- Update the main container div -->
@@ -247,6 +260,61 @@
         </div>
       {/if}
     </div>
+
+    <!-- Transaction History Table -->
+    {#if true}
+      <div class="transaction-history-container">
+        <h2 class="history-title">Recent Invoices</h2>
+        <div class="transaction-table">
+          <!-- Hardcoded successful transaction -->
+          <div class="transaction-row">
+            <div class="amount-cell">
+              10 searches
+              <span class="sats-amount">(1000 sats)</span>
+            </div>
+            <div class="time-cell">
+              5 minutes ago
+            </div>
+            <div class="status-cell">
+              <span class="status-badge successful">
+                Successful
+              </span>
+            </div>
+            <button 
+              class="refresh-button" 
+              style="visibility: hidden"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+          <!-- Hardcoded pending transaction -->
+          <div class="transaction-row">
+            <div class="amount-cell">
+              5 searches
+              <span class="sats-amount">(500 sats)</span>
+            </div>
+            <div class="time-cell">
+              2 minutes ago
+            </div>
+            <div class="status-cell">
+              <span class="status-badge pending">
+                Pending
+              </span>
+            </div>
+            <button 
+              class="refresh-button"
+              on:click={() => handleRefresh('test-id')}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    {/if}
   </main>
 
   <Footer />
@@ -576,5 +644,132 @@
 
   :global(.dark-mode) :global(.footer-icon:hover) {
     opacity: 0.8;
+  }
+
+  .transaction-history-container {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 2rem;
+    padding: 1rem;
+  }
+
+  .history-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #1a1a1a;
+  }
+
+  .transaction-table {
+    background-color: #f0f2f5; /* Light grey background instead of white */
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .transaction-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr auto;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    align-items: center;
+  }
+
+  .transaction-row:last-child {
+    border-bottom: none;
+  }
+
+  .amount-cell {
+    font-weight: 600;
+  }
+
+  .sats-amount {
+    font-weight: normal;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+  }
+
+  .time-cell {
+    color: #6b7280;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .status-badge.pending {
+    background-color: #FEF3C7;
+    color: #92400E;
+  }
+
+  .status-badge.success,
+  .status-badge.successful {
+    background-color: #DEF7EC;
+    color: #03543F;
+  }
+
+  .refresh-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+    border-radius: 50%;
+  }
+
+  .refresh-button:hover {
+    background-color: #f3f4f6;
+    color: #1a1a1a;
+  }
+
+  .refresh-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Dark mode styles */
+  :global(.dark-mode) .history-title {
+    color: var(--text-primary, #ffffff);
+  }
+
+  :global(.dark-mode) .transaction-table {
+    background-color: var(--bg-secondary, #2d2d2d);
+  }
+
+  :global(.dark-mode) .transaction-row {
+    border-bottom-color: #404040;
+  }
+
+  :global(.dark-mode) .sats-amount {
+    color: #9ca3af;
+  }
+
+  :global(.dark-mode) .time-cell {
+    color: #9ca3af;
+  }
+
+  :global(.dark-mode) .refresh-button {
+    color: #9ca3af;
+  }
+
+  :global(.dark-mode) .refresh-button:hover {
+    background-color: #404040;
+    color: #ffffff;
+  }
+
+  :global(.dark-mode) .status-badge.pending {
+    background-color: #78350F;
+    color: #FEF3C7;
+  }
+
+  :global(.dark-mode) .status-badge.success,
+  :global(.dark-mode) .status-badge.successful {
+    background-color: #064E3B;
+    color: #DEF7EC;
   }
 </style>
