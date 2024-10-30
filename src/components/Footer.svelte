@@ -1,4 +1,5 @@
 <script>
+  import { theme } from '$lib/stores/theme';
 </script>
 
 <!-- Add the horizontal line here -->
@@ -6,7 +7,7 @@
   <div class="fading-line"></div>
 </div>
 
-<footer class="footer">
+<footer class="footer {$theme === 'dark' ? 'dark' : ''}">
   <div class="footer-content">
     <div class="footer-left">
       <div class="footer-text">
@@ -129,5 +130,35 @@
       rgba(229, 231, 235, 1) 80%,
       rgba(229, 231, 235, 0)
     );
+  }
+
+  /* Dark mode styles */
+  .footer.dark {
+    background-color: #1a1a1a;
+    border-top-color: #2d2d2d;
+  }
+
+  .footer.dark .footer-brand-name {
+    color: #ffffff;
+  }
+
+  .footer.dark .github-icon {
+    fill: #ffffff;
+  }
+
+  .footer.dark .footer-description {
+    color: #a0aec0;
+  }
+
+  .footer.dark .footer-links a {
+    color: #a0aec0;
+  }
+
+  .footer.dark .footer-links a:hover {
+    color: #ffffff;
+  }
+
+  .footer.dark .separator {
+    color: #4a5568;
   }
 </style>

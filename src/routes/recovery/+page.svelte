@@ -6,6 +6,8 @@
   import Footer from "../../components/Footer.svelte";
   import Toast from "../../components/Toast.svelte";
   import { getProofs, writeProofs } from "$lib/shared/utils";
+  import { onMount } from "svelte";
+  import { theme } from "$lib/stores/theme";
 
   let words = Array(12).fill("");
   let errorMessage = "";
@@ -104,6 +106,21 @@
       console.error("Clipboard error:", error);
     }
   }
+
+  onMount(() => {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    theme.set(savedTheme);
+    if (savedTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    }
+  });
+
+  // Subscribe to theme changes
+  $: if ($theme === "dark") {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
 </script>
 
 <div
@@ -120,7 +137,7 @@
       </div>
     </div>
 
-    <p class="text-xl text-gray-600 mb-6">
+    <p class="text-xl text-gray-300 mb-6">
       Enter your 12-word recovery phrase to restore your searches.
     </p>
 
@@ -391,5 +408,41 @@
       padding: 14px 28px;
       font-size: 16px;
     }
+  }
+
+  :global(.dark) main {
+    background-color: var(--bg-primary);
+  }
+
+  :global(.dark) .seed-container {
+    background-color: #2d2d2d !important;
+  }
+
+  :global(.dark) .word-number {
+    color: #a0aec0 !important;
+  }
+
+  :global(.dark) .word-text {
+    color: #ffffff !important;
+  }
+
+  :global(.dark) .main-heading {
+    color: #ffffff !important;
+  }
+
+  :global(.dark) .recovery-button {
+    background-color: #2d2d2d;
+  }
+
+  :global(.dark) .recovery-button-secondary {
+    color: #a0aec0;
+  }
+
+  :global(.dark) .recovery-button-secondary:hover {
+    color: #ffffff;
+  }
+
+  :global(.dark) .back-button {
+    color: #ffffff !important;
   }
 </style>

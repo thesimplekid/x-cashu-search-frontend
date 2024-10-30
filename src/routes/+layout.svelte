@@ -1,4 +1,6 @@
 <script>
+  import { theme } from '$lib/stores/theme';
+  import '$lib/styles/darkMode.css';
   import "../app.css";
   import logomark from "/src/logomark.png";
 </script>

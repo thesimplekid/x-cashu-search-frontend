@@ -22,6 +22,7 @@
   import { showToast } from "$lib/stores/toast";
   import Toast from "../../components/Toast.svelte";
   import seed from "$lib/shared/store/wallet";
+  import { theme } from '$lib/stores/theme';
 
   /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
@@ -193,10 +194,8 @@
   }
 </script>
 
-<!-- Update the main container div to use the new gradient background -->
-<div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
->
+<!-- Update the main container div -->
+<div class="min-h-screen flex flex-col relative {$theme === 'dark' ? 'dark-mode' : 'light-mode'}">
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <button class="back-button" on:click={goBack}>×</button>
@@ -226,7 +225,7 @@
           <div class="qr-info">
             Purchasing {selectedSearches} searches for {invoice_amount} sats
           </div>
-          <div class="bg-[#f3f4f6] p-4 rounded-lg shadow-md">
+          <div class="qr-wrapper">
             <SvgQR {data} width="300" height="300" />
           </div>
           <button
@@ -448,5 +447,125 @@
     margin-bottom: 1rem;
     font-size: 1.2rem;
     font-weight: 600;
+  }
+
+  /* Dark mode styles */
+  :global(.dark-mode) {
+    background-color: var(--bg-primary, #1a1a1a);
+    color: var(--text-primary, #ffffff);
+  }
+
+  :global(.dark-mode) .main-heading {
+    color: var(--text-primary, #ffffff);
+  }
+
+  :global(.dark-mode) .text-gray-900 {
+    color: var(--text-primary, #ffffff);
+  }
+
+  :global(.dark-mode) .text-gray-600,
+  :global(.dark-mode) .text-gray-800 {
+    color: var(--text-secondary, #a0aec0);
+  }
+
+  :global(.dark-mode) .top-up-button {
+    background-color: var(--bg-secondary, #2d2d2d);
+    color: var(--text-primary, #ffffff);
+  }
+
+  :global(.dark-mode) .top-up-button:hover {
+    background-color: #3a3a3a;
+  }
+
+  :global(.dark-mode) .back-button {
+    color: var(--text-primary, #ffffff);
+  }
+
+  :global(.dark-mode) .qr-info {
+    color: var(--text-primary, #ffffff);
+  }
+
+  :global(.dark-mode) .spinner-container {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  }
+
+  :global(.dark-mode) .spinner {
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top: 3px solid #ffffff;
+  }
+
+  :global(.dark-mode) .copy-invoice-button {
+    background-color: #3182ce;
+  }
+
+  :global(.dark-mode) .copy-invoice-button:hover {
+    background-color: #2c5282;
+  }
+
+  /* Update QR code background in dark mode */
+  :global(.dark-mode) .bg-\[\#f3f4f6\] {
+    background-color: #ffffff;
+  }
+
+  /* Update dark mode styles */
+  :global(.dark-mode) .dark-mode-qr {
+    background-color: #ffffff !important; /* Force white background for QR visibility */
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  /* Update button styles for dark mode */
+  :global(.dark-mode) .copy-invoice-button {
+    background-color: #2d2d2d;
+    color: white;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.dark-mode) .copy-invoice-button:hover {
+    background-color: #3a3a3a;
+    border-color: #f0f0f0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  :global(.dark-mode) .copy-invoice-button:focus {
+    outline: none;
+    box-shadow: 
+      0 0 0 2px #1a1a1a,
+      0 0 0 4px rgba(255, 255, 255, 0.5);
+  }
+
+  /* Update the button's gradient effect for dark mode */
+  :global(.dark-mode) .copy-invoice-button::before {
+    background: linear-gradient(45deg, #2d2d2d, #3a3a3a, #4a4a4a, #5a5a5a);
+  }
+
+  .qr-code-container {
+    background-color: #ffffff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Ensure QR code container stays white in dark mode */
+  :global(.dark-mode) .qr-code-container {
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Force QR code to be black in both modes */
+  :global(.dark-mode) :global(svg path) {
+    fill: #000000 !important;
+  }
+
+  .qr-wrapper {
+    background-color: white !important;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .qr-wrapper :global(svg) {
+    color: black !important;
+    fill: black !important;
   }
 </style>

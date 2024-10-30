@@ -12,6 +12,7 @@
   import { getEncodedTokenV4 } from "@cashu/cashu-ts";
   import { page } from "$app/stores";
   import Footer from "../../components/Footer.svelte";
+  import { theme } from '$lib/stores/theme';
 
   /** @type {import("@cashu/cashu-ts").Token} */
 
@@ -66,6 +67,10 @@
 
   function toggleDropdown() {
     isDropdownOpen = !isDropdownOpen;
+  }
+
+  function toggleTheme() {
+    theme.update(current => current === 'light' ? 'dark' : 'light');
   }
 
   onMount(async () => {
@@ -167,7 +172,8 @@
 </script>
 
 <div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+  class="min-h-screen flex flex-col relative gradient-background"
+  style="background-color: var(--bg-primary); color: var(--text-primary)"
 >
   <header class="p-4 flex items-center" class:search-active={searchPerformed}>
     <div
@@ -176,12 +182,13 @@
     >
       <div class="flex items-center">
         <div class="search-input-wrapper flex-grow mr-2 relative">
-          <div class="bg-white p-2 rounded-input-container shadow-md w-full">
+          <div class="bg-white dark:bg-[var(--bg-secondary)] p-2 rounded-input-container shadow-md w-full">
             <input
               type="text"
               autocomplete="off"
               placeholder="Ask whatever you want..."
               class="w-full rounded-input border-none focus:outline-none pr-10"
+              style="background-color: var(--bg-secondary); color: var(--text-primary);"
               bind:value={search_query}
               on:keyup={handleKeyup}
             />
@@ -214,10 +221,31 @@
   <div class="absolute top-4 right-4 z-10">
     {#if balance != undefined}
       <div class="top-right-info">
-        <span class="searches-left"
-          >Searches left: <span class="searches-count">{balance}</span></span
-        >
+        <span class="searches-left">
+          Searches left: <span class="searches-count">{balance}</span>
+        </span>
         <a href="/topup" class="top-up-button">Top Up</a>
+        
+        <!-- Add theme toggle button -->
+        <button class="theme-toggle" on:click={toggleTheme} aria-label="Toggle theme">
+          {#if $theme === 'light'}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          {:else}
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          {/if}
+        </button>
         
         <!-- Add dropdown menu -->
         <div class="dropdown-container">
@@ -256,7 +284,7 @@
 
   <div class="flex-grow flex flex-col relative">
     {#if !isLoading && search_results.length > 0}
-      <p class="text-sm text-gray-600 mb-4 search-aligned">
+      <p class="text-sm mb-4 search-aligned" style="color: var(--text-secondary)">
         Found {search_results.length} results in {searchTime} seconds
       </p>
 
@@ -279,27 +307,29 @@
             <div class="spinner"></div>
           </div>
         {:else if search_results.length === 0}
-          <p class="text-center text-gray-600">
+          <p class="text-center text-gray-400">
             No results found. Try a different search query.
           </p>
         {:else}
           <div class="space-y-6">
             {#each search_results as search_result}
               <!-- Search result item -->
-              <div class="py-4 border-b border-gray-200">
+              <div class="py-4 border-b" style="border-color: var(--border-color)">
                 <h3 class="text-xl mb-2">
                   <a
                     href={search_result.url}
-                    class="text-black visited:text-gray-500 hover:text-black font-medium underline"
+                    class="font-medium underline"
+                    style="color: var(--text-primary)"
                   >
                     {search_result.title}
                   </a>
                 </h3>
-                <p class="text-sm text-gray-600 mb-2">{search_result.url}</p>
-                <p class="text-gray-700">{search_result.description}</p>
+                <p class="text-sm mb-2" style="color: var(--text-secondary)">{search_result.url}</p>
+                <p style="color: var(--text-primary)">{search_result.description}</p>
                 {#if search_result.age && search_result.age !== "null"}
                   <span
-                    class="inline-block mt-2 px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded-full"
+                    class="inline-block mt-2 px-3 py-1 text-sm rounded-full"
+                    style="background-color: var(--bg-secondary); color: var(--text-secondary)"
                   >
                     {search_result.age}
                   </span>
@@ -339,31 +369,32 @@
   }
 
   .top-right-info {
-    background-color: #ffffff;
+    /* background-color: var(--bg-secondary); */
     border-radius: 12px;
     padding: 8px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
+    /* border: 1px solid var(--border-color); */
   }
 
   .searches-left {
     font-weight: 600;
-    color: #4a5568;
-    background-color: #f3f4f6;
+    color: var(--text-secondary);
+    /* background-color: var(--bg-primary); */
     padding: 8px;
     border-radius: 8px;
   }
 
   .searches-count {
     font-size: 1.1em;
-    color: #1a1a1a;
+    color: var(--text-primary);
   }
 
   .top-up-button {
     background-color: transparent;
-    color: #4a5568;
-    border: 2px solid #4a5568;
+    color: var(--text-secondary);
+    border: 2px solid var(--text-secondary);
     border-radius: 6px;
     padding: 6px 12px;
     font-size: 14px;
@@ -373,9 +404,9 @@
   }
 
   .top-up-button:hover {
-    background-color: #f3f4f6;
-    color: #2d3748;
-    border-color: #2d3748;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--text-primary);
   }
 
   .top-up-button:focus {
@@ -421,15 +452,16 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: var(--bg-primary);
+    opacity: 0.8;
     z-index: 1000;
   }
 
   .spinner {
     width: 50px;
     height: 50px;
-    border: 4px solid rgba(26, 26, 26, 0.1);
-    border-top: 4px solid #1a1a1a;
+    border: 4px solid var(--text-secondary);
+    border-top: 4px solid var(--text-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
   }
@@ -457,28 +489,39 @@
   }
 
   .search-container {
-    max-width: 100%;
+    max-width: 60%;
     transition: all 0.3s ease;
-    margin-right: 300px; /* Increased from 200px */
   }
 
   .search-container.search-active {
-    max-width: calc(100% - 320px); /* Increased from 220px */
+    max-width: 60%;
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
+    .search-container {
+      max-width: 50%; /* Reduce width on medium screens */
+    }
+
     .search-container.search-active {
-      max-width: calc(100% - 320px); /* Increased from 220px */
+      max-width: 50%;
+    }
+  }
+
+  @media (max-width: 982px) {
+    .search-container {
+      max-width: 45%; /* Further reduce width to prevent clipping */
+    }
+
+    .search-container.search-active {
+      max-width: 45%;
     }
   }
 
   @media (max-width: 768px) {
     .search-container {
       order: 2;
-      margin-right: 0;
       max-width: 100%;
       margin-top: 5rem;
-      width: 100%;
     }
 
     header {
@@ -558,12 +601,12 @@
     position: absolute;
     top: calc(100% + 2px);
     right: 0;
-    background: white;
+    background-color: var(--bg-secondary);
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     min-width: 160px;
     z-index: 50;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
     padding: 4px 0;
     margin-top: 4px;
   }
@@ -573,15 +616,15 @@
     align-items: center;
     gap: 8px;
     padding: 12px 16px;
-    color: #4a5568;
+    color: var(--text-secondary);
     text-decoration: none;
     transition: all 0.2s ease;
     font-size: 14px;
   }
 
   .dropdown-item:hover {
-    background-color: #f3f4f6;
-    color: #1a1a1a;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 
   .dropdown-item:first-child {
@@ -609,5 +652,83 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  /* Add these new styles */
+  .theme-toggle {
+    background: none;
+    border: none;
+    color: #4a5568;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .theme-toggle:hover {
+    background-color: #f3f4f6;
+  }
+
+  /* Dark mode styles */
+  :global(.dark) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #a0aec0;
+  }
+
+  :global(.dark) .top-right-info {
+    color: var(--text-primary);
+  }
+
+  :global(.dark) .searches-left {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+  }
+
+  :global(.dark) .searches-count {
+    color: var(--text-primary);
+  }
+
+  :global(.dark) .top-up-button {
+    color: var(--text-primary);
+    border-color: var(--text-primary);
+  }
+
+  :global(.dark) .theme-toggle {
+    color: var(--text-primary);
+  }
+
+  :global(.dark) .theme-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .dropdown-menu {
+    background-color: var(--bg-secondary);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .dropdown-item {
+    color: var(--text-primary);
+  }
+
+  :global(.dark) .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .more-options-button {
+    color: var(--text-primary);
+  }
+
+  :global(.dark) .more-options-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Add dark mode styles */
+  :global(.dark) .search-button {
+    color: #A0AEC0; /* Update color for dark mode */
   }
 </style>
