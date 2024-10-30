@@ -12,9 +12,8 @@
     getKeysetCounts,
     getPendingQuotes,
     getProofs,
-    removePendingQuote,
     setKeysetCounts,
-    writePendingQuotes,
+    updateQuoteState,
     writeProofs,
   } from "$lib/shared/utils";
   import { CashuMint, CashuWallet, MintQuoteState } from "@cashu/cashu-ts";
@@ -22,8 +21,7 @@
   import { showToast } from "$lib/stores/toast";
   import Toast from "../../components/Toast.svelte";
   import seed from "$lib/shared/store/wallet";
-  import { theme } from '$lib/stores/theme';
-  import { formatDistanceToNow } from 'date-fns';
+  import { theme } from "$lib/stores/theme";
 
   /** @type {import("@cashu/cashu-ts").AmountPreference} */
 
@@ -78,77 +76,62 @@
   };
 
   /**
+   * Creates and initializes a Cashu wallet
+   * @param {string} mintUrl - The URL of the mint
+   * @param {string} seed - The wallet seed
+   * @returns {Promise<{wallet: CashuWallet, keys: any}>} The initialized wallet and its keys
+   */
+  async function initializeWallet(mintUrl, seed) {
+    const mint = new CashuMint(mintUrl);
+    const keysets = await mint.getKeys();
+    const matchingKeyset = keysets.keysets.find((key) => key.unit === "xsr");
+
+    const wallet = new CashuWallet(mint, {
+      unit: "xsr",
+      keys: matchingKeyset,
+      mnemonicOrSeed: seed,
+    });
+
+    return { wallet, keys: wallet.keys };
+  }
+
+  /**
    * @param {number} searches
    */
   async function handleTopUp(searches) {
     if (mint_url != null) {
       console.log("Attempting to top up for searches ", searches);
-
       selectedSearches = searches;
 
-      const mint = new CashuMint($mint_url);
-      let keysets = await mint.getKeys();
-      let matchingKeyset = keysets.keysets.find((key) => key.unit === "xsr");
-
-      const wallet = new CashuWallet(mint, {
-        unit: "xsr",
-        keys: matchingKeyset,
-        mnemonicOrSeed: $seed,
-      });
-
-      // Create the mint quote
-
-      /** @type {import("@cashu/cashu-ts").MintQuoteResponse} */
-      let mintQuote = await wallet.createMintQuote(searches);
-      isLoading = false; // Hide the spinner once we have the invoice
-
-      const quote = {
-        id: mintQuote.quote,
-        amount: searches,
-        date: new Date().toISOString(),
-        mint: $mint_url,
-        expiry: mintQuote.expiry,
-        invoice: mintQuote.request,
-      };
-
-      addPendingQuote(quote);
-
-      data = mintQuote.request;
-      invoice_amount = getAmountFromInvoice(data);
-
-      // Polling function to check the mint quote state
-      /**
-       * Polls the mint quote state until it's paid or maximum attempts are reached
-       * @param {string} quote - The mint quote identifier to check
-       * @param {number} [interval=3000] - Polling interval in milliseconds
-       * @param {number} [maxAttempts=100] - Maximum number of polling attempts
-       * @returns {Promise<import("@cashu/cashu-ts").MintQuoteResponse>} The checked mint quote object when paid
-       * @throws {Error} If mint quote is not paid within max attempts
-       */
-      async function pollMintQuote(quote, interval = 3000, maxAttempts = 100) {
-        let attempts = 0;
-
-        while (attempts < maxAttempts) {
-          const mintQuoteChecked = await wallet.checkMintQuote(quote);
-          if (mintQuoteChecked.state === MintQuoteState.PAID) {
-            return mintQuoteChecked;
-          }
-          await new Promise((resolve) => setTimeout(resolve, interval)); // Delay
-          attempts++;
-        }
-
-        throw new Error("Mint quote not paid within the allowed attempts.");
-      }
-
       try {
-        // Poll until the mint quote is paid
-        const mintQuoteChecked = await pollMintQuote(mintQuote.quote);
+        const { wallet, keys } = await initializeWallet($mint_url, $seed);
+
+        // Create the mint quote
+        /** @type {import("@cashu/cashu-ts").MintQuoteResponse} */
+        let mintQuote = await wallet.createMintQuote(searches);
+        isLoading = false; // Hide the spinner once we have the invoice
+
+        const quote = {
+          id: mintQuote.quote,
+          amount: searches,
+          date: new Date().toISOString(),
+          mint: $mint_url,
+          expiry: mintQuote.expiry,
+          invoice: mintQuote.request,
+          state: "pending",
+        };
+
+        addPendingQuote(quote);
+        pendingInvoices.push(quote);
+
+        data = mintQuote.request;
+        invoice_amount = getAmountFromInvoice(data);
+
+        // Rest of polling and minting logic...
+        const mintQuoteChecked = await pollMintQuote(wallet, mintQuote.quote);
 
         if (mintQuoteChecked.state === MintQuoteState.PAID) {
-          let keys = wallet.keys;
-
           let keyset_counts = getKeysetCounts();
-
           let keyset_count = keyset_counts[keys.id] || 0;
 
           const options = {
@@ -157,7 +140,6 @@
             counter: keyset_count,
           };
 
-          // Mint the tokens
           const { proofs } = await wallet.mintTokens(
             searches,
             mintQuote.quote,
@@ -165,23 +147,113 @@
           );
 
           let new_count = keyset_count + proofs.length;
-
           keyset_counts[keys.id] = new_count;
-
           setKeysetCounts(keyset_counts);
 
           let current_proofs = getProofs();
-
           const combinedList = [...current_proofs, ...proofs];
           writeProofs(combinedList);
-          removePendingQuote(mintQuote.quote);
+          updateQuoteState(mintQuote.quote, "paid");
+          pendingInvoices = getPendingQuotes();
           goto("/");
         }
       } catch (error) {
         console.error("Error while topping up: ", error);
       }
     }
-    isLoading = false; // Ensure spinner is hidden if there's an error
+    isLoading = false;
+  }
+
+  /**
+   * @param {string} quoteId
+   */
+  async function handleRefresh(quoteId) {
+    console.log(quoteId);
+
+    try {
+      const { wallet, keys } = await initializeWallet($mint_url, $seed);
+
+      let mintQuote = pendingInvoices.find((quote) => quote.id === quoteId);
+      if (!mintQuote) {
+        throw new Error("Could not find mint quote");
+      }
+
+      let keyset_counts = getKeysetCounts();
+      let keyset_count = keyset_counts[keys.id] || 0;
+
+      const options = {
+        preference: [{ amount: 1, count: mintQuote.amount }],
+        keysetId: keys.id,
+        counter: keyset_count,
+      };
+
+      let { proofs } = await wallet.mintTokens(
+        mintQuote.amount,
+        quoteId,
+        options,
+      );
+
+      let new_count = keyset_count + proofs.length;
+      keyset_counts[keys.id] = new_count;
+      setKeysetCounts(keyset_counts);
+
+      let current_proofs = getProofs();
+      const combinedList = [...current_proofs, ...proofs];
+      writeProofs(combinedList);
+      updateQuoteState(mintQuote.id, "paid");
+      pendingInvoices = getPendingQuotes();
+
+      // Visual feedback
+      const button = document.querySelector(`[data-quote-id="${quoteId}"]`);
+      if (button) {
+        button.classList.add("spinning");
+        setTimeout(() => button.classList.remove("spinning"), 1000);
+      }
+    } catch (error) {
+      if (error.message?.toLowerCase().includes("expired")) {
+        updateQuoteState(quoteId, "expired");
+        showToast("Quote Expired");
+      } else if (error.message?.toLowerCase().includes("pending")) {
+        showToast("Quote is not paid");
+      }
+      console.error("Error while refreshing quote: ", error);
+    }
+  }
+
+  /**
+   * Polls the mint quote state until it's paid or maximum attempts are reached
+   * @param {CashuWallet} wallet - The initialized wallet
+   * @param {string} quote - The mint quote identifier to check
+   * @param {number} [interval=3000] - Polling interval in milliseconds
+   * @param {number} [maxAttempts=100] - Maximum number of polling attempts
+   * @returns {Promise<import("@cashu/cashu-ts").MintQuoteResponse>} The checked mint quote object when paid
+   * @throws {Error} If mint quote is not paid within max attempts
+   */
+  async function pollMintQuote(
+    wallet,
+    quote,
+    interval = 3000,
+    maxAttempts = 100,
+  ) {
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      const mintQuoteChecked = await wallet.checkMintQuote(quote);
+      if (mintQuoteChecked.state === MintQuoteState.PAID) {
+        return mintQuoteChecked;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval));
+      attempts++;
+    }
+
+    throw new Error("Mint quote not paid within the allowed attempts.");
+  }
+
+  function getTimeAgo(date) {
+    const diff = new Date().getTime() - new Date(date).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 60) return `${minutes} minutes ago`;
+    return `${Math.floor(minutes / 60)} hours ago`;
   }
 
   /**
@@ -195,20 +267,14 @@
   function goBack() {
     goto("/");
   }
-
-  async function handleRefresh(quoteId) {
-    // Here you would implement the logic to check the payment status
-    // For now, we'll just add a visual feedback
-    const button = document.querySelector(`[data-quote-id="${quoteId}"]`);
-    if (button) {
-      button.classList.add('spinning');
-      setTimeout(() => button.classList.remove('spinning'), 1000);
-    }
-  }
 </script>
 
 <!-- Update the main container div -->
-<div class="min-h-screen flex flex-col relative {$theme === 'dark' ? 'dark-mode' : 'light-mode'}">
+<div
+  class="min-h-screen flex flex-col relative {$theme === 'dark'
+    ? 'dark-mode'
+    : 'light-mode'}"
+>
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <button class="back-button" on:click={goBack}>×</button>
@@ -266,72 +332,78 @@
       <div class="transaction-history-container">
         <h2 class="history-title">Recent Invoices</h2>
         <div class="transaction-table">
-          <!-- Hardcoded successful transaction -->
-          <div class="transaction-row">
-            <div class="amount-cell">
-              10 searches
-              <span class="sats-amount">(1000 sats)</span>
+          {#each pendingInvoices as quote}
+            <!-- Transaction row -->
+            <div class="transaction-row">
+              <div class="amount-cell">
+                {quote.amount} searches
+              </div>
+              <div class="time-cell">
+                {getTimeAgo(quote.date)}
+              </div>
+              <div class="status-cell">
+                <span
+                  class="status-badge {quote.state === 'paid'
+                    ? 'Paid'
+                    : 'Pending'}"
+                >
+                  {#if quote.state === "paid"}
+                    Paid
+                  {:else if quote.state === "pending"}
+                    Unpaid
+                  {:else}
+                    Expired
+                  {/if}
+                </span>
+              </div>
+              <div class="action-buttons">
+                <button
+                  class="copy-button"
+                  on:click={() => customCopy(quote.invoice)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="copy-icon"
+                    viewBox="0 0 24 24"
+                    width="24"
+                    height="24"
+                  >
+                    <path
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.083 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2"
+                    />
+                  </svg>
+                </button>
+                {#if quote.state === "pending" || quote.state === undefined}
+                  <button
+                    class="refresh-button"
+                    on:click={() => handleRefresh(quote.id)}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="refresh-icon"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      height="24"
+                    >
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                  </button>
+                {/if}
+              </div>
             </div>
-            <div class="time-cell">
-              5 minutes ago
-            </div>
-            <div class="status-cell">
-              <span class="status-badge successful">
-                Successful
-              </span>
-            </div>
-            <div class="action-buttons">
-              <button 
-                class="copy-button"
-                on:click={() => customCopy('invoice-data-here')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="copy-icon" viewBox="0 0 24 24" width="24" height="24">
-                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.083 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2" />
-                </svg>
-              </button>
-              <button 
-                class="refresh-button"
-                style="visibility: hidden"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
-                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <!-- Hardcoded pending transaction -->
-          <div class="transaction-row">
-            <div class="amount-cell">
-              5 searches
-              <span class="sats-amount">(500 sats)</span>
-            </div>
-            <div class="time-cell">
-              2 minutes ago
-            </div>
-            <div class="status-cell">
-              <span class="status-badge pending">
-                Pending
-              </span>
-            </div>
-            <div class="action-buttons">
-              <button 
-                class="copy-button"
-                on:click={() => customCopy('invoice-data-here')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="copy-icon" viewBox="0 0 24 24" width="24" height="24">
-                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.083 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2" />
-                </svg>
-              </button>
-              <button 
-                class="refresh-button"
-                on:click={() => handleRefresh('test-id')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
-                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
-            </div>
-          </div>
+          {/each}
         </div>
       </div>
     {/if}
@@ -618,7 +690,7 @@
 
   :global(.dark-mode) .copy-invoice-button:focus {
     outline: none;
-    box-shadow: 
+    box-shadow:
       0 0 0 2px #1a1a1a,
       0 0 0 4px rgba(255, 255, 255, 0.5);
   }
@@ -722,14 +794,14 @@
   }
 
   .status-badge.pending {
-    background-color: #FEF3C7;
-    color: #92400E;
+    background-color: #fef3c7;
+    color: #92400e;
   }
 
   .status-badge.success,
   .status-badge.successful {
-    background-color: #DEF7EC;
-    color: #03543F;
+    background-color: #def7ec;
+    color: #03543f;
   }
 
   .refresh-button {
@@ -783,14 +855,14 @@
   }
 
   :global(.dark-mode) .status-badge.pending {
-    background-color: #78350F;
-    color: #FEF3C7;
+    background-color: #78350f;
+    color: #fef3c7;
   }
 
   :global(.dark-mode) .status-badge.success,
   :global(.dark-mode) .status-badge.successful {
-    background-color: #064E3B;
-    color: #DEF7EC;
+    background-color: #064e3b;
+    color: #def7ec;
   }
 
   .action-buttons {

@@ -64,6 +64,7 @@ export function setKeysetCounts(counts) {
 * @property {string} date - The date the quote was created
 * @property {string} mint - The mint URL
 * @property {string} invoice - The bolt11 invoice
+ * @property {'pending' | 'paid' | 'expired'} state - The current state of the quote
 */
 
 /**
@@ -80,6 +81,22 @@ export function getPendingQuotes() {
 */
 export function writePendingQuotes(quotes) {
  localStorage.setItem('pendingQuotes', JSON.stringify(quotes));
+}
+
+/** 
+ * Updates the state of a pending quote in localStorage
+ * @param {string} quoteId - The ID of the quote to update
+ * @property {'pending' | 'paid' | 'expired'} state - The current state of the quote
+ */
+export function updateQuoteState(quoteId, newState) {
+    const quotes = getPendingQuotes();
+    const updatedQuotes = quotes.map(quote => 
+        quote.id === quoteId 
+            ? { ...quote, state: newState }
+            : quote
+    );
+
+    writePendingQuotes(updatedQuotes);
 }
 
 /**
