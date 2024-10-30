@@ -280,14 +280,24 @@
                 Successful
               </span>
             </div>
-            <button 
-              class="refresh-button" 
-              style="visibility: hidden"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+            <div class="action-buttons">
+              <button 
+                class="copy-button"
+                on:click={() => customCopy('invoice-data-here')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="copy-icon" viewBox="0 0 24 24" width="24" height="24">
+                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.083 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2" />
+                </svg>
+              </button>
+              <button 
+                class="refresh-button"
+                style="visibility: hidden"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
+                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
           </div>
           <!-- Hardcoded pending transaction -->
           <div class="transaction-row">
@@ -303,14 +313,24 @@
                 Pending
               </span>
             </div>
-            <button 
-              class="refresh-button"
-              on:click={() => handleRefresh('test-id')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
-                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
+            <div class="action-buttons">
+              <button 
+                class="copy-button"
+                on:click={() => customCopy('invoice-data-here')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="copy-icon" viewBox="0 0 24 24" width="24" height="24">
+                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4v12a2 2 0 002 2h8a2 2 0 002-2V7.242a2 2 0 00-.602-1.43L16.083 2.57A2 2 0 0014.685 2H10a2 2 0 00-2 2z M16 18v2a2 2 0 01-2 2H6a2 2 0 01-2-2V9a2 2 0 012-2h2" />
+                </svg>
+              </button>
+              <button 
+                class="refresh-button"
+                on:click={() => handleRefresh('test-id')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="refresh-icon" viewBox="0 0 24 24" width="24" height="24">
+                  <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -771,5 +791,40 @@
   :global(.dark-mode) .status-badge.successful {
     background-color: #064E3B;
     color: #DEF7EC;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .copy-button {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+    border-radius: 50%;
+  }
+
+  .copy-button:hover {
+    background-color: #f3f4f6;
+    color: #1a1a1a;
+  }
+
+  .copy-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Dark mode styles */
+  :global(.dark-mode) .copy-button {
+    color: #9ca3af;
+  }
+
+  :global(.dark-mode) .copy-button:hover {
+    background-color: #404040;
+    color: #ffffff;
   }
 </style>
