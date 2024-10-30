@@ -3,7 +3,7 @@ import { writable } from 'svelte/store';
 import { generateNewMnemonic } from "@cashu/cashu-ts";
 
 const defaultValue = generateNewMnemonic();
-  /** @type {Uint8Array} */
+  /** @type {String} */
 const initialValue = browser ? window.localStorage.getItem('seed') ?? defaultValue : defaultValue;
 
 const seed = writable(initialValue);
