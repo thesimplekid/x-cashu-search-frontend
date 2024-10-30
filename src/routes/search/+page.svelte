@@ -58,6 +58,12 @@
 
   let searchPerformed = false;
 
+  let isDropdownOpen = false;
+
+  function toggleDropdown() {
+    isDropdownOpen = !isDropdownOpen;
+  }
+
   onMount(async () => {
     let q = $page.url.searchParams.get("q");
     if (q != null) {
@@ -209,6 +215,38 @@
           >Searches left: <span class="searches-count">{balance}</span></span
         >
         <a href="/topup" class="top-up-button">Top Up</a>
+        
+        <!-- Add dropdown menu -->
+        <div class="dropdown-container">
+          <button class="more-options-button" on:click={toggleDropdown}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="2"/>
+              <circle cx="12" cy="5" r="2"/>
+              <circle cx="12" cy="19" r="2"/>
+            </svg>
+          </button>
+          
+          {#if isDropdownOpen}
+            <div class="dropdown-menu" on:blur={() => isDropdownOpen = false}>
+              <a href="/backup" class="dropdown-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-icon">
+                  <path d="M15 12h-5"/>
+                  <path d="M15 8h-5"/>
+                  <path d="M19 17V5a2 2 0 0 0-2-2H4"/>
+                  <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/>
+                </svg>
+                Back Up
+              </a>
+              <a href="/recovery" class="dropdown-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="dropdown-icon">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                Recovery
+              </a>
+            </div>
+          {/if}
+        </div>
       </div>
     {/if}
   </div>
@@ -492,5 +530,81 @@
     top: 1rem;
     right: 1rem;
     z-index: 10;
+  }
+
+  .dropdown-container {
+    position: static;
+    display: inline-block;
+  }
+
+  .more-options-button {
+    background: none;
+    border: none;
+    color: #4a5568;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+
+  .more-options-button:hover {
+    background-color: #f3f4f6;
+  }
+
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 2px);
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 160px;
+    z-index: 50;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 4px 0;
+    margin-top: 4px;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    color: #4a5568;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-size: 14px;
+  }
+
+  .dropdown-item:hover {
+    background-color: #f3f4f6;
+    color: #1a1a1a;
+  }
+
+  .dropdown-item:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+
+  .dropdown-item:last-child {
+    border-radius: 0 0 8px 8px;
+  }
+
+  .dropdown-icon {
+    flex-shrink: 0;
+  }
+
+  .dropdown-menu {
+    animation: dropdownFade 0.2s ease;
+  }
+
+  @keyframes dropdownFade {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 </style>
