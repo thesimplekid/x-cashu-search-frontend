@@ -2,7 +2,7 @@
   import { theme } from '$lib/stores/theme';
 </script>
 
-<footer class="footer {$theme === 'dark' ? 'dark' : ''}">
+<footer class="footer {$theme === 'dark' ? 'dark' : ''} {$theme === 'dark' ? 'dark-mode' : ''}">
   <div class="horizontal-line-container">
     <div class="fading-line"></div>
   </div>
@@ -31,6 +31,7 @@
           width="32"
           data-view-component="true"
           class="github-icon"
+          fill={$theme === 'dark' ? '#ffffff' : '#000000'}
         >
           <path
             fill-rule="evenodd"
@@ -101,7 +102,7 @@
   }
 
   .github-icon {
-    fill: #1a1a1a;
+    /* Keep only non-color related styles if any */
   }
 
   .footer-disclaimer {
@@ -151,10 +152,6 @@
     color: #ffffff;
   }
 
-  .footer.dark .github-icon {
-    fill: #ffffff;
-  }
-
   .footer.dark .footer-description {
     color: #a0aec0;
   }
@@ -169,9 +166,5 @@
 
   .footer.dark .separator {
     color: #4a5568;
-  }
-
-  :global(.dark) .github-icon {
-    fill: #ffffff;
   }
 </style>

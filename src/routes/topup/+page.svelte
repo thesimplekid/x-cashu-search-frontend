@@ -569,8 +569,12 @@
     fill: black !important;
   }
 
-  /* Add to the existing dark mode styles in the <style> section */
-  :global(.dark-mode) .github-icon {
-    filter: invert(1); /* This will make black icons white in dark mode */
+  /* Add these new styles for dark mode footer icon */
+  :global(.dark-mode) :global(.footer-icon) {
+    filter: invert(1);
+  }
+
+  :global(.dark-mode) :global(.footer-icon:hover) {
+    opacity: 0.8;
   }
 </style>
