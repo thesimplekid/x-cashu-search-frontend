@@ -147,7 +147,7 @@
       </div>
     </div>
 
-    <p class="text-xl text-gray-300 mb-6">
+    <p class="text-xl text-gray-600 dark:text-gray-300 mb-6">
       Enter your 12-word recovery phrase to restore your searches.
     </p>
 

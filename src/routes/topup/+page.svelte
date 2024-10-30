@@ -568,4 +568,9 @@
     color: black !important;
     fill: black !important;
   }
+
+  /* Add to the existing dark mode styles in the <style> section */
+  :global(.dark-mode) .github-icon {
+    filter: invert(1); /* This will make black icons white in dark mode */
+  }
 </style>

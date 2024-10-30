@@ -2,12 +2,11 @@
   import { theme } from '$lib/stores/theme';
 </script>
 
-<!-- Add the horizontal line here -->
-<div class="horizontal-line-container">
-  <div class="fading-line"></div>
-</div>
-
 <footer class="footer {$theme === 'dark' ? 'dark' : ''}">
+  <div class="horizontal-line-container">
+    <div class="fading-line"></div>
+  </div>
+
   <div class="footer-content">
     <div class="footer-left">
       <div class="footer-text">
@@ -117,6 +116,7 @@
     width: 100%;
     display: flex;
     justify-content: center;
+    margin-bottom: 32px;
   }
 
   .fading-line {
@@ -125,14 +125,23 @@
     height: 1px;
     background: linear-gradient(
       to right,
-      rgba(229, 231, 235, 0),
+      transparent,
       rgba(229, 231, 235, 1) 20%,
       rgba(229, 231, 235, 1) 80%,
-      rgba(229, 231, 235, 0)
+      transparent
     );
   }
 
-  /* Dark mode styles */
+  .footer.dark .fading-line {
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.05) 20%,
+      rgba(255, 255, 255, 0.05) 80%,
+      transparent
+    );
+  }
+
   .footer.dark {
     background-color: #1a1a1a;
     border-top-color: #2d2d2d;
@@ -160,5 +169,9 @@
 
   .footer.dark .separator {
     color: #4a5568;
+  }
+
+  :global(.dark) .github-icon {
+    fill: #ffffff;
   }
 </style>

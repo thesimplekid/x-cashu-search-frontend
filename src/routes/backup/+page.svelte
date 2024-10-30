@@ -251,4 +251,8 @@
   :global(.dark) .back-button {
     color: #ffffff !important;
   }
+
+  :global(.dark) .text-gray-600 {
+    color: #d1d5db !important; /* gray-300 in Tailwind's color palette */
+  }
 </style>
