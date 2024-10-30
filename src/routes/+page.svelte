@@ -245,11 +245,13 @@
   }
 
   .top-right-info {
-    /* border-radius: 12px; */
     padding: 8px 16px;
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
+    z-index: 20;
+    flex-wrap: wrap;
   }
 
   .searches-left {
@@ -792,8 +794,8 @@
 
   /* Add these new styles */
   .dropdown-container {
-    position: static;
-    display: inline-block; /* Ensures proper positioning context */
+    position: relative;
+    display: inline-block;
   }
 
   .more-options-button {
@@ -812,35 +814,21 @@
   .more-options-button:hover {
     background-color: #f3f4f6;
   }
-
-  .dropdown-menu {
-    position: absolute;
-    top: calc(100% + 2px); /* Reduced from 4px */
-    right: 0;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Enhanced shadow for better depth */
-    min-width: 160px; /* Slightly wider for better appearance */
-    z-index: 50;
-    border: 1px solid rgba(0, 0, 0, 0.1); /* Subtle border */
-    padding: 4px 0; /* Add some padding top and bottom */
-    margin-top: 4px; /* Reduced from 8px */
-  }
-
+  
   .dropdown-item {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 12px 16px; /* Slightly increased padding */
+    padding: 12px 16px;
     color: #4a5568;
     text-decoration: none;
     transition: all 0.2s ease;
-    font-size: 14px; /* Optional: adjust font size */
+    font-size: 14px;
   }
 
   .dropdown-item:hover {
     background-color: #f3f4f6;
-    color: #1a1a1a; /* Darker text on hover */
+    color: #1a1a1a;
   }
 
   .dropdown-item:first-child {
@@ -855,7 +843,6 @@
     flex-shrink: 0;
   }
 
-  /* Optional: Add a subtle animation for smooth appearance */
   .dropdown-menu {
     animation: dropdownFade 0.2s ease;
   }
@@ -993,7 +980,7 @@
   }
 
   :global(.dark) .empty-state-description {
-    color: #a0aec0; /* Light gray text for better readability */
+    color: #a0aec0;
   }
 
   :global(.dark) .empty-state-button {
@@ -1003,5 +990,59 @@
 
   :global(.dark) .empty-state-button:hover {
     background-color: #f0f0f0;
+  }
+
+  /* Add new media query for very small screens */
+  @media (max-width: 380px) {
+    .top-right-info {
+      padding: 4px 8px;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .searches-left {
+      font-size: 14px;
+      padding: 6px;
+    }
+
+    .top-up-button,
+    .theme-toggle,
+    .more-options-button {
+      padding: 4px;
+      font-size: 12px;
+    }
+  }
+
+  /* Update the main content container */
+  .flex-grow {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Update the header section */
+  .h-20 {
+    position: relative;
+    z-index: 2000;
+  }
+
+  /* Update dropdown-container */
+  .dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Update dropdown-menu */
+  .dropdown-menu {
+    position: fixed;
+    top: auto;
+    right: 16px;
+    margin-top: 12px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 160px;
+    z-index: 2001;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 4px 0;
   }
 </style>
