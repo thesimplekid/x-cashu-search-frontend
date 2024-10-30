@@ -1,16 +1,86 @@
 <script>
   import { goto } from "$app/navigation";
+  import seed from "$lib/shared/store/wallet";
+  import mint_url from "$lib/shared/store/mint_url";
+  import { CashuMint, CashuWallet } from "@cashu/cashu-ts";
   import Footer from "../../components/Footer.svelte";
   import Toast from "../../components/Toast.svelte";
+  import { getProofs, writeProofs } from "$lib/shared/utils";
 
-  let words = Array(12).fill('');
-  let errorMessage = '';
+  let words = Array(12).fill("");
+  let errorMessage = "";
 
-  $: isComplete = words.every(word => word.trim().length > 0);
+  /** @type {CashuWallet|null} */
+  let wallet = null;
 
-  function handleRestore() {
-    if (!isComplete) return;
-    console.log('Restoring wallet with words:', words);
+  $: isComplete = words.every((word) => word.trim().length > 0);
+
+  // Initialize wallet instance
+  async function initializeWallet() {
+    const mint = new CashuMint($mint_url);
+    let keysets = await mint.getKeys();
+    let matchingKeyset = keysets.keysets.find((key) => key.unit === "xsr");
+    wallet = new CashuWallet(mint, {
+      unit: "xsr",
+      keys: matchingKeyset,
+      mnemonicOrSeed: $seed,
+    });
+    return wallet;
+  }
+
+  /**
+   * Checks the state of an array of proofs
+   * @param {Array<import("@cashu/cashu-ts").Proof>} proofs - Vector of Proof objects to check
+   * @returns {Promise<void>}
+   */
+  async function checkProofState(proofs) {
+    if (!wallet) {
+      await initializeWallet();
+    }
+
+    if (!wallet) {
+      throw new Error("Failed to initialize wallet");
+    }
+
+    // Get unspent proofs
+    let spentProofs = await wallet.checkProofsSpent(proofs);
+    // Filter the original proofs array to remove spent ones
+    let unspentProofs = proofs.filter(
+      (proof) =>
+        !spentProofs.some((spentProof) => proof.secret === spentProof.secret),
+    );
+    console.log("Restored ", unspentProofs.length, " proofs");
+    let current_proofs = getProofs();
+    const combinedList = [...current_proofs, ...unspentProofs];
+    writeProofs(combinedList);
+  }
+
+  async function handleRestore() {
+    $seed = words.join(" ");
+    let empty_batches = 0;
+    let start_counter = 0;
+    let end_counter = 99;
+
+    // Initialize wallet once at the start
+    if (!wallet) {
+      await initializeWallet();
+    }
+
+    if (!wallet) {
+      throw new Error("Failed to initialize wallet");
+    }
+
+    while (empty_batches < 3) {
+      console.log("Restoring wallet with words:", words);
+      let restores = await wallet.restore(start_counter, end_counter);
+      console.log("Received ", restores.proofs.length, " signatures from mint");
+      start_counter += 100;
+      end_counter += 100;
+      if (restores.proofs.length === 0) {
+        empty_batches += 1;
+      }
+      await checkProofState(restores.proofs);
+    }
   }
 
   function goBack() {
@@ -19,28 +89,26 @@
 
   async function handleRecover() {
     try {
-      // Get text from clipboard
       const clipboardText = await navigator.clipboard.readText();
-      
-      // Split the text by spaces and clean up any extra whitespace
       const pastedWords = clipboardText.trim().split(/\s+/);
 
-      // Validate we have exactly 12 words
       if (pastedWords.length !== 12) {
-        errorMessage = 'Please paste exactly 12 words';
+        errorMessage = "Please paste exactly 12 words";
         return;
       }
 
-      // Update the words array
       words = pastedWords;
     } catch (error) {
-      errorMessage = 'Unable to access clipboard. Please grant clipboard permission.';
-      console.error('Clipboard error:', error);
+      errorMessage =
+        "Unable to access clipboard. Please grant clipboard permission.";
+      console.error("Clipboard error:", error);
     }
   }
 </script>
 
-<div class="min-h-screen flex flex-col text-gray-800 relative gradient-background">
+<div
+  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+>
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <button class="back-button" on:click={goBack}>×</button>
@@ -75,14 +143,11 @@
       <p class="text-red-500 mt-2 text-center">{errorMessage}</p>
     {/if}
 
-    <button 
-      class="recovery-button-secondary mb-4"
-      on:click={handleRecover}
-    >
+    <button class="recovery-button-secondary mb-4" on:click={handleRecover}>
       Paste Recovery Phrase
     </button>
 
-    <button 
+    <button
       class="recovery-button {!isComplete ? 'disabled' : ''}"
       on:click={handleRestore}
       disabled={!isComplete}
@@ -327,4 +392,4 @@
       font-size: 16px;
     }
   }
-</style> 
+</style>
