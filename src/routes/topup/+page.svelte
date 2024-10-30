@@ -760,7 +760,8 @@
 
   .transaction-row {
     display: grid;
-    grid-template-columns: 2fr 2fr 1fr auto;
+    grid-template-columns: 2fr 2fr 1fr 100px;
+    gap: 1rem;
     padding: 1rem;
     border-bottom: 1px solid #e5e7eb;
     align-items: center;
@@ -783,6 +784,7 @@
 
   .time-cell {
     color: #6b7280;
+    justify-self: start;
   }
 
   .status-badge {
@@ -793,15 +795,29 @@
     font-weight: 500;
   }
 
-  .status-badge.pending {
-    background-color: #fef3c7;
-    color: #92400e;
+  .status-badge.Pending {
+    background-color: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #f97316;
   }
 
-  .status-badge.success,
-  .status-badge.successful {
-    background-color: #def7ec;
-    color: #03543f;
+  .status-badge.Paid {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #22c55e;
+  }
+
+  /* Dark mode styles */
+  :global(.dark-mode) .status-badge.Pending {
+    background-color: #451a03;
+    color: #fdba74;
+    border: 1px solid #f97316;
+  }
+
+  :global(.dark-mode) .status-badge.Paid {
+    background-color: #052e16;
+    color: #86efac;
+    border: 1px solid #22c55e;
   }
 
   .refresh-button {
@@ -868,6 +884,7 @@
   .action-buttons {
     display: flex;
     gap: 0.5rem;
+    justify-self: end;
   }
 
   .copy-button {
