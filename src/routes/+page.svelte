@@ -528,7 +528,6 @@
   }
 
   .empty-state {
-    background-color: rgba(255, 255, 255, 0.3); /* Reduced opacity */
     backdrop-filter: blur(8px); /* Add subtle blur for glass effect */
     border: 1px solid rgba(226, 232, 240, 0.6); /* Semi-transparent border */
     border-radius: 12px;
@@ -982,5 +981,27 @@
 
   :global(.dark) .more-options-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  /* Add dark mode styles for empty state */
+  :global(.dark) .empty-state {
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  :global(.dark) .empty-state-title {
+    color: #ffffff;
+  }
+
+  :global(.dark) .empty-state-description {
+    color: #a0aec0; /* Light gray text for better readability */
+  }
+
+  :global(.dark) .empty-state-button {
+    background-color: #ffffff;
+    color: #1a1a1a;
+  }
+
+  :global(.dark) .empty-state-button:hover {
+    background-color: #f0f0f0;
   }
 </style>
