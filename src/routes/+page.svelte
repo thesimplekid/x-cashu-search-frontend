@@ -4,6 +4,7 @@
   import { getBalance } from "$lib/shared/utils";
   import wordmark from "/src/wordmark.png";
   import Footer from "../components/Footer.svelte";
+  import Navbar from "../components/Navbar.svelte";
   import bgl from "/src/bgl.png";
   import { theme } from "$lib/stores/theme";
 
@@ -13,16 +14,6 @@
   let search_query = "";
 
   let isLoading = true; // New variable to track loading state
-
-  let isDropdownOpen = false;
-
-  function toggleDropdown() {
-    isDropdownOpen = !isDropdownOpen;
-  }
-
-  function toggleTheme() {
-    theme.update((current) => (current === "light" ? "dark" : "light"));
-  }
 
   onMount(async () => {
     balance = await getBalance();
@@ -49,130 +40,7 @@
 </script>
 
 <div class="min-h-screen flex flex-col text-gray-800 relative">
-  <!-- Create a fixed height header section -->
-  <div class="h-20 w-full relative">
-    <!-- Add this wrapper -->
-    <!-- Logo -->
-    <!-- <a href="/" class="home-link">
-      <img src={logomark} alt="X-Cashu Search Logo" />
-    </a> -->
-
-    <!-- Top right info -->
-    <div class="absolute top-4 right-4">
-      <div class="top-right-info">
-        <span class="searches-left">
-          Searches left: <span class="searches-count">{balance}</span>
-        </span>
-        <a href="/topup" class="top-up-button">Top Up</a>
-        <!-- Add theme toggle button -->
-        <button
-          class="theme-toggle"
-          on:click={toggleTheme}
-          aria-label="Toggle theme"
-        >
-          {#if $theme === "light"}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-          {/if}
-        </button>
-
-        <!-- Add dropdown menu -->
-        <div class="dropdown-container">
-          <button class="more-options-button" on:click={toggleDropdown}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="12" cy="5" r="2" />
-              <circle cx="12" cy="19" r="2" />
-            </svg>
-          </button>
-
-          {#if isDropdownOpen}
-            <div class="dropdown-menu" on:blur={() => (isDropdownOpen = false)}>
-              <a href="/backup" class="dropdown-item">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="dropdown-icon"
-                >
-                  <path d="M15 12h-5" />
-                  <path d="M15 8h-5" />
-                  <path d="M19 17V5a2 2 0 0 0-2-2H4" />
-                  <path
-                    d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"
-                  />
-                </svg>
-                Back Up
-              </a>
-              <a href="/recovery" class="dropdown-item">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="dropdown-icon"
-                >
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                  <path d="M3 3v5h5" />
-                </svg>
-                Recovery
-              </a>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
-  </div>
+  <Navbar {balance} />
 
   <!-- Main content with padding-top -->
   <div class="flex-grow flex flex-col justify-center items-center p-4 min-h-0">
@@ -642,13 +510,27 @@
   .home-link {
     position: absolute;
     top: 1rem;
-    left: 1rem;
+    left: 2rem; /* Changed from 1rem to 2rem */
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #000000; /* Changed from #8a2be2 to black */
+    text-decoration: none;
+    transition: color 0.3s ease;
     z-index: 10;
   }
 
+  .home-link:hover {
+    color: #333333; /* Changed from #9932cc to slightly lighter black */
+  }
+
   .home-link img {
-    height: 40px;
+    height: 40px; /* Adjust this value to match your desired logo size */
     width: auto;
+    transition: opacity 0.3s ease;
+  }
+
+  .home-link:hover img {
+    opacity: 0.8;
   }
 
   /* Adjust main content spacing */
