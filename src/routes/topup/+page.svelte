@@ -122,7 +122,7 @@
         };
 
         addPendingQuote(quote);
-        pendingInvoices.push(quote);
+        pendingInvoices = getPendingQuotes();
 
         data = mintQuote.request;
         invoice_amount = getAmountFromInvoice(data);
@@ -169,54 +169,61 @@
    */
   async function handleRefresh(quoteId) {
     console.log(quoteId);
+    let mintQuote = pendingInvoices.find((quote) => quote.id === quoteId);
+    if (!mintQuote) {
+      throw new Error("Could not find mint quote");
+    }
+
+    // Get button reference once at the start
+    const button = document.querySelector(`[data-quote-id="${quoteId}"]`);
+    if (button) {
+      button.classList.add("spinning");
+    }
 
     try {
       const { wallet, keys } = await initializeWallet($mint_url, $seed);
-
-      let mintQuote = pendingInvoices.find((quote) => quote.id === quoteId);
-      if (!mintQuote) {
-        throw new Error("Could not find mint quote");
-      }
-
       let keyset_counts = getKeysetCounts();
       let keyset_count = keyset_counts[keys.id] || 0;
-
       const options = {
         preference: [{ amount: 1, count: mintQuote.amount }],
         keysetId: keys.id,
         counter: keyset_count,
       };
-
       let { proofs } = await wallet.mintTokens(
         mintQuote.amount,
         quoteId,
         options,
       );
-
       let new_count = keyset_count + proofs.length;
       keyset_counts[keys.id] = new_count;
       setKeysetCounts(keyset_counts);
-
       let current_proofs = getProofs();
       const combinedList = [...current_proofs, ...proofs];
       writeProofs(combinedList);
       updateQuoteState(mintQuote.id, "paid");
-      pendingInvoices = getPendingQuotes();
-
-      // Visual feedback
-      const button = document.querySelector(`[data-quote-id="${quoteId}"]`);
-      if (button) {
-        button.classList.add("spinning");
-        setTimeout(() => button.classList.remove("spinning"), 1000);
-      }
     } catch (error) {
       if (error.message?.toLowerCase().includes("expired")) {
         updateQuoteState(quoteId, "expired");
         showToast("Quote Expired");
       } else if (error.message?.toLowerCase().includes("pending")) {
         showToast("Quote is not paid");
+        if (
+          mintQuote.expiry &&
+          mintQuote.expiry < Math.floor(Date.now() / 1000)
+        ) {
+          updateQuoteState(quoteId, "expired");
+        }
       }
       console.error("Error while refreshing quote: ", error);
+    } finally {
+      // Always update pending invoices and balance
+      pendingInvoices = getPendingQuotes();
+      balance = getBalance();
+
+      // Always remove spinning class after a delay
+      if (button) {
+        setTimeout(() => button.classList.remove("spinning"), 1000);
+      }
     }
   }
 
@@ -332,11 +339,12 @@
       <div class="transaction-history-container">
         <h2 class="history-title">Recent Invoices</h2>
         <div class="transaction-table">
-          {#each pendingInvoices as quote}
+          {#each pendingInvoices.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) as quote}
             <!-- Transaction row -->
             <div class="transaction-row">
               <div class="amount-cell">
-                {quote.amount} searches
+                {quote.amount}
+                {quote.amount === 1 ? "search" : "searches"}
               </div>
               <div class="time-cell">
                 {getTimeAgo(quote.date)}
