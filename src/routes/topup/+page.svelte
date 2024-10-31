@@ -213,6 +213,16 @@
         ) {
           updateQuoteState(quoteId, "expired");
         }
+      } else if (error.message?.toLowerCase().includes("already signed")) {
+        // HACK: Make this smarter
+        console.log("Alreasy signed");
+        const { wallet, keys } = await initializeWallet($mint_url, $seed);
+        let keyset_counts = getKeysetCounts();
+        let keyset_count = keyset_counts[keys.id] || 0;
+        let new_count = keyset_count + 10;
+        keyset_counts[keys.id] = new_count;
+        setKeysetCounts(keyset_counts);
+        showToast("Error minting, please try agian");
       }
       console.error("Error while refreshing quote: ", error);
     } finally {
