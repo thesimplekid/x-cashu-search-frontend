@@ -369,45 +369,43 @@
     }
   }
 
-  /* Add these new styles */
+  /* Update header and search container layout */
   header {
-    transition: all 0.3s ease;
-    padding-left: calc(
-      1rem + 160px
-    ); /* Adjust based on the width of your home-link */
-  }
-
-  header.search-active {
-    padding-left: calc(2rem + 160px);
-    padding-right: 1rem;
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-start;
   }
 
   .search-container {
-    max-width: 60%;
-    transition: all 0.3s ease;
+    width: 800px; /* Fixed width matching results */
+    margin-left: 160px; /* Align with logo */
   }
 
   .search-container.search-active {
-    max-width: 60%;
+    width: 800px;
   }
 
-  @media (max-width: 1200px) {
-    .search-container {
-      max-width: 50%; /* Reduce width on medium screens */
-    }
-
-    .search-container.search-active {
-      max-width: 50%;
-    }
+  /* Keep search results alignment consistent */
+  .search-aligned {
+    padding-left: 160px;
+    width: 800px;
   }
 
-  @media (max-width: 982px) {
-    .search-container {
-      max-width: 45%; /* Further reduce width to prevent clipping */
+  /* Mobile responsiveness */
+  @media (max-width: 1024px) {
+    .search-container,
+    .search-container.search-active {
+      width: 100%;
+      margin-left: 1rem;
     }
 
-    .search-container.search-active {
-      max-width: 45%;
+    .search-aligned {
+      padding-left: 1rem;
+      width: 100%;
+    }
+
+    header {
+      padding: 1rem;
     }
   }
 
@@ -426,10 +424,6 @@
     .search-container.search-active {
       max-width: 100%;
     }
-  }
-
-  .top-right-info {
-    transition: all 0.3s ease;
   }
 
   @media (max-width: 1024px) {

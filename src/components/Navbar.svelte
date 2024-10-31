@@ -283,6 +283,13 @@
     :global(.dark) .top-up-button {
       color: #ffffff;
       border-color: #ffffff;
+      background-color: #2d2d2d;
+    }
+  
+    :global(.dark) .top-up-button:hover {
+      background-color: #3a3a3a;
+      border-color: #f0f0f0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     }
   
     :global(.dark) .theme-toggle,
