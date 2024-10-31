@@ -25,7 +25,7 @@
   <!-- Navbar HTML -->
   <div class="h-20 w-full relative">
     <!-- Logo -->
-    <a href="/" class="home-link">
+    <a href="/" class="home-link pl-4">
       <img src={logomark} alt="X-Cashu Search Logo" />
     </a>
   
@@ -153,6 +153,8 @@
       top: 1rem;
       left: 1rem;
       z-index: 10;
+      display: flex;
+      align-items: center;
     }
   
     .home-link img {
@@ -311,6 +313,7 @@
       .top-right-info {
         padding: 6px;
         gap: 8px;
+        margin-top: 2px;
       }
   
       .searches-left {
@@ -324,8 +327,11 @@
       }
   
       .home-link {
-        top: 0.75rem;
+        top: 0.5rem;
         left: 0.75rem;
+        height: 100%;
+        display: flex;
+        align-items: center;
       }
   
       .home-link img {

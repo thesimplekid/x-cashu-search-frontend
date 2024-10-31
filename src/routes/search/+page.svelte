@@ -13,6 +13,7 @@
   import { page } from "$app/stores";
   import Footer from "../../components/Footer.svelte";
   import { theme } from "$lib/stores/theme";
+  import Navbar from "../../components/Navbar.svelte";
 
   /** @type {import("@cashu/cashu-ts").Token} */
 
@@ -62,16 +63,6 @@
   let searchTime = "0";
 
   let searchPerformed = false;
-
-  let isDropdownOpen = false;
-
-  function toggleDropdown() {
-    isDropdownOpen = !isDropdownOpen;
-  }
-
-  function toggleTheme() {
-    theme.update((current) => (current === "light" ? "dark" : "light"));
-  }
 
   onMount(async () => {
     let q = $page.url.searchParams.get("q");
@@ -175,6 +166,8 @@
   class="min-h-screen flex flex-col relative gradient-background"
   style="background-color: var(--bg-primary); color: var(--text-primary)"
 >
+  <Navbar {balance} />
+
   <header class="p-4 flex items-center" class:search-active={searchPerformed}>
     <div
       class="search-container flex-grow"
@@ -218,125 +211,6 @@
       </div>
     </div>
   </header>
-
-  <!-- Top right info -->
-  <div class="absolute top-4 right-4 z-10">
-    {#if balance != undefined}
-      <div class="top-right-info">
-        <span class="searches-left">
-          Searches left: <span class="searches-count">{balance}</span>
-        </span>
-        <a href="/topup" class="top-up-button">Top Up</a>
-
-        <!-- Add theme toggle button -->
-        <button
-          class="theme-toggle"
-          on:click={toggleTheme}
-          aria-label="Toggle theme"
-        >
-          {#if $theme === "light"}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg>
-          {:else}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="5"></circle>
-              <line x1="12" y1="1" x2="12" y2="3"></line>
-              <line x1="12" y1="21" x2="12" y2="23"></line>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-              <line x1="1" y1="12" x2="3" y2="12"></line>
-              <line x1="21" y1="12" x2="23" y2="12"></line>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-            </svg>
-          {/if}
-        </button>
-
-        <!-- Add dropdown menu -->
-        <div class="dropdown-container">
-          <button class="more-options-button" on:click={toggleDropdown}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="12" cy="5" r="2" />
-              <circle cx="12" cy="19" r="2" />
-            </svg>
-          </button>
-
-          {#if isDropdownOpen}
-            <div class="dropdown-menu" on:blur={() => (isDropdownOpen = false)}>
-              <a href="/backup" class="dropdown-item">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="dropdown-icon"
-                >
-                  <path d="M15 12h-5" />
-                  <path d="M15 8h-5" />
-                  <path d="M19 17V5a2 2 0 0 0-2-2H4" />
-                  <path
-                    d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"
-                  />
-                </svg>
-                Back Up
-              </a>
-              <a href="/recovery" class="dropdown-item">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="dropdown-icon"
-                >
-                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                  <path d="M3 3v5h5" />
-                </svg>
-                Recovery
-              </a>
-            </div>
-          {/if}
-        </div>
-      </div>
-    {/if}
-  </div>
 
   <div class="flex-grow flex flex-col relative">
     {#if !isLoading && search_results.length > 0}
@@ -434,52 +308,6 @@
     opacity: 0.8;
   }
 
-  .top-right-info {
-    /* background-color: var(--bg-secondary); */
-    border-radius: 12px;
-    padding: 8px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    /* border: 1px solid var(--border-color); */
-  }
-
-  .searches-left {
-    font-weight: 600;
-    color: var(--text-secondary);
-    /* background-color: var(--bg-primary); */
-    padding: 8px;
-    border-radius: 8px;
-  }
-
-  .searches-count {
-    font-size: 1.1em;
-    color: var(--text-primary);
-  }
-
-  .top-up-button {
-    background-color: transparent;
-    color: var(--text-secondary);
-    border: 2px solid var(--text-secondary);
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .top-up-button:hover {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    border-color: var(--text-primary);
-  }
-
-  .top-up-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(74, 85, 104, 0.3);
-  }
-
   .rounded-input-container {
     border-radius: 9999px;
     overflow: hidden;
@@ -545,7 +373,7 @@
   header {
     transition: all 0.3s ease;
     padding-left: calc(
-      2rem + 160px
+      1rem + 160px
     ); /* Adjust based on the width of your home-link */
   }
 
@@ -587,7 +415,6 @@
     .search-container {
       order: 2;
       max-width: 100%;
-      margin-top: 5rem;
     }
 
     header {
@@ -624,9 +451,9 @@
   }
 
   .search-aligned {
-    padding-left: calc(1rem + 160px); /* Adjust based on your layout */
+    padding-left: calc(1rem + 160px);
     padding-right: 1rem;
-    max-width: calc(100% - 300px); /* Adjust based on your layout */
+    max-width: calc(100% - 300px);
   }
 
   @media (max-width: 1024px) {
@@ -636,91 +463,7 @@
     }
   }
 
-  /* Keep the top-right info absolute positioning */
-  .absolute.top-4.right-4 {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 10;
-  }
-
-  .dropdown-container {
-    position: static;
-    display: inline-block;
-  }
-
-  .more-options-button {
-    background: none;
-    border: none;
-    color: #4a5568;
-    padding: 4px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-
-  .more-options-button:hover {
-    background-color: #f3f4f6;
-  }
-
-  .dropdown-menu {
-    position: absolute;
-    top: calc(100% + 2px);
-    right: 0;
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    min-width: 160px;
-    z-index: 50;
-    border: 1px solid var(--border-color);
-    padding: 4px 0;
-    margin-top: 4px;
-  }
-
-  .dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: all 0.2s ease;
-    font-size: 14px;
-  }
-
-  .dropdown-item:hover {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-  }
-
-  .dropdown-item:first-child {
-    border-radius: 8px 8px 0 0;
-  }
-
-  .dropdown-item:last-child {
-    border-radius: 0 0 8px 8px;
-  }
-
-  .dropdown-icon {
-    flex-shrink: 0;
-  }
-
-  .dropdown-menu {
-    animation: dropdownFade 0.2s ease;
-  }
-
-  @keyframes dropdownFade {
-    from {
-      opacity: 0;
-      transform: translateY(-8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Add these new styles */
+  /* Continue with theme-toggle styles ... */
   .theme-toggle {
     background: none;
     border: none;
@@ -744,53 +487,6 @@
     --bg-secondary: #2d2d2d;
     --text-primary: #ffffff;
     --text-secondary: #a0aec0;
-  }
-
-  :global(.dark) .top-right-info {
-    color: var(--text-primary);
-  }
-
-  :global(.dark) .searches-left {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: var(--text-primary);
-  }
-
-  :global(.dark) .searches-count {
-    color: var(--text-primary);
-  }
-
-  :global(.dark) .top-up-button {
-    color: var(--text-primary);
-    border-color: var(--text-primary);
-  }
-
-  :global(.dark) .theme-toggle {
-    color: var(--text-primary);
-  }
-
-  :global(.dark) .theme-toggle:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(.dark) .dropdown-menu {
-    background-color: var(--bg-secondary);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(.dark) .dropdown-item {
-    color: var(--text-primary);
-  }
-
-  :global(.dark) .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
-  :global(.dark) .more-options-button {
-    color: var(--text-primary);
-  }
-
-  :global(.dark) .more-options-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
   }
 
   /* Add dark mode styles */
