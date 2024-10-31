@@ -233,8 +233,8 @@
       {/if}
     {/if}
 
-    <div class="flex flex-col search-aligned">
-      <main class="w-full max-w-3xl">
+    <div class="flex-grow">
+      <main class="search-aligned">
         {#if isLoading}
           <div class="spinner-container">
             <div class="spinner"></div>
@@ -389,28 +389,16 @@
 
   /* Keep search results alignment consistent */
   .search-aligned {
-    padding-left: 160px;
-    width: 800px;
-    max-width: 800px;
+    width: 1200px;
   }
 
   /* Mobile responsiveness */
   @media (max-width: 1024px) {
     .search-container,
-    .search-container.search-active {
+    .search-aligned {
       width: 100%;
       max-width: 100%;
       margin-left: 1rem;
-    }
-
-    .search-aligned {
-      padding-left: 1rem;
-      width: 100%;
-      max-width: 100%;
-    }
-
-    header {
-      padding: 1rem;
     }
   }
 
