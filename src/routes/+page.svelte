@@ -38,10 +38,13 @@
 </script>
 
 <div class="min-h-screen flex flex-col text-gray-800 relative">
-  <Navbar {balance} />
+  <!-- Move Navbar outside the main content area and ensure it has highest z-index -->
+  <div class="nav-wrapper">
+    <Navbar {balance} />
+  </div>
 
-  <!-- Main content with padding-top -->
-  <div class="flex-grow flex flex-col justify-center items-center p-4 min-h-0">
+  <!-- Main content -->
+  <div class="flex-grow flex flex-col justify-center items-center p-4 min-h-0 relative">
     <div class="container mx-auto text-center relative w-full max-w-4xl px-4">
       <div class="background-image"></div>
 
@@ -98,6 +101,7 @@
     max-width: 4xl;
     margin: 0 auto;
     overflow: visible;
+    z-index: 1;
   }
 
   .wordmark {
@@ -315,6 +319,7 @@
     background-position: center;
     opacity: 0.5;
     z-index: 0;
+    pointer-events: none; /* Prevent background from intercepting clicks */
     -webkit-mask-image: linear-gradient(
       to right,
       transparent,
@@ -336,7 +341,7 @@
     background-image: url("/src/bgld.png");
   }
 
-  /* Ensure content stays above the blur */
+  /* Ensure content stays above the blur but below navbar */
   .wordmark,
   .search-container {
     position: relative;
@@ -425,5 +430,11 @@
   .flex-grow {
     position: relative;
     z-index: 1;
+  }
+
+  /* Add new nav-wrapper styles */
+  .nav-wrapper {
+    position: relative;
+    z-index: 100; /* Ensure navbar is always on top */
   }
 </style>

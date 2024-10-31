@@ -165,7 +165,7 @@
       align-items: center;
       gap: 12px;
       padding: 8px 16px;
-      z-index: 20;
+      z-index: 51;
       flex-wrap: wrap;
     }
   
@@ -235,7 +235,7 @@
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       min-width: 160px;
-      z-index: 2001;
+      z-index: 52;
       border: 1px solid rgba(0, 0, 0, 0.1);
       padding: 4px 0;
     }
