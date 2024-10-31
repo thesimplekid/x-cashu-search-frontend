@@ -377,18 +377,21 @@
   }
 
   .search-container {
-    width: 800px; /* Fixed width matching results */
-    margin-left: 160px; /* Align with logo */
+    width: 800px;
+    max-width: 800px;
+    margin-left: 160px;
   }
 
   .search-container.search-active {
     width: 800px;
+    max-width: 800px;
   }
 
   /* Keep search results alignment consistent */
   .search-aligned {
     padding-left: 160px;
     width: 800px;
+    max-width: 800px;
   }
 
   /* Mobile responsiveness */
@@ -396,12 +399,14 @@
     .search-container,
     .search-container.search-active {
       width: 100%;
+      max-width: 100%;
       margin-left: 1rem;
     }
 
     .search-aligned {
       padding-left: 1rem;
       width: 100%;
+      max-width: 100%;
     }
 
     header {
