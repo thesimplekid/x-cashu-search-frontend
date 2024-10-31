@@ -1,5 +1,6 @@
 <script>
   import { theme } from '$lib/stores/theme';
+  import { searchCount } from '$lib/stores/searchCount';
 </script>
 
 <footer class="footer {$theme === 'dark' ? 'dark' : ''} {$theme === 'dark' ? 'dark-mode' : ''}">
@@ -43,6 +44,9 @@
   </div>
   <div class="footer-disclaimer">
     Athenut is experimental and in beta. Use with caution.
+  </div>
+  <div class="search-counter">
+    {$searchCount?.toLocaleString() ?? 0} searches served so far
   </div>
 </footer>
 
@@ -166,5 +170,18 @@
 
   .footer.dark .separator {
     color: #4a5568;
+  }
+
+  .search-counter {
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 12px;
+    padding: 0 24px;
+    font-weight: 500;
+  }
+
+  .footer.dark .search-counter {
+    color: #a0aec0;
   }
 </style>
