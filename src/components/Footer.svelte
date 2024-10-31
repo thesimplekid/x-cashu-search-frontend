@@ -1,8 +1,37 @@
 <script>
-  import { theme } from '$lib/stores/theme';
+  import { theme } from "$lib/stores/theme";
+  import { PUBLIC_API_URL } from "$env/static/public";
+  import { onMount } from "svelte";
+
+  let searchCount = 0;
+  let loading = true;
+
+  async function fetchSearchCount() {
+    try {
+      const response = await fetch(`${PUBLIC_API_URL}/search_count`);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      searchCount = data.all_time_search_count;
+    } catch (err) {
+      error = "Failed to fetch search count";
+      console.error("Error:", err);
+    } finally {
+      loading = false;
+    }
+  }
+
+  onMount(() => {
+    fetchSearchCount();
+  });
 </script>
 
-<footer class="footer {$theme === 'dark' ? 'dark' : ''} {$theme === 'dark' ? 'dark-mode' : ''}">
+<footer
+  class="footer {$theme === 'dark' ? 'dark' : ''} {$theme === 'dark'
+    ? 'dark-mode'
+    : ''}"
+>
   <div class="horizontal-line-container">
     <div class="fading-line"></div>
   </div>
@@ -31,7 +60,7 @@
           width="32"
           data-view-component="true"
           class="github-icon"
-          fill={$theme === 'dark' ? '#ffffff' : '#000000'}
+          fill={$theme === "dark" ? "#ffffff" : "#000000"}
         >
           <path
             fill-rule="evenodd"
@@ -41,6 +70,11 @@
       </a>
     </div>
   </div>
+  {#if !loading}
+    <div class="search-counter">
+      {searchCount?.toLocaleString() ?? 0} searches served so far
+    </div>
+  {/if}
   <div class="footer-disclaimer">
     Athenut is experimental and in beta. Use with caution.
   </div>
@@ -166,5 +200,18 @@
 
   .footer.dark .separator {
     color: #4a5568;
+  }
+
+  .search-counter {
+    text-align: center;
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 12px;
+    padding: 0 24px;
+    font-weight: 500;
+  }
+
+  .footer.dark .search-counter {
+    color: #a0aec0;
   }
 </style>
