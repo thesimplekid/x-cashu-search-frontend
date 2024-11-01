@@ -11,6 +11,12 @@
   // Sample words (these should come from your app's logic later)
   const words = $seed.trim().split(/\s+/);
 
+  let isBlurred = true;
+
+  function toggleBlur() {
+    isBlurred = !isBlurred;
+  }
+
   function goBack() {
     goto("/");
   }
@@ -44,12 +50,38 @@
 >
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
-      <button class="back-button" on:click={goBack}>×</button>
-      <div class="main-heading-container">
-        <h1 class="main-heading">
-          Backup
-          <div class="heading-underline"></div>
-        </h1>
+      <h1 class="text-4xl font-bold mb-2 text-gray-800 main-heading">
+        Backup
+      </h1>
+      <div class="controls-container">
+        <button class="visibility-toggle" on:click={toggleBlur}>
+          <svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            stroke-width="2" 
+            stroke-linecap="round" 
+            stroke-linejoin="round" 
+            class="eye-icon"
+          >
+            {#if isBlurred}
+              <!-- Closed eye -->
+              <path d="m15 18-.722-3.25"/>
+              <path d="M2 8a10.645 10.645 0 0 0 20 0"/>
+              <path d="m20 15-1.726-2.05"/>
+              <path d="m4 15 1.726-2.05"/>
+              <path d="m9 18 .722-3.25"/>
+            {:else}
+              <!-- Open eye -->
+              <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/>
+              <circle cx="12" cy="12" r="3"/>
+            {/if}
+          </svg>
+        </button>
+        <button class="back-button" on:click={goBack}>×</button>
       </div>
     </div>
 
@@ -61,7 +93,7 @@
       {#each words as word, i}
         <div class="seed-word">
           <span class="word-number">{i + 1}</span>
-          <span class="word-text">{word}</span>
+          <span class="word-text" class:blurred={isBlurred}>{word}</span>
           <div class="underline"></div>
         </div>
       {/each}
@@ -78,54 +110,64 @@
 
 <style>
   .header-container {
-    display: flex;
-    align-items: center;
+    position: relative;
     margin-bottom: 2rem;
-    position: relative;
-  }
-
-  .back-button {
-    position: absolute;
-    left: -40px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--text-primary, #374151);
-    cursor: pointer;
-    transition: color 0.3s ease;
-    padding: 0;
-    line-height: 1;
-    z-index: 2;
-  }
-
-  .back-button:hover {
-    color: var(--text-secondary, #1a1a1a);
-  }
-
-  .main-heading-container {
-    position: relative;
     width: 100%;
+    max-width: 800px;
     text-align: center;
   }
 
   .main-heading {
-    position: relative;
-    z-index: 1;
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--text-primary, #1a1a1a);
     display: inline-block;
+    position: relative;
   }
 
-  .heading-underline {
+  .controls-container {
     position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 8px;
-    background: #f7931a;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .back-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .visibility-toggle {
+    background: none;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    color: inherit;
+  }
+
+  .eye-icon {
+    color: var(--text-primary);
+  }
+
+  .blurred {
+    filter: blur(5px);
+    transition: filter 0.2s ease;
+  }
+
+  .word-text {
+    transition: filter 0.2s ease;
+  }
+
+  :global(.dark) .eye-icon {
+    color: var(--text-primary);
+  }
+
+  .seed-container {
+    position: relative;
   }
 
   .seed-container {
@@ -171,21 +213,18 @@
   }
 
   .copy-button {
-    background-color: transparent;
-    color: var(--text-secondary);
-    border: none;
+    /* background-color: var(--bg-secondary); */
+    color: var(--text-primary);
     padding: 16px 32px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
     width: auto;
     max-width: none;
+    border-radius: 9999px;
   }
 
-  .copy-button:hover {
-    color: var(--text-primary);
-  }
 
   .copy-button:focus {
     outline: none;
@@ -225,7 +264,7 @@
   }
 
   :global(.dark) .seed-container {
-    background-color: #2d2d2d !important;
+    background-color: var(--bg-secondary) !important;
   }
 
   :global(.dark) .word-number {
@@ -254,5 +293,15 @@
 
   :global(.dark) .text-gray-600 {
     color: #d1d5db !important; /* gray-300 in Tailwind's color palette */
+  }
+
+  :global(.dark) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-hover: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0aec0;
+    --text-hover: #f0f0f0;
+    --border-color: #333;
   }
 </style>

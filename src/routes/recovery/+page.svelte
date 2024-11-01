@@ -134,16 +134,15 @@
 </script>
 
 <div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+  class="min-h-screen flex flex-col text-gray-800 relative gradient-background dark:bg-[var(--bg-primary)]"
 >
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
-      <button class="back-button" on:click={goBack}>×</button>
-      <div class="main-heading-container">
-        <h1 class="main-heading">
-          Recovery
-          <div class="heading-underline"></div>
-        </h1>
+      <h1 class="text-4xl font-bold mb-2 text-gray-800 main-heading">
+        Recovery
+      </h1>
+      <div class="controls-container">
+        <button class="back-button" on:click={goBack}>×</button>
       </div>
     </div>
 
@@ -189,54 +188,35 @@
 
 <style>
   .header-container {
-    display: flex;
-    align-items: center;
+    position: relative;
     margin-bottom: 2rem;
-    position: relative;
-  }
-
-  .back-button {
-    position: absolute;
-    left: -40px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #374151;
-    cursor: pointer;
-    transition: color 0.3s ease;
-    padding: 0;
-    line-height: 1;
-    z-index: 2;
-  }
-
-  .back-button:hover {
-    color: #1a1a1a;
-  }
-
-  .main-heading-container {
-    position: relative;
     width: 100%;
+    max-width: 800px;
     text-align: center;
   }
 
   .main-heading {
-    position: relative;
-    z-index: 1;
-    font-size: 3rem;
-    font-weight: bold;
-    color: #1a1a1a;
     display: inline-block;
+    position: relative;
   }
 
-  .heading-underline {
+  .controls-container {
     position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 8px;
-    background: #f7931a;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .back-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    color: var(--text-primary);
   }
 
   .seed-container {
@@ -420,8 +400,14 @@
     }
   }
 
-  :global(.dark) main {
-    background-color: var(--bg-primary);
+  :global(.dark) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-hover: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0aec0;
+    --text-hover: #f0f0f0;
+    --border-color: #333;
   }
 
   :global(.dark) .seed-container {
