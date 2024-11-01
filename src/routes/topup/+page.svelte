@@ -287,15 +287,14 @@
 </script>
 
 <!-- Update the main container div -->
-<div class="min-h-screen flex flex-col relative {$theme === 'dark' ? 'dark-mode' : ''}">
+<div class="min-h-screen flex flex-col text-gray-800 relative {$theme === 'dark' ? 'dark-mode' : ''}">
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
-      <button class="back-button" on:click={goBack}>×</button>
-      <div class="main-heading-container">
-        <h1 class="main-heading">
-          Top Up
-          <div class="heading-underline"></div>
-        </h1>
+      <h1 class="text-4xl font-bold mb-2 text-gray-800 main-heading">
+        Top Up
+      </h1>
+      <div class="controls-container">
+        <button class="back-button" on:click={goBack}>×</button>
       </div>
     </div>
 
@@ -508,54 +507,44 @@
   }
 
   .header-container {
-    display: flex;
-    align-items: center;
+    position: relative;
     margin-bottom: 2rem;
-    position: relative;
-  }
-
-  .back-button {
-    position: absolute;
-    left: -40px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #374151;
-    cursor: pointer;
-    transition: color 0.3s ease;
-    padding: 0;
-    line-height: 1;
-    z-index: 2; /* Ensure the button is above other elements */
-  }
-
-  .back-button:hover {
-    color: #1a1a1a;
-  }
-
-  .main-heading-container {
-    position: relative;
-    width: 100%; /* Ensure the container takes full width */
-    text-align: center; /* Center the heading */
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
   }
 
   .main-heading {
+    display: inline-block;
     position: relative;
-    z-index: 1;
-    font-size: 3rem;
-    font-weight: bold;
-    color: #1a1a1a;
-    display: inline-block; /* Allow the underline to match the text width */
   }
 
-  .heading-underline {
+  .controls-container {
     position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 100%;
-    height: 8px;
-    background: #f7931a;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .back-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
+  }
+
+  :global(.dark-mode) .back-button {
+    color: #ffffff !important;
+  }
+
+  .dark-mode .back-button {
+    color: #ffffff !important;
   }
 
   .copy-invoice-button {
@@ -621,6 +610,7 @@
     margin-bottom: 1rem;
     font-size: 1.2rem;
     font-weight: 600;
+    color: var(--text-primary);
   }
 
   /* Dark mode styles */
@@ -629,7 +619,7 @@
   }
 
   :global(.dark-mode) .main-heading {
-    color: #ffffff;
+    color: #ffffff !important;
   }
 
   :global(.dark-mode) .text-gray-900 {
@@ -829,5 +819,56 @@
   /* Add this to your dark mode styles */
   :global(.dark-mode) .history-title {
     color: #ffffff;
+  }
+
+  /* Add these dark mode styles */
+  :global(.dark-mode) .qr-info {
+    color: #ffffff !important;
+  }
+
+  .dark-mode .qr-info {
+    color: #ffffff !important;
+  }
+
+  /* Update the copy-invoice-button styles */
+  .copy-invoice-button {
+    background-color: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.2);
+    width: 100%;
+    max-width: 300px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Add dark mode styles for copy-invoice-button */
+  :global(.dark-mode) .copy-invoice-button {
+    background-color: #2d2d2d;
+    color: white;
+    border: 2px solid #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.dark-mode) .copy-invoice-button:hover {
+    background-color: #3a3a3a;
+    border-color: #f0f0f0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  :global(.dark-mode) .copy-invoice-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #1a1a1a,
+      0 0 0 4px rgba(255, 255, 255, 0.5);
+  }
+
+  :global(.dark-mode) .copy-invoice-button::before {
+    background: linear-gradient(45deg, #2d2d2d, #3a3a3a, #4a4a4a, #5a5a5a);
   }
 </style>
