@@ -134,7 +134,7 @@
 </script>
 
 <div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+  class="min-h-screen flex flex-col text-gray-800 relative gradient-background dark:bg-[var(--bg-primary)]"
 >
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
@@ -400,8 +400,14 @@
     }
   }
 
-  :global(.dark) main {
-    background-color: var(--bg-primary);
+  :global(.dark) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --bg-hover: #3a3a3a;
+    --text-primary: #ffffff;
+    --text-secondary: #a0aec0;
+    --text-hover: #f0f0f0;
+    --border-color: #333;
   }
 
   :global(.dark) .seed-container {
