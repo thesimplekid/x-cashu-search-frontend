@@ -213,9 +213,8 @@
   }
 
   .copy-button {
-    background-color: var(--bg-secondary);
+    /* background-color: var(--bg-secondary); */
     color: var(--text-primary);
-    border: 2px solid var(--text-primary);
     padding: 16px 32px;
     font-size: 16px;
     font-weight: 600;
@@ -224,14 +223,8 @@
     width: auto;
     max-width: none;
     border-radius: 9999px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
-  .copy-button:hover {
-    background-color: var(--bg-hover);
-    border-color: var(--text-hover);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-  }
 
   .copy-button:focus {
     outline: none;
