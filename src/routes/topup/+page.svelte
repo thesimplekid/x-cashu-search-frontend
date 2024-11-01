@@ -287,7 +287,7 @@
 </script>
 
 <!-- Update the main container div -->
-<div class="min-h-screen flex flex-col text-gray-800 relative {$theme === 'dark' ? 'dark-mode' : ''}">
+<div class="min-h-screen flex flex-col text-gray-800 relative overflow-x-hidden {$theme === 'dark' ? 'dark-mode' : ''}">
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <h1 class="text-4xl font-bold mb-2 text-gray-800 main-heading">
@@ -429,10 +429,12 @@
 <style>
   .top-up-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
     max-width: 800px;
     margin: 0 auto;
+    width: 100%;
+    padding: 0 1rem;
   }
 
   .top-up-button {
@@ -870,5 +872,40 @@
 
   :global(.dark-mode) .copy-invoice-button::before {
     background: linear-gradient(45deg, #2d2d2d, #3a3a3a, #4a4a4a, #5a5a5a);
+  }
+
+  :global(body) {
+    overflow-x: hidden;
+    background-color: #ffffff;
+  }
+
+  :global(body.dark-mode) {
+    background-color: #1a1a1a;
+  }
+
+  .min-h-screen {
+    width: 100vw;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .top-up-button {
+    min-height: 100px;
+    height: auto;
+    padding: 1rem;
+    width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .top-up-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      padding: 0 0.5rem;
+    }
+
+    .top-up-button {
+      min-height: 80px;
+      padding: 0.75rem;
+    }
   }
 </style>
