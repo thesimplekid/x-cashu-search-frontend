@@ -429,7 +429,7 @@
 <style>
   .top-up-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(3, 1fr); /* Always 3 columns on desktop */
     gap: 1rem;
     max-width: 800px;
     margin: 0 auto;
@@ -906,6 +906,54 @@
     .top-up-button {
       min-height: 80px;
       padding: 0.75rem;
+    }
+  }
+
+  /* Add these mobile-specific styles at the bottom of your style block */
+  @media (max-width: 640px) {
+    .transaction-row {
+      grid-template-columns: 1fr 1fr; /* Reduce to 2 columns */
+      grid-template-areas: 
+        "amount status"
+        "time actions";
+      gap: 0.5rem;
+      padding: 0.75rem;
+    }
+
+    .amount-cell {
+      grid-area: amount;
+      font-size: 0.9rem;
+    }
+
+    .time-cell {
+      grid-area: time;
+      font-size: 0.8rem;
+    }
+
+    .status-cell {
+      grid-area: status;
+      text-align: right;
+    }
+
+    .action-buttons {
+      grid-area: actions;
+      justify-content: flex-end;
+    }
+
+    .status-badge {
+      padding: 0.15rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .copy-icon,
+    .refresh-icon {
+      width: 18px;
+      height: 18px;
+    }
+
+    .copy-button,
+    .refresh-button {
+      padding: 0.25rem;
     }
   }
 </style>
