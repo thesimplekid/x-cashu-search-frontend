@@ -285,6 +285,10 @@
     goto("/");
   }
 </script>
+<svelte:head>
+  <title>Athenut</title>
+  <meta name="description" content="privacy-preserving web search powered by Kagi and Cashu." />
+</svelte:head>
 
 <!-- Update the main container div -->
 <div class="min-h-screen flex flex-col text-gray-800 relative overflow-x-hidden {$theme === 'dark' ? 'dark-mode' : ''}">

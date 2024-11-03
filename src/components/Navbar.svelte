@@ -320,7 +320,6 @@
       .top-right-info {
         padding: 6px;
         gap: 8px;
-        margin-top: 2px;
       }
   
       .searches-left {
@@ -334,15 +333,15 @@
       }
   
       .home-link {
-        top: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
         left: 0.75rem;
-        height: 100%;
-        display: flex;
-        align-items: center;
+        height: auto;
       }
   
       .home-link img {
         height: 32px;
+        display: block;
       }
     }
   </style>

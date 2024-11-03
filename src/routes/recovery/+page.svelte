@@ -133,6 +133,11 @@
   }
 </script>
 
+<svelte:head>
+  <title>Athenut</title>
+  <meta name="description" content="privacy-preserving web search powered by Kagi and Cashu." />
+</svelte:head>
+
 <div
   class="min-h-screen flex flex-col text-gray-800 relative gradient-background dark:bg-[var(--bg-primary)]"
 >
