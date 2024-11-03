@@ -285,6 +285,7 @@
     goto("/");
   }
 </script>
+
 <svelte:head>
   <title>Athenut</title>
   <meta name="description" content="privacy-preserving web search powered by Kagi and Cashu." />
