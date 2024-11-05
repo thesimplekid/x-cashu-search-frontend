@@ -17,4 +17,20 @@
         position: relative;
         min-height: 100vh;
     }
+
+    :global(:root) {
+        background-color: #ffffff;
+    }
+
+    :global(body) {
+        background-color: #ffffff;
+    }
+
+    :global(:root.dark) {
+        background-color: var(--bg-primary, #1a1a1a);
+    }
+
+    :global(body.dark) {
+        background-color: var(--bg-primary, #1a1a1a);
+    }
 </style>

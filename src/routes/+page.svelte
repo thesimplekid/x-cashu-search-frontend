@@ -99,6 +99,23 @@
 </div>
 
 <style>
+  /* Add these at the top of your style block */
+  :global(:root) {
+    background-color: #1a1a1a;
+  }
+
+  :global(body) {
+    background-color: #1a1a1a;
+  }
+
+  :global(:root.dark) {
+    background-color: #1a1a1a;
+  }
+
+  :global(body.dark) {
+    background-color: #1a1a1a;
+  }
+
   /* Base styles */
   .container {
     position: relative;
