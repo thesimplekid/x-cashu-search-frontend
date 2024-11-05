@@ -1,4 +1,5 @@
 <script>
+  import { slide } from 'svelte/transition';
   import { theme } from "$lib/stores/theme";
   import Footer from "../../components/Footer.svelte";
   import Navbar from "../../components/Navbar.svelte";
