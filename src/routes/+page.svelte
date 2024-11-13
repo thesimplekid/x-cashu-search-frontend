@@ -99,21 +99,25 @@
 </div>
 
 <style>
-  /* Add these at the top of your style block */
+  /* Replace the top global styles with these */
   :global(:root) {
-    background-color: #1a1a1a;
+    --bg-primary: #ffffff;
+    --bg-secondary: #f7f7f7;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a5568;
   }
 
   :global(body) {
-    background-color: #1a1a1a;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 
-  :global(:root.dark) {
-    background-color: #1a1a1a;
-  }
-
-  :global(body.dark) {
-    background-color: #1a1a1a;
+  /* Keep your existing dark mode styles */
+  :global(.dark) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #a0aec0;
   }
 
   /* Base styles */
