@@ -28,7 +28,7 @@
       },
       {
         question: "How do I backup my searches?",
-        answer: "Your searches are stored in your browser's local storage. Make sure to backup your wallet seed to preserve your tokens."
+        answer: "Your unused searches are stored as tokens in your browser's local storage. You can back them up by saving the 12-word recovery phrase found in the backup page."
       }
     ];
   
