@@ -99,6 +99,27 @@
 </div>
 
 <style>
+  /* Replace the top global styles with these */
+  :global(:root) {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f7f7f7;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a5568;
+  }
+
+  :global(body) {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  /* Keep your existing dark mode styles */
+  :global(.dark) {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #a0aec0;
+  }
+
   /* Base styles */
   .container {
     position: relative;
