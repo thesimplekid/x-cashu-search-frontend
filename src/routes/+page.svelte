@@ -39,7 +39,10 @@
 
 <svelte:head>
   <title>Athenut</title>
-  <meta name="description" content="privacy-preserving web search powered by Kagi and Cashu." />
+  <meta name="description" content="Privacy-preserving web search powered by Kagi and Cashu." />
+  <meta name="keywords" content="search, kagi, ecash, cashu" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://athenut.com" />
 </svelte:head>
 
 <div class="min-h-screen flex flex-col text-gray-800 relative">
