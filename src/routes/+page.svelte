@@ -39,7 +39,7 @@
 
 <svelte:head>
   <title>Athenut</title>
-  <meta name="description" content="Search smarter. Pay in sats for results that matter." />
+  <meta name="description" content="Privacy-preserving web search powered by Kagi and Cashu." />
   <meta name="keywords" content="search, kagi, ecash, cashu" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://athenut.com" />
