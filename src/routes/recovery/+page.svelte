@@ -8,9 +8,12 @@
   import { getProofs, writeProofs } from "$lib/shared/utils";
   import { onMount } from "svelte";
   import { theme } from "$lib/stores/theme";
+  import Navbar from "../../components/Navbar.svelte";
 
   let words = Array(12).fill("");
   let errorMessage = "";
+  let tokenInput = "";
+  let tokenError = "";
 
   /** @type {CashuWallet|null} */
   let wallet = null;
@@ -95,10 +98,6 @@
     }
   }
 
-  function goBack() {
-    goto("/");
-  }
-
   async function handleRecover() {
     try {
       const clipboardText = await navigator.clipboard.readText();
@@ -114,6 +113,38 @@
       errorMessage =
         "Unable to access clipboard. Please grant clipboard permission.";
       console.error("Clipboard error:", error);
+    }
+  }
+
+  async function handleTokenRedeem() {
+    try {
+      if (!tokenInput.trim()) {
+        tokenError = "Please enter a valid token";
+        return;
+      }
+
+      if (!wallet) {
+        await initializeWallet();
+      }
+
+      if (!wallet) {
+        throw new Error("Failed to initialize wallet");
+      }
+
+      // Attempt to receive the token
+      const result = await wallet.receive(tokenInput);
+      
+      // Check if the proofs were received successfully
+      if (result.proofs && result.proofs.length > 0) {
+        await checkProofState(result.proofs);
+        tokenInput = ""; // Clear the input
+        tokenError = ""; // Clear any errors
+      } else {
+        tokenError = "Invalid or spent token";
+      }
+    } catch (error) {
+      console.error("Token redemption error:", error);
+      tokenError = "Failed to redeem token. Please try again.";
     }
   }
 
@@ -141,17 +172,14 @@
 <div
   class="min-h-screen flex flex-col text-gray-800 relative gradient-background dark:bg-[var(--bg-primary)]"
 >
+  <Navbar />
+  
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
-    <div class="header-container">
-      <h1 class="text-4xl font-bold mb-2 text-gray-800 main-heading">
-        Recovery
-      </h1>
-      <div class="controls-container">
-        <button class="back-button" on:click={goBack}>×</button>
-      </div>
-    </div>
+    <h1 class="text-4xl font-bold mb-2 text-center">
+      Recovery
+    </h1>
 
-    <p class="text-xl text-gray-600 dark:text-gray-300 mb-6">
+    <p class="text-xl text-gray-600 dark:text-gray-500 mb-6">
       Enter your 12-word recovery phrase to restore your searches.
     </p>
 
@@ -185,6 +213,34 @@
     >
       Restore Wallet
     </button>
+
+    <div class="divider my-8">OR</div>
+
+    <div class="token-section w-full max-w-800px flex flex-col items-center">
+      <h2 class="text-2xl font-bold mb-4 text-center dark:text-white">
+        Redeem Search Token
+      </h2>
+      
+      <div class="token-input-container seed-container">
+        <input
+          type="text"
+          class="word-text"
+          bind:value={tokenInput}
+          placeholder="Enter your Cashu token"
+        />
+        {#if tokenError}
+          <p class="text-red-500 mt-2 text-center">{tokenError}</p>
+        {/if}
+      </div>
+      
+      <button
+        class="recovery-button mt-4 {!tokenInput.trim() ? 'disabled' : ''}"
+        on:click={handleTokenRedeem}
+        disabled={!tokenInput.trim()}
+      >
+        Redeem Token
+      </button>
+    </div>
   </main>
 
   <Footer />
@@ -192,38 +248,6 @@
 </div>
 
 <style>
-  .header-container {
-    position: relative;
-    margin-bottom: 2rem;
-    width: 100%;
-    max-width: 800px;
-    text-align: center;
-  }
-
-  .main-heading {
-    display: inline-block;
-    position: relative;
-  }
-
-  .controls-container {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .back-button {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    cursor: pointer;
-    padding: 0 0.5rem;
-    color: var(--text-primary);
-  }
-
   .seed-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -445,5 +469,86 @@
 
   :global(.dark) .back-button {
     color: #ffffff !important;
+  }
+
+  /* Add dark mode text color for headings */
+  :global(.dark) h1 {
+    color: #ffffff;
+  }
+
+  /* If you also want to ensure the description text below is properly colored */
+  :global(.dark) .text-gray-600 {
+    color: #a0aec0;
+  }
+
+  .divider {
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+    position: relative;
+    color: #666;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: #333;
+  }
+
+  .divider::before {
+    left: 0;
+  }
+
+  .divider::after {
+    right: 0;
+  }
+
+  .token-input-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 2rem;
+    background: #1a1a1a;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .token-input {
+    width: 100%;
+    padding: 1rem;
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.1rem;
+  }
+
+  .token-input:focus {
+    outline: none;
+    border-color: #4285f4;
+  }
+
+  /* Dark mode styles */
+  :global(.dark) .token-input-container {
+    background-color: #2d2d2d;
+  }
+
+  :global(.dark) .token-input {
+    color: #ffffff;
+    border-color: #333;
+  }
+
+  :global(.dark) .divider {
+    color: #a0aec0;
+  }
+
+  :global(.dark) .divider::before,
+  :global(.dark) .divider::after {
+    background: #333;
   }
 </style>
