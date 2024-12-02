@@ -173,23 +173,19 @@
 
   .seed-container {
     position: relative;
-  }
-
-  .seed-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    padding: 1rem;
-    background: #1a1a1a;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: #f0f2f5;
     border-radius: 24px;
     margin-bottom: 2rem;
     width: 100%;
     max-width: 800px;
-    background: #1a1a1a;
   }
 
   .seed-word {
-    padding: 0.25rem 0;
+    padding: 0.5rem 0;
     position: relative;
     display: flex;
     align-items: center;
@@ -204,8 +200,8 @@
   }
 
   .word-text {
-    font-size: 1rem;
-    color: white;
+    font-size: 1.2rem;
+    color: var(--text-primary, #1f2937);
   }
 
   .underline {
@@ -214,7 +210,7 @@
     left: 2.5rem;
     right: 0;
     height: 1px;
-    background: var(--border-color, #333);
+    background: #d1d5db;
   }
 
   .copy-button {

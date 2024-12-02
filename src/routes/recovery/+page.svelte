@@ -594,12 +594,12 @@
 
   /* Restore original dark mode styles */
   :global(.dark) .underline {
-    background: #333;
+    background: #d1d5db;
   }
 
   :global(.dark) .divider::before,
   :global(.dark) .divider::after {
-    background: #333;
+    background: #d1d5db;
   }
 
   :global(.dark) .divider {
