@@ -170,11 +170,11 @@
 </svelte:head>
 
 <div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background dark:bg-[var(--bg-primary)]"
+  class="min-h-screen flex flex-col text-gray-800 relative dark:bg-[var(--bg-primary)] dark:text-white"
 >
   <Navbar />
   
-  <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
+  <main class="flex-grow flex flex-col justify-start items-center px-4 py-8 dark:bg-[var(--bg-primary)]">
     <h1 class="text-4xl font-bold mb-2 text-center">
       Recovery
     </h1>
@@ -221,7 +221,7 @@
         Redeem Search Token
       </h2>
       
-      <div class="token-input-container seed-container">
+      <div class="token-input-container seed-container" style="display: block; padding: 1rem;">
         <input
           type="text"
           class="word-text"
@@ -233,6 +233,18 @@
         {/if}
       </div>
       
+      <button class="recovery-button-secondary mb-4" on:click={async () => {
+        try {
+          tokenInput = await navigator.clipboard.readText();
+          tokenError = "";
+        } catch (error) {
+          tokenError = "Unable to access clipboard. Please grant clipboard permission.";
+          console.error("Clipboard error:", error);
+        }
+      }}>
+        Paste Search Token
+      </button>
+
       <button
         class="recovery-button mt-4 {!tokenInput.trim() ? 'disabled' : ''}"
         on:click={handleTokenRedeem}
@@ -550,5 +562,17 @@
   :global(.dark) .divider::before,
   :global(.dark) .divider::after {
     background: #333;
+  }
+
+  :global(body) {
+    background-color: white;
+  }
+
+  :global(.dark body) {
+    background-color: var(--bg-primary);
+  }
+
+  :global(html.dark) {
+    background-color: var(--bg-primary);
   }
 </style>
