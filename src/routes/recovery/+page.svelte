@@ -170,12 +170,12 @@
 </svelte:head>
 
 <div
-  class="min-h-screen flex flex-col text-gray-800 relative dark:bg-[var(--bg-primary)] dark:text-white"
+  class="min-h-screen flex flex-col text-gray-800 bg-white relative dark:bg-[var(--bg-primary)] dark:text-white"
 >
   <Navbar />
   
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8 dark:bg-[var(--bg-primary)]">
-    <h1 class="text-4xl font-bold mb-2 text-center">
+    <h1 class="text-4xl font-bold mb-2 text-center text-gray-800 dark:text-white">
       Recovery
     </h1>
 
@@ -217,7 +217,7 @@
     <div class="divider my-8">OR</div>
 
     <div class="token-section w-full max-w-800px flex flex-col items-center">
-      <h2 class="text-2xl font-bold mb-4 text-center dark:text-white">
+      <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">
         Redeem Search Token
       </h2>
       
@@ -265,7 +265,7 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 1.5rem;
     padding: 2rem;
-    background: #1a1a1a;
+    background: #f0f2f5;
     border-radius: 24px;
     margin-bottom: 2rem;
     width: 100%;
@@ -288,7 +288,7 @@
   }
 
   .word-text {
-    color: white;
+    color: var(--text-primary, #1f2937);
     font-size: 1.2rem;
     font-weight: 500;
     background: transparent;
@@ -311,7 +311,7 @@
     left: 2.5rem;
     right: 0;
     height: 1px;
-    background: #333;
+    background: #d1d5db;
   }
 
   .recovery-button {
@@ -498,7 +498,7 @@
     max-width: 800px;
     text-align: center;
     position: relative;
-    color: #666;
+    color: #6b7280;
   }
 
   .divider::before,
@@ -508,7 +508,7 @@
     top: 50%;
     width: 45%;
     height: 1px;
-    background: #333;
+    background: #d1d5db;
   }
 
   .divider::before {
@@ -523,7 +523,7 @@
     width: 100%;
     max-width: 800px;
     padding: 2rem;
-    background: #1a1a1a;
+    background: #f0f2f5;
     border-radius: 24px;
     display: flex;
     flex-direction: column;
@@ -574,5 +574,35 @@
 
   :global(html.dark) {
     background-color: var(--bg-primary);
+  }
+
+  /* Remove or modify these styles that might be affecting the text color */
+  :global(.dark) h1 {
+    color: #ffffff;  /* Only apply this in dark mode */
+  }
+
+  /* Add explicit light mode styles */
+  h1, h2 {
+    color: #1f2937;  /* gray-800 */
+  }
+
+  /* Keep dark mode styles */
+  :global(.dark) h1,
+  :global(.dark) h2 {
+    color: #ffffff;
+  }
+
+  /* Restore original dark mode styles */
+  :global(.dark) .underline {
+    background: #333;
+  }
+
+  :global(.dark) .divider::before,
+  :global(.dark) .divider::after {
+    background: #333;
+  }
+
+  :global(.dark) .divider {
+    color: #6b7280;
   }
 </style>
