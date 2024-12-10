@@ -7,6 +7,7 @@
   import seed from "$lib/shared/store/wallet";
   import { onMount } from "svelte";
   import { theme } from "$lib/stores/theme";
+  import Navbar from "../../components/Navbar.svelte";
 
   // Sample words (these should come from your app's logic later)
   const words = $seed.trim().split(/\s+/);
@@ -15,10 +16,6 @@
 
   function toggleBlur() {
     isBlurred = !isBlurred;
-  }
-
-  function goBack() {
-    goto("/");
   }
 
   function handleCopyPhrase() {
@@ -51,8 +48,9 @@
 </svelte:head>
 
 <div
-  class="min-h-screen flex flex-col text-gray-800 relative gradient-background"
+  class="min-h-screen flex flex-col text-gray-800 bg-white dark:bg-[var(--bg-primary)] dark:text-white"
 >
+  <Navbar />
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
     <div class="header-container">
       <h1 class="text-4xl font-bold mb-2 text-gray-800 main-heading">
@@ -86,7 +84,6 @@
             {/if}
           </svg>
         </button>
-        <button class="back-button" on:click={goBack}>×</button>
       </div>
     </div>
 
@@ -135,15 +132,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-  }
-
-  .back-button {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    cursor: pointer;
-    padding: 0 0.5rem;
-    color: var(--text-primary);
   }
 
   .visibility-toggle {
@@ -285,10 +273,6 @@
   }
 
   :global(.dark) .copy-button:hover {
-    color: #ffffff !important;
-  }
-
-  :global(.dark) .back-button {
     color: #ffffff !important;
   }
 
