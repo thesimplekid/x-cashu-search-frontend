@@ -8,6 +8,9 @@
   import { onMount } from "svelte";
   import { theme } from "$lib/stores/theme";
   import Navbar from "../../components/Navbar.svelte";
+  import { getProofs } from "$lib/shared/utils";
+  import { CashuMint, CashuWallet } from "@cashu/cashu-ts";
+  import mint_url from "$lib/shared/store/mint_url";
 
   // Sample words (these should come from your app's logic later)
   const words = $seed.trim().split(/\s+/);
@@ -21,6 +24,50 @@
   function handleCopyPhrase() {
     copyToClipboard($seed);
     showToast("Recovery phrase copied to clipboard.");
+  }
+
+  let exportedToken = "";
+  let tokenError = "";
+
+  /** @type {CashuWallet|null} */
+  let wallet = null;
+
+  // Initialize wallet instance
+  async function initializeWallet() {
+    const mint = new CashuMint($mint_url);
+    let keysets = await mint.getKeys();
+    let matchingKeyset = keysets.keysets.find((key) => key.unit === "xsr");
+    wallet = new CashuWallet(mint, {
+      unit: "xsr",
+      keys: matchingKeyset,
+      mnemonicOrSeed: $seed,
+    });
+    return wallet;
+  }
+
+  async function handleExportToken() {
+    try {
+      if (!wallet) {
+        await initializeWallet();
+      }
+
+      if (!wallet) {
+        throw new Error("Failed to initialize wallet");
+      }
+
+      const proofs = getProofs();
+      if (proofs.length === 0) {
+        tokenError = "No searches available to export";
+        return;
+      }
+
+      const token = await wallet.send(proofs);
+      exportedToken = token;
+      tokenError = "";
+    } catch (error) {
+      console.error("Token export error:", error);
+      tokenError = "Failed to export token. Please try again.";
+    }
   }
 
   onMount(() => {
@@ -52,11 +99,12 @@
 >
   <Navbar />
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
-    <div class="header-container">
-      <h1 class="text-4xl font-bold mb-2 text-gray-800 main-heading">
+    <div class="relative w-full max-w-[300px]">
+      <h1 class="text-4xl font-bold mb-2 text-center text-gray-800 dark:text-white">
         Backup
       </h1>
-      <div class="controls-container">
+
+      <div class="absolute right-0 top-1/2 -translate-y-1/2">
         <button class="visibility-toggle" on:click={toggleBlur}>
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -87,7 +135,7 @@
       </div>
     </div>
 
-    <p class="text-xl text-gray-600 mb-6">
+    <p class="text-xl text-gray-600 dark:text-[#a0aec0] mb-6">
       Save your secret recovery phrase in a secure place that only you control.
     </p>
 
@@ -101,9 +149,50 @@
       {/each}
     </div>
 
-    <button class="copy-button" on:click={handleCopyPhrase}>
+    <button class="recovery-button-secondary" on:click={handleCopyPhrase}>
       Copy Recovery Phrase
     </button>
+
+    <div class="divider my-8">OR</div>
+
+    <div class="token-section w-full max-w-800px flex flex-col items-center">
+      <h2 class="text-2xl font-bold mb-4 text-center text-gray-800 dark:text-white">
+        Export Search Token
+      </h2>
+      
+      <div class="token-input-container seed-container" style="display: block; padding: 1rem;">
+        <input
+          type="text"
+          value="FAKETOKEN"
+          class="word-text"
+          readonly
+          class:blurred={isBlurred}
+        />
+        {#if tokenError}
+          <p class="text-red-500 mt-2 text-center">{tokenError}</p>
+        {/if}
+      </div>
+      
+      <button 
+        class="recovery-button-secondary mb-4" 
+        on:click={() => {
+          if (exportedToken) {
+            copyToClipboard(exportedToken);
+            showToast("Token copied to clipboard");
+          }
+        }}
+        disabled={!exportedToken}
+      >
+        Copy Token
+      </button>
+
+      <button
+        class="recovery-button mt-4"
+        on:click={handleExportToken}
+      >
+        Export Searches as Token
+      </button>
+    </div>
   </main>
 
   <Footer />
@@ -111,19 +200,6 @@
 </div>
 
 <style>
-  .header-container {
-    position: relative;
-    margin-bottom: 2rem;
-    width: 100%;
-    max-width: 800px;
-    text-align: center;
-  }
-
-  .main-heading {
-    display: inline-block;
-    position: relative;
-  }
-
   .controls-container {
     position: absolute;
     right: 0;
@@ -277,7 +353,7 @@
   }
 
   :global(.dark) .text-gray-600 {
-    color: #d1d5db !important; /* gray-300 in Tailwind's color palette */
+    color: #a0aec0 !important;
   }
 
   :global(.dark) {
@@ -288,5 +364,159 @@
     --text-secondary: #a0aec0;
     --text-hover: #f0f0f0;
     --border-color: #333;
+  }
+
+  .token-input-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 2rem;
+    background: #f0f2f5;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .token-section {
+    margin-bottom: 2rem;
+  }
+
+  .divider {
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+    position: relative;
+    color: #6b7280;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 45%;
+    height: 1px;
+    background: #d1d5db;
+  }
+
+  .divider::before {
+    left: 0;
+  }
+
+  .divider::after {
+    right: 0;
+  }
+
+  :global(.dark) .token-input-container {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  :global(.dark) .divider::before,
+  :global(.dark) .divider::after {
+    background: #4B5563;
+  }
+
+  :global(.dark) .divider {
+    color: #6b7280;
+  }
+
+  .token-input {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+  }
+
+  .token-input:focus {
+    outline: none;
+  }
+
+  :global(.dark) .token-input {
+    color: var(--text-primary);
+  }
+
+  .word-text {
+    font-size: 1.2rem;
+    font-weight: 500;
+    background: transparent;
+    border: none;
+    width: 100%;
+  }
+
+  .word-text:focus {
+    outline: none;
+  }
+
+  :global(.dark) .token-input-container {
+    background-color: var(--bg-secondary) !important;
+  }
+
+  .recovery-button {
+    background-color: #1a1a1a;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(26, 26, 26, 0.2);
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .recovery-button-secondary {
+    background-color: transparent;
+    color: #666;
+    border: none;
+    border-radius: 9999px;
+    padding: 16px 32px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  :global(.dark) .recovery-button {
+    background-color: #2d2d2d;
+    color: white;
+  }
+
+  :global(.dark) .recovery-button-secondary {
+    color: #a0aec0;
+  }
+
+  :global(.dark) .recovery-button-secondary:hover {
+    color: #ffffff;
+  }
+
+  :global(.dark) h1,
+  :global(.dark) h2 {
+    color: #ffffff !important;
+  }
+
+  :global(.dark) .text-gray-600 {
+    color: #6b7280 !important;
+  }
+
+  h1, h2 {
+    color: #1f2937;
+  }
+
+  .text-gray-600 {
+    color: #4B5563;
+  }
+
+  :global(.dark) .text-gray-600 {
+    color: #a0aec0 !important;
+  }
+
+  :global(.dark) .underline {
+    background: #4B5563;
   }
 </style>
