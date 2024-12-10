@@ -96,7 +96,7 @@
         <div class="seed-word">
           <span class="word-number">{i + 1}</span>
           <span class="word-text" class:blurred={isBlurred}>{word}</span>
-          <div class="underline gray-300"></div>
+          <div class="underline"></div>
         </div>
       {/each}
     </div>
@@ -288,5 +288,9 @@
     --text-secondary: #a0aec0;
     --text-hover: #f0f0f0;
     --border-color: #333;
+  }
+
+  :global(.dark) .underline {
+    background: #4B5563;
   }
 </style>
