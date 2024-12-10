@@ -289,8 +289,4 @@
     --text-hover: #f0f0f0;
     --border-color: #333;
   }
-
-  :global(.dark) .underline {
-    background: #4B5563;
-  }
 </style>
