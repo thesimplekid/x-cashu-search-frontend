@@ -8,9 +8,6 @@
   import { onMount } from "svelte";
   import { theme } from "$lib/stores/theme";
   import Navbar from "../../components/Navbar.svelte";
-  import { getProofs } from "$lib/shared/utils";
-  import { CashuMint, CashuWallet } from "@cashu/cashu-ts";
-  import mint_url from "$lib/shared/store/mint_url";
 
   // Sample words (these should come from your app's logic later)
   const words = $seed.trim().split(/\s+/);
@@ -24,50 +21,6 @@
   function handleCopyPhrase() {
     copyToClipboard($seed);
     showToast("Recovery phrase copied to clipboard.");
-  }
-
-  let exportedToken = "";
-  let tokenError = "";
-
-  /** @type {CashuWallet|null} */
-  let wallet = null;
-
-  // Initialize wallet instance
-  async function initializeWallet() {
-    const mint = new CashuMint($mint_url);
-    let keysets = await mint.getKeys();
-    let matchingKeyset = keysets.keysets.find((key) => key.unit === "xsr");
-    wallet = new CashuWallet(mint, {
-      unit: "xsr",
-      keys: matchingKeyset,
-      mnemonicOrSeed: $seed,
-    });
-    return wallet;
-  }
-
-  async function handleExportToken() {
-    try {
-      if (!wallet) {
-        await initializeWallet();
-      }
-
-      if (!wallet) {
-        throw new Error("Failed to initialize wallet");
-      }
-
-      const proofs = getProofs();
-      if (proofs.length === 0) {
-        tokenError = "No searches available to export";
-        return;
-      }
-
-      const token = await wallet.send(proofs);
-      exportedToken = token;
-      tokenError = "";
-    } catch (error) {
-      console.error("Token export error:", error);
-      tokenError = "Failed to export token. Please try again.";
-    }
   }
 
   onMount(() => {
@@ -99,12 +52,12 @@
 >
   <Navbar />
   <main class="flex-grow flex flex-col justify-start items-center px-4 py-8">
-    <div class="relative w-full max-w-[300px]">
+    <div class="relative w-full max-w-[800px]">
       <h1 class="text-4xl font-bold mb-2 text-center text-gray-800 dark:text-white">
         Backup
       </h1>
 
-      <div class="absolute right-0 top-1/2 -translate-y-1/2">
+      <div class="absolute right-0 top-0">
         <button class="visibility-toggle" on:click={toggleBlur}>
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -168,29 +121,16 @@
           readonly
           class:blurred={isBlurred}
         />
-        {#if tokenError}
-          <p class="text-red-500 mt-2 text-center">{tokenError}</p>
-        {/if}
       </div>
       
       <button 
         class="recovery-button-secondary mb-4" 
         on:click={() => {
-          if (exportedToken) {
-            copyToClipboard(exportedToken);
-            showToast("Token copied to clipboard");
-          }
+          copyToClipboard("FAKETOKEN");
+          showToast("Token copied to clipboard");
         }}
-        disabled={!exportedToken}
       >
         Copy Token
-      </button>
-
-      <button
-        class="recovery-button mt-4"
-        on:click={handleExportToken}
-      >
-        Export Searches as Token
       </button>
     </div>
   </main>
